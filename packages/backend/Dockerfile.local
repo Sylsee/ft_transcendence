@@ -32,13 +32,20 @@
 #
 #CMD ["node", "dist/main"]
 
-FROM node:14-alpine
-WORKDIR /usr/src/app
-RUN npm i -g @nestjs/cli --silent
-COPY package.json .
-COPY package-lock.json .
-RUN npm install --silent
-COPY . .
+#FROM node:14-alpine
+#RUN mkdir -p /svr/app
+#WORKDIR /svr/app
+#COPY package.json .
+#COPY package-lock.json .
+#RUN npm install --silent
+#COPY . .
 # Value set in .env file.
-EXPOSE 3000
-CMD ["npm", "run", "start:debug"]
+#EXPOSE $BACKEND_PORT
+#CMD ["npm", "run", "start:debug"]
+
+FROM node:12-alpine
+
+WORKDIR /usr/src/app
+
+RUN npm i -g @nestjs/cli --silent
+CMD [ -d "node_modules" ] && npm run start || npm ci && npm run start
