@@ -1,1 +1,37 @@
 # ft_transcendence
+
+## Docker
+
+https://montacerdk.medium.com/setup-dockerize-a-react-nest-monorepo-application-7a800060bd63
+
+## Frontend
+
+```
+
+  npm start
+    Starts the development server.
+
+  npm run build
+    Bundles the app into static files for production.
+
+  npm test
+    Starts the test runner.
+
+  npm run eject
+    Removes this tool and copies build dependencies, configuration files
+    and scripts into the app directory. If you do this, you can’t go back!
+
+We suggest that you begin by typing:
+
+  cd frontend
+  npm start
+
+```
+
+
+## Backend
+
+We need nest-cli (https://github.com/nestjs/nest-cli):
+    -   `npm install -g @nestjs/cli`
+
+
