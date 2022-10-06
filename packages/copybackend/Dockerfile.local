@@ -4,16 +4,12 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm i -g @nestjs/cli --silent
-#RUN npm install glob rimraf
+RUN npm install glob rimraf
 RUN npm install --only=development
 
 COPY . .
 
-EXPOSE 3000
-
-#RUN npm run build
-CMD ["npm", "run", "start:debug"]
+RUN npm run build
 
 FROM node:12.13-alpine As production
 
