@@ -1,11 +1,11 @@
 COMPOSE_FILE	=	docker-compose.yml
 
 all:
-	docker-compose -f $(COMPOSE_FILE) up --build -d
+	docker compose -f $(COMPOSE_FILE) up --build -d
 up:
-	docker-compose -f $(COMPOSE_FILE) up -d
+	docker compose -f $(COMPOSE_FILE) up -d
 down:
-	docker-compose -f $(COMPOSE_FILE) down
+	docker compose -f $(COMPOSE_FILE) down
 
 clean: down
 
