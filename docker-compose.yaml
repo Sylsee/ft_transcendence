@@ -30,10 +30,12 @@ services:
     networks:
       - bp-network
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
-      - 9229:9229
+      - "4000:3000"
     command: "npm run start:dev"
-    
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+
 #    depends_on:
 #      - bp-pg-db
 #    links:

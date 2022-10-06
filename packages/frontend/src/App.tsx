@@ -17,7 +17,7 @@ function App() {
                     color: cyan;\
                 }\
             "}</style>
-            Ft_transcendence :)
+            Ft_transcendence :) !
             </h1>
         <a
           className="App-link"
