@@ -22,6 +22,7 @@ services:
     build:
       context: ./packages/backend
       dockerfile: Dockerfile.local
+      target: development
     restart: always
     env_file: .env
     volumes:
