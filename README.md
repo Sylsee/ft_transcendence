@@ -2,7 +2,10 @@
 
 ## Docker
 
-https://montacerdk.medium.com/setup-dockerize-a-react-nest-monorepo-application-7a800060bd63
+- https://montacerdk.medium.com/setup-dockerize-a-react-nest-monorepo-application-7a800060bd63
+- https://blog.logrocket.com/containerized-development-nestjs-docker/
+- https://www.tomray.dev/nestjs-docker-production
+- https://dev.to/erezhod/setting-up-a-nestjs-project-with-docker-for-back-end-development-30lg
 
 ## Frontend
 

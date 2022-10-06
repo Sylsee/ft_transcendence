@@ -1,0 +1,41 @@
+#FROM node:14-alpine
+#
+#RUN mkdir -p /svr/app
+#
+#WORKDIR /svr/app
+#
+#RUN npm i -g @nestjs/cli --silent
+#COPY package.json .
+#COPY package-lock.json .
+#RUN npm install --silent
+#COPY . .
+# Value set in .env file.
+#EXPOSE 4000
+#CMD ["npm", "run", "start:debug"]
+
+FROM node:12.13-alpine As development
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install --only=development
+
+COPY . .
+
+RUN npm run build
+
+FROM node:12.13-alpine as production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install --only=production
+
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist

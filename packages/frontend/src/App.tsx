@@ -17,7 +17,8 @@ function App() {
                     color: cyan;\
                 }\
             "}</style>
-            Ft_transcendence :)</h1>
+            Ft_transcendence :)
+            </h1>
         <a
           className="App-link"
           href="https://reactjs.org"
