@@ -6,7 +6,7 @@
 - https://blog.logrocket.com/containerized-development-nestjs-docker/
 - https://www.tomray.dev/nestjs-docker-production
 - https://dev.to/erezhod/setting-up-a-nestjs-project-with-docker-for-back-end-development-30lg
-
+- https://thanhpolimi.com/docker-compose-for-nestjs-project-5ee7644e8aa2
 ## Frontend
 
 ```

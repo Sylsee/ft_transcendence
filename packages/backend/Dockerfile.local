@@ -1,33 +1,44 @@
-FROM node:12.13-alpine As development
+#FROM node:12.13-alpine As development
+#
+#WORKDIR /usr/src/app
+#
+#COPY package*.json ./
+#
+#RUN npm i -g @nestjs/cli --silent
+##RUN npm install glob rimraf
+#RUN npm install
+#
+#COPY . .
+#
+#EXPOSE 3000
+#
+##RUN npm run build
+#CMD ["npm", "run", "start:debug"]
+#
+#FROM node:12.13-alpine As production
+#
+#ARG NODE_ENV=production
+#ENV NODE_ENV=${NODE_ENV}
+#
+#WORKDIR /usr/src/app
+#
+#COPY package*.json ./
+#
+#RUN npm install --only=production
+#
+#COPY . .
+#
+#COPY --from=development /usr/src/app/dist ./dist
+#
+#CMD ["node", "dist/main"]
 
+FROM node:14-alpine
 WORKDIR /usr/src/app
-
-COPY package*.json ./
-
 RUN npm i -g @nestjs/cli --silent
-#RUN npm install glob rimraf
-RUN npm install --only=development
-
+COPY package.json .
+COPY package-lock.json .
+RUN npm install --silent
 COPY . .
-
+# Value set in .env file.
 EXPOSE 3000
-
-#RUN npm run build
 CMD ["npm", "run", "start:debug"]
-
-FROM node:12.13-alpine As production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-
-RUN npm install --only=production
-
-COPY . .
-
-COPY --from=development /usr/src/app/dist ./dist
-
-CMD ["node", "dist/main"]
