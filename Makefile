@@ -7,6 +7,9 @@ up:
 down:
 	docker compose -f $(COMPOSE_FILE) down
 
+stop:
+	docker stop backend frontend pgadmin-portal bp-pg-db | xargs docker rm
+
 clean: down
 
 fclean: clean
