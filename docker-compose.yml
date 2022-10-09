@@ -22,7 +22,7 @@ services:
     build:
       context: ./packages/backend
       dockerfile: Dockerfile.local
-      target: development
+      target: "${DEPLOYMENT_ENV}"
     command: "npm run start:${DEPLOYMENT_ENV}"
     env_file: .env
     volumes:
