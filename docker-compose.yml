@@ -6,57 +6,37 @@ services:
       context: ./packages/frontend
       dockerfile: Dockerfile.local
       target: development
-    restart: always
+    command: "npm start"
     env_file: .env
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
       - "./packages/frontend/src:/usr/src/app/src"
     networks:
       - bp-network
-    command: "npm start"
     environment:
       - CHOKIDAR_USEPOLLING=true
+    restart: always
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
   backend:
     container_name: backend
     build:
       context: ./packages/backend
       dockerfile: Dockerfile.local
       target: development
-    restart: always
+    command: "npm run start:${DEPLOYMENT_ENV}"
     env_file: .env
     volumes:
       - ./packages/backend/:/usr/src/app
-      #- /svr/app/node_modules
+      - /usr/src/app/node_modules
     networks:
       - bp-network
+    restart: always
     ports:
       - "${BACKEND_PORT}:3000"
     depends_on:
       - bp-pg-db
     links:
       - bp-pg-db
-
-  #backend:
-  #  container_name: backend
-  #  build:
-  #    context: ./packages/backend
-  #    dockerfile: Dockerfile.local
-  #   # target: development
-  #  restart: always
-  #  env_file: .env
-  #  volumes:
-  #    - ./packages/backend:/usr/src/app
-  #    - /usr/src/app/node_modules
-  #  networks:
-  #    - bp-network
-  #  ports:
-  #    - "${BACKEND_PORT}:3000"
-  #  command: "npm run start:dev"
-  #  depends_on:
-  #    - bp-pg-db
-  #  links:
-  #    - bp-pg-db
   bp-pg-db:
     image: postgres:12-alpine
     restart: always
