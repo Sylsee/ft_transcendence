@@ -1,4 +1,15 @@
-FROM node:12.19.0-alpine3.9 as dev
+FROM node:14-alpine as dev
+
+WORKDIR /usr/src/app
+RUN npm i -g @nestjs/cli --silent
+COPY package*.json .
+
+RUN npm install --silent
+COPY . .
+# Value set in .env file.
+CMD ["npm", "run", "start:debug"]
+
+FROM node:12.19.0-alpine3.9 as deve
 
 WORKDIR /usr/src/app
 

@@ -1,12 +1,16 @@
 COMPOSE_FILE	=	docker-compose.yml
 DOCKER			=	docker compose # docker-compose
-OPTIONS			=	-d
+OPTIONS			=	#-d
 
 _RESET			=	\e[0m
 _RED			=	\e[31m
 _GREEN			=	\e[32m
 _YELLOW			=	\e[33m
 _CYAN			=	\e[36m
+
+
+all:
+	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS)
 
 help: SHELL:=/bin/bash
 help:	
@@ -28,9 +32,6 @@ help:
 	@printf "\t%b\n" 	"- You can use the $(_GREEN)COMPOSE_FILE$(_RESET) variable to specify the docker-compose file to use."
 	@printf "\t%b\n" 	"- You can use the $(_GREEN)DOCKER$(_RESET) variable to specify the docker-compose command to use."
 	@printf "\t%b\n" 	"- You can use the $(_GREEN)OPTIONS$(_RESET) variable to specify the docker-compose options to use."
-
-all:
-	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS)
 
 up:
 	$(DOCKER) -f $(COMPOSE_FILE) up $(OPTIONS)
