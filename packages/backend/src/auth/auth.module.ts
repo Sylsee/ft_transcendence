@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
+import { StrategyModule } from './strategy/strategy.module';
 
-
-@Module({})
+@Module({
+  imports: [StrategyModule],
+})
 export class AuthModule {}
