@@ -44,6 +44,13 @@ clean: down
 fclean: clean
 	$(DOCKER) -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
+dev:
+	npm install
+	npm install ./packages/backend
+
+clean-dev:
+	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./node_modules
+
 re:	clean all
 
 .PHONY: up down clean fclean re all
