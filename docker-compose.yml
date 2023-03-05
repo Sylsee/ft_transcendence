@@ -1,77 +1,75 @@
 version: "3.9"
 services:
-  #frontend:
-  #  container_name: frontend
-  #  build:
-  #    context: ./packages/frontend
-  #    dockerfile: Dockerfile.local
-  #    target: development
-  #  command: "npm start"
-  #  env_file: .env
-  #  volumes:
-  #    - "./packages/frontend/src:/usr/src/app/src"
-  #  networks:
-  #    - bp-network
-  #  environment:
-  #    - CHOKIDAR_USEPOLLING=true
-  #  restart: always
-  #  ports:
-  #    - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+  frontend:
+    container_name: frontend
+    build:
+      context: ./packages/frontend
+      target: "${DEPLOYMENT_ENV}"
+    command: "npm start"
+    env_file: .env
+    volumes:
+      - "./packages/frontend/src:/usr/src/app/src"
+    networks:
+      - bp-network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    restart: always
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
   backend:
     container_name: backend
     build:
       context: ./packages/backend
-      dockerfile: Dockerfile.local
       target: "${DEPLOYMENT_ENV}"
-    command: "npm run start:${DEPLOYMENT_ENV}"
+    command: "npm run start:dev"
     env_file: .env
     volumes:
       - /usr/src/app/node_modules
       - ./packages/backend/:/usr/src/app
+    restart: always
     networks:
       - bp-network
     restart: always
     ports:
       - "${BACKEND_PORT}:3000"
-    
-  #  depends_on:
-  #    - bp-pg-db
-  #  links:
-  #    - bp-pg-db
-  #bp-pg-db:
-  #  image: postgres:12-alpine
-  #  restart: always
-  #  container_name: bp-pg-db
-  #  env_file:
-  #    - .env
-  #  environment:
-  #    POSTGRES_PASSWORD: ${DB_PASSWORD}
-  #    PGDATA: /var/lib/postgresql/data
-  #    POSTGRES_USER: ${DB_USER}
-  #    POSTGRES_DB: ${DB_NAME}
-  #  ports:
-  #    - "${DB_PORT}:${DB_PORT}"
-  #  volumes:
-  #    - pgdata:/var/lib/postgresql/data
-  #  networks:
-  #    - bp-network
-  #pgadmin-portal:
-  #  image: dpage/pgadmin4
-  #  restart: always
-  #  container_name: pgadmin-portal
-  #  env_file:
-  #    - .env
-  #  environment:
-  #    PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
-  #    PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
-  #  volumes:
-  #    - pgadmin:/root/.pgadmin
-  #  ports:
-  #    - "${PGADMIN_PORT}:80"
-  #  depends_on:
-  #    - bp-pg-db
-  #  networks:
-  #    - bp-network
+    depends_on:
+      - bp-pg-db
+    links:
+      - bp-pg-db
+  bp-pg-db:
+    image: postgres:12-alpine
+    restart: always
+    container_name: bp-pg-db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - bp-network
+  pgadmin-portal:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: pgadmin-portal
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_PASSWORD: "${PGADMIN_DEFAULT_PASSWORD}"
+      PGADMIN_DEFAULT_EMAIL: "${PGADMIN_DEFAULT_EMAIL}"
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - bp-pg-db
+    networks:
+      - bp-network
 volumes:
   pgdata:
   pgadmin:
