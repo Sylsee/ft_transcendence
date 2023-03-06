@@ -1,12 +1,11 @@
 import React from "react";
+import "./index.css";
 
 function App() {
+  const message = "Hello World !";
+
   return (
-    <>
-      <div className="App">
-        <h1 className="title">Ft_transcendence :) !</h1>
-      </div>
-    </>
+    <h1 className="text-4xl font-bold underline text-red-600">{message}</h1>
   );
 }
 
