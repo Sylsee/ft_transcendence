@@ -22,7 +22,7 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
         response_type: 'code',
       })}`,
       tokenURL: 'https://api.intra.42.fr/oauth/token',
-      clientID: process.env.FT_CLIENT_ID;
+      clientID: process.env.FT_CLIENT_ID,
       clientSecret: process.env.FT_CLIENT_SECRET,
       callbackURL: callbackURL,
       scope: 'public',
