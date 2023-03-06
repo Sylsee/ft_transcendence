@@ -7,21 +7,21 @@ export type User = any;
 export class UsersService {
   private users = [];
 
-  async find(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async find(id: string): Promise<User | undefined> {
+    return this.users.find((user) => user.id === id);
   }
 
-  async create(user: User): Promise<User> {
-    this.users.push(user);
+  async create(user: User, accessToken: string): Promise<User> {
+    this.users.push(user, accessToken);
     return user;
   }
 
-  async delete(username: string): Promise<void> {
-    const index = this.users.findIndex((user) => user.username === username);
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex((user) => user.id === id);
     this.users.splice(index, 1);
   }
 
-  async log(): Promise<void> {
-    console.log(this.users);
+  async log() {
+    return this.users;
   }
 }

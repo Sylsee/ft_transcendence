@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
   #frontend:
   #  container_name: frontend
@@ -17,6 +18,7 @@ services:
   #  restart: always
   #  ports:
   #    - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+
   backend:
     container_name: backend
     build:
@@ -32,12 +34,12 @@ services:
       - bp-network
     restart: always
     ports:
-      - "${BACKEND_PORT}:3000"
-    
+      - "3000:3000"
   #  depends_on:
   #    - bp-pg-db
   #  links:
   #    - bp-pg-db
+
   #bp-pg-db:
   #  image: postgres:12-alpine
   #  restart: always
@@ -55,6 +57,7 @@ services:
   #    - pgdata:/var/lib/postgresql/data
   #  networks:
   #    - bp-network
+
   #pgadmin-portal:
   #  image: dpage/pgadmin4
   #  restart: always
@@ -72,10 +75,12 @@ services:
   #    - bp-pg-db
   #  networks:
   #    - bp-network
+
 volumes:
   pgdata:
   pgadmin:
   node_modules:
+
 networks:
   bp-network:
     driver: bridge

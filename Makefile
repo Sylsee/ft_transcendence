@@ -45,13 +45,17 @@ fclean: clean
 	$(DOCKER) -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
 dev:
-	npm install
-	npm install ./packages/backend
+	npm i packages/backend/
+	npm i
 
 clean-dev:
-	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./node_modules
+	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage ./node_modules
 
-re:	clean all
+clean-docker:
+	docker system prune
 
-.PHONY: up down clean fclean re all
+r: fclean clean-dev clean-docker dev all
 
+re:	fclean clean-docker all
+
+.PHONY: up down clean fclean re all help dev clean-dev
