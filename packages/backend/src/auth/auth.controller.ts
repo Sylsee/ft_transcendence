@@ -1,37 +1,44 @@
-import { Controller, Get, Request, UseGuards, Logger } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Req,
+  UseGuards,
+  Logger,
+  Res,
+  Request,
+} from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
+import { OAuthGuard } from './guard/oauth.guard';
 import { AuthService } from './auth.service';
-import { UsersService } from '../users/users.service';
-import { OauthAuthGuard } from './guard/oauth.guard';
-import { HttpService } from '@nestjs/axios';
+import { JwtGuard } from './guard/jwt.guard';
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(
-    private authService: AuthService,
-    private readonly usersService: UsersService,
-    private readonly httpService: HttpService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
-  @UseGuards(OauthAuthGuard)
-  @Get('login')
-  login(@Request() req) {
-    this.logger.log('login');
+  @Get()
+  @UseGuards(OAuthGuard)
+  // @ApiOperation({ summary: 'Redirect to 42 authentication api' })
+  // @ApiOAuth2(['public'])
+  async login() {}
+
+  @Get('42')
+  @UseGuards(OAuthGuard)
+  // @ApiOperation({ summary: 'Redirection of 42 authentication' })
+  // @ApiResponse({ status: 302, description: 'Redirect to 42 api' })
+  async redirect(@Req() req, @Res() res: Response) {
+    this.logger.debug('TODO: ftAuth42');
     return this.authService.login(req.user);
   }
 
-  @Get('42')
-  auth(@Request() req) {
-    // console.log(req.user);
-    this.logger.log(req.user);
-    return this.usersService.log();
-  }
-
-  // @UseGuards(OauthAuthGuard)
   @Get('profile')
-  getProfile(@Request() req) {
+  @UseGuards(JwtGuard)
+  getProfile(@Req() req) {
+    this.logger.debug('getProfile', req.user);
     return req.user;
   }
 }

@@ -45,7 +45,8 @@ fclean: clean
 	$(DOCKER) -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
 dev:
-	npm i packages/backend/
+	npm i ./packages/backend/ --prefix ./packages/backend/
+	# npm i ./packages/frontend/ --prefix ./packages/frontend/
 	npm i
 
 clean-dev:
@@ -56,6 +57,6 @@ clean-docker:
 
 r: fclean clean-dev clean-docker dev all
 
-re:	fclean clean-docker all
+re: fclean all
 
 .PHONY: up down clean fclean re all help dev clean-dev

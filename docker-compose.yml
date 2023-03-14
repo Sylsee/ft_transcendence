@@ -11,14 +11,46 @@ services:
       - ./packages/backend/:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - ${BACKEND_PORT}:3000
-      - 9229:9229
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+      - 9229:9229 # for NodeJS debugging
     networks:
-      - bp-network
-    # depends_on:
-    #   - bp-pg-db
-    # links:
-    #   - bp-pg-db
+      - transcendence-network
+    depends_on:
+      - db
+    links:
+      - db
+    restart: always
+
+  db:
+    image: postgres:12-alpine
+    container_name: postgres-db
+    env_file:
+      - .env
+    environment:
+      PGDATA: "/var/lib/postgresql/data"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    networks:
+      - transcendence-network
+    restart: always
+
+  pgadmin-portal:
+    image: dpage/pgadmin4
+    container_name: pgadmin-portal
+    env_file:
+      - .env
+    environment:
+      GUNICORN_ACCESS_LOGFILE: "/dev/null"
+    volumes:
+      - pgadmin:/root/.pgadmin
+    ports:
+      - ${PGADMIN_PORT}:80
+    networks:
+      - transcendence-network
+    depends_on:
+      - db
     restart: always
 
   # frontend:
@@ -32,45 +64,9 @@ services:
   #   volumes:
   #     - ./packages/frontend/src:/usr/src/app/src
   #   ports:
-  #     - ${FRONTEND_PORT}:${FRONTEND_PORT}
+  #     - ${BACKEND_PORT}:${BACKEND_PORT}
   #   networks:
-  #     - bp-network
-  #   restart: always
-
-  # bp-pg-db:
-  #   image: postgres:12-alpine
-  #   container_name: bp-pg-db
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
-  #     PGDATA: /var/lib/postgresql/data
-  #     POSTGRES_USER: ${DB_USER}
-  #     POSTGRES_DB: ${DB_NAME}
-  #   volumes:
-  #     - pgdata:/var/lib/postgresql/data
-  #   ports:
-  #     - ${DB_PORT}:${DB_PORT}
-  #   networks:
-  #     - bp-network
-  #   restart: always
-
-  # pgadmin-portal:
-  #   image: dpage/pgadmin4
-  #   container_name: pgadmin-portal
-  #   env_file:
-  #     - .env
-  #   environment:
-  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-  #   volumes:
-  #     - pgadmin:/root/.pgadmin
-  #   ports:
-  #     - ${PGADMIN_PORT}:80
-  #   networks:
-  #     - bp-network
-  #   depends_on:
-  #     - bp-pg-db
+  #     - transcendence-network
   #   restart: always
 
 volumes:
@@ -79,5 +75,5 @@ volumes:
   node_modules:
 
 networks:
-  bp-network:
+  transcendence-network:
     driver: bridge
