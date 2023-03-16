@@ -12,6 +12,9 @@ _CYAN			=	\e[36m
 all:
 	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS)
 
+front:
+	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS) frontend
+
 help: SHELL:=/bin/bash
 help:	
 	@printf "%s\n" 		"Usage: make [target]"

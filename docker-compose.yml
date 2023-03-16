@@ -53,21 +53,21 @@ services:
       - db
     restart: always
 
-  # frontend:
-  #   container_name: frontend
-  #   env_file: .env
-  #   build:
-  #     context: ./packages/frontend
-  #     target: ${DEPLOYMENT_ENV}
-  #   environment:
-  #     - CHOKIDAR_USEPOLLING=true
-  #   volumes:
-  #     - ./packages/frontend/src:/usr/src/app/src
-  #   ports:
-  #     - ${BACKEND_PORT}:${BACKEND_PORT}
-  #   networks:
-  #     - transcendence-network
-  #   restart: always
+  frontend:
+    container_name: frontend
+    env_file: .env
+    build:
+      context: ./packages/frontend
+      target: ${DEPLOYMENT_ENV}
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./packages/frontend/src:/usr/src/app/src
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    networks:
+      - transcendence-network
+    restart: always
 
 volumes:
   pgdata:
