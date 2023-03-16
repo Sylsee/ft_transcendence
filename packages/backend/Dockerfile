@@ -1,11 +1,17 @@
 # Build the app for development
-FROM node:14-alpine as dev
+FROM node:14-alpine as development
 
 # Create app directory
 WORKDIR /usr/src/app
 
 # Install NestJS CLI
 RUN npm i -g @nestjs/cli --silent
+
+# Create a non-root user
+RUN chown -R node:node /usr/src/app
+
+# Don't use root user
+USER node
 
 # Install app dependencies
 COPY package*.json ./
@@ -14,9 +20,6 @@ RUN npm i
 # Copy app source
 COPY . .
 
-# Don't use root user
-USER node
-
 # Expose port
 EXPOSE ${BACKEND_PORT}
 
@@ -24,7 +27,7 @@ EXPOSE ${BACKEND_PORT}
 CMD [ "npm", "run", "start:dev" ]
 
 # Build the app for production
-FROM node:14-alpine as prod
+FROM node:14-alpine as production
 
 # Create app directory
 WORKDIR /usr/src/app
