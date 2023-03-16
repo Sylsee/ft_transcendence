@@ -4,7 +4,7 @@ import { Header } from "../Header/Header";
 
 const HeaderWrapper: React.FC = () => {
 	return (
-		<div className="h-full bg-gradient-custom">
+		<div className="h-full flex flex-col bg-gradient-custom">
 			<Header />
 			<div className="h-[95%]">
 				<Outlet />
