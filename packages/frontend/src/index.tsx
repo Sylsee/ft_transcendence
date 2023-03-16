@@ -3,18 +3,9 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ErrorPage } from "./pages/ErrorPage/ErrorPage";
 import { Provider } from "react-redux";
 import { store } from "./store";
-
-const router = createBrowserRouter([
-	{
-		path: "/",
-		element: <App />,
-		errorElement: <ErrorPage />,
-	},
-]);
+import { ThemeProvider } from "@material-tailwind/react";
 
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
@@ -23,7 +14,9 @@ const root = ReactDOM.createRoot(
 root.render(
 	<React.StrictMode>
 		<Provider store={store}>
-			<RouterProvider router={router} />
+			<ThemeProvider>
+				<App />
+			</ThemeProvider>
 		</Provider>
 	</React.StrictMode>
 );

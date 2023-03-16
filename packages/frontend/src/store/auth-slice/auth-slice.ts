@@ -1,11 +1,5 @@
-// create a auth slice in the store
-
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface AuthState {
-	isAuth: boolean;
-	token: string | null;
-}
+import { AuthState } from "../store-types";
 
 const initialState: AuthState = {
 	isAuth: false,
