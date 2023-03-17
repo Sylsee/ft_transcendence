@@ -1,16 +1,19 @@
-import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
 
 @Injectable()
-export class JwtGuard extends AuthGuard('jwt') {
-  private readonly logger = new Logger(JwtGuard.name);
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  private readonly logger = new Logger(JwtAuthGuard.name);
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    this.logger.debug('TODO: JWT Guard');
+  handleRequest(err, user, info) {
+    this.logger.debug('Handle JWT request');
 
-    return true;
+    if (err || !user) {
+      this.logger.warn('Failed to validate JWT user', info);
+      throw err || new UnauthorizedException();
+    }
+
+    this.logger.log(`JWT user with ID: ${user.id} validated`);
+    return user;
   }
 }

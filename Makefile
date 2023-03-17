@@ -53,7 +53,9 @@ dev:
 	npm i
 
 clean-dev:
-	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage ./node_modules
+	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage
+	rm -rf ./packages/frontend/node_modules ./packages/frontend/dist ./packages/frontend/coverage
+	rm -rf ./node_modules
 
 clean-docker:
 	docker system prune
