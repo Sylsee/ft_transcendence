@@ -16,18 +16,19 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(user): Promise<User> {
-    this.logger.debug('Login', user);
+  login(user) {
+    this.logger.debug(`Processing login request for user with ID: ${user.id}`);
 
-    const payload = { username: user.profile.login, sub: user.profile.id };
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.profile.id,
-        login: user.profile.login,
-        avatar: user.profile.image.link,
-      },
+    const payload = { sub: user.id, username: user.login };
+    const token = this.jwtService.sign(payload);
+    const responseUser = {
+      id: user.id,
+      login: user.login,
+      avatar: user.avatar,
     };
+
+    this.logger.debug(`Login request processed for user with ID: ${user.id}`);
+    return { token, user: responseUser };
   }
 
   async validateOAuthUser(
@@ -35,23 +36,19 @@ export class AuthService {
     refreshToken: string,
     profile: any,
   ): Promise<User | undefined> {
-    this.logger.debug('Validate OAuth User');
+    this.logger.debug('Validating OAuth User');
 
     try {
-      return this.usersService.updateOrCreateOAuthUser(
+      const user = await this.usersService.updateOrCreateOAuthUser(
         accessToken,
         refreshToken,
         profile,
       );
+      this.logger.debug(`OAuth user with ID: ${user.id} validated`);
+      return user;
     } catch (error) {
-      this.logger.error('Failed to validate OAuth user', error.stack);
+      this.logger.warn('Failed to validate OAuth user', error.stack);
       throw new InternalServerErrorException();
     }
-  }
-
-  async debug(userId: number): Promise<any> {
-    this.logger.debug(
-      `AuthService debug user: ${this.usersService.debug(userId)}`,
-    );
   }
 }
