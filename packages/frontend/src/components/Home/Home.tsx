@@ -1,7 +1,4 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
-import { Button } from "@material-tailwind/react";
-import logo from "../../assets/icons/42_logo.svg";
 import { logo42 } from "../../assets/icons/42_logo";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store-types";
@@ -12,6 +9,7 @@ const Home: React.FC = () => {
 	const dispatch = useDispatch();
 
 	const login = () => {
+		if (isAuth) return;
 		dispatch(authenticate({ token: "TOKEN" }));
 	};
 
