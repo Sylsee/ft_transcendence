@@ -1,4 +1,5 @@
-import { Controller, Get, Req, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards, Logger } from '@nestjs/common';
+import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 
 import { OAuthGuard } from './guard/oauth.guard';
@@ -18,10 +19,19 @@ export class AuthController {
 
   @Get('login')
   @UseGuards(OAuthGuard)
-  async login(@Req() req) {
+  async login(@Req() req, @Res() res: Response) {
     const { token, user } = this.authService.login(req.user);
+    const frontend = 'localhost:4000';
+
     this.logger.log(`User ID: ${user.id} successfully logged in`);
-    return { token, user };
+    res.cookie('jwt', token, {
+      httpOnly: false, // true -> only in production
+      secure: false, // true -> only in production
+      //domain: 'frontend', -> only in production
+      path: '/',
+    });
+
+    res.redirect(`http://${frontend}/callback`);
   }
 
   @Get('profile')

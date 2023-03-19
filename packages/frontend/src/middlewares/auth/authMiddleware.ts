@@ -4,7 +4,12 @@ import {
 	setToken,
 } from "../../store/auth-slice/auth-slice";
 import { RootState } from "../../store/store-types";
-import { Middleware } from "@reduxjs/toolkit";
+import {
+	AnyAction,
+	Middleware,
+	MiddlewareAPI,
+	Dispatch,
+} from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 
@@ -15,30 +20,40 @@ interface DecodedToken {
 	exp: number;
 }
 
+const actionHandlers: Record<
+	string,
+	(
+		store: MiddlewareAPI<Dispatch<AnyAction>, RootState>,
+		next: Dispatch<AnyAction>,
+		action: AnyAction
+	) => void
+> = {
+	[authenticate.type]: (store, next, action) => {
+		try {
+			const cookie = Cookies.get("jwt");
+			if (cookie) {
+				const token = jwt_decode(cookie) as DecodedToken;
+
+				if (new Date() >= new Date(token.exp * 1000))
+					return store.dispatch(logout());
+				else store.dispatch(setToken({ token: cookie }));
+			} else return store.dispatch(logout());
+		} catch (error) {
+			return store.dispatch(logout());
+		}
+		return next(action);
+	},
+	[logout.type]: (store, next, action) => {
+		Cookies.remove("jwt");
+		return next(action);
+	},
+};
 const authenticateMiddleware: Middleware<{}, RootState> =
 	(store) => (next) => async (action) => {
-		if (action.type === authenticate.type) {
-			try {
-				const cookie = Cookies.get("jwt");
-				if (cookie) {
-					const token = jwt_decode(cookie) as DecodedToken;
-					console.log(token);
+		const handler = actionHandlers[action.type];
 
-					if (new Date() >= new Date(token.exp * 1000)) {
-						store.dispatch(logout());
-					} else store.dispatch(setToken({ token: cookie }));
-				} else store.dispatch(logout());
-			} catch (error) {
-				store.dispatch(logout());
-			}
-			//const toke
-		} else if (action.type === logout.type) {
-			Cookies.remove("jwt");
-			console.log("YO");
-		}
-
-		// Passez l'action au middleware suivant ou au reducer
-		return next(action);
+		if (handler) handler(store, next, action);
+		else next(action);
 	};
 
 export default authenticateMiddleware;

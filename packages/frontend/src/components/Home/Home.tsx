@@ -3,6 +3,9 @@ import { logo42 } from "../../assets/icons/42_logo";
 import { RootState } from "../../store/store-types";
 import { useSelector } from "react-redux";
 import { BACKEND_URL } from "../../config";
+import { IconButton } from "../IconButton/IconButton";
+import { pong_logo } from "../../assets/icons/pong_logo";
+import { Link } from "react-router-dom";
 
 const Home: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
@@ -15,15 +18,17 @@ const Home: React.FC = () => {
 
 	return (
 		<div className="h-full flex flex-col   items-center justify-center">
-			<button
-				onClick={login}
-				className="p-2 rounded-lg border-2 border-black  flex items-center gap-3 opacity-70 hover:opacity-100"
-			>
-				<div className="h-7 w-7">{logo42()}</div>
-				<p className="text-white">Login</p>
-			</button>
+			{!isAuth && (
+				<IconButton name="Login" onClick={login} logo={logo42()} />
+			)}
+			{isAuth && (
+				<Link to="/game">
+					<IconButton name="Play" logo={pong_logo()} />
+				</Link>
+			)}
 		</div>
 	);
+	return <div></div>;
 };
 
 export { Home };
