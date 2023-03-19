@@ -9,7 +9,15 @@ const authenticateMiddleware: Middleware<{}, RootState> =
 		if (action.type === authenticate.type) {
 			console.log("Authenticate middleware triggered");
 			console.log(BACKEND_URL);
+
 			// Faites ici ce que vous voulez avec l'action authenticate
+
+			try {
+				//	const api = await authenticateUser();
+				//	console.log(api);
+			} catch (error) {
+				console.log(error);
+			}
 		}
 
 		// Passez l'action au middleware suivant ou au reducer

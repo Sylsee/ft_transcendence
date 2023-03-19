@@ -1,16 +1,19 @@
 import React from "react";
 import { logo42 } from "../../assets/icons/42_logo";
-import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store-types";
-import { authenticate } from "../../store/auth-slice/auth-slice";
+import { authenticateUser } from "../../api/auth/authRequests";
+import { useSelector } from "react-redux";
+import { BACKEND_URL } from "../../config";
 
 const Home: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-	const dispatch = useDispatch();
+	//const dispatch = useDispatch();
 
-	const login = () => {
+	const login = async () => {
 		if (isAuth) return;
-		dispatch(authenticate({ token: "TOKEN" }));
+
+		window.location.href = `${BACKEND_URL}/auth/login`;
+		//		dispatch(authenticate({ token: "TOKEN" }));
 	};
 
 	return (
