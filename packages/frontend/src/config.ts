@@ -1,3 +1,3 @@
-const BAKCEND_URL: string = "http://localhost:4000";
+const BACKEND_URL: string = `http://localhost:3000`;
 
-export { BAKCEND_URL };
+export { BACKEND_URL };
