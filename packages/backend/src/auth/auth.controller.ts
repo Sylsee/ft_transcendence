@@ -21,16 +21,19 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   async login(@Req() req, @Res() res: Response) {
     const { token, user } = this.authService.login(req.user);
-    const frontend = 'localhost:4000';
+    const frontend : string = 'localhost:4000';
 
     this.logger.log(`User ID: ${user.id} successfully logged in`);
     res.cookie('jwt', token, {
-      httpOnly: false, // true -> only in production
+      httpOnly: false,
       secure: false, // true -> only in production
       //domain: 'frontend', -> only in production
       path: '/',
     });
 
+    // need to add query params to redirect when it's a new user
+    // if (user.isNew) {
+    //    res.redirect(xxxxx?new=true);
     res.redirect(`http://${frontend}/callback`);
   }
 

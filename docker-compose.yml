@@ -61,12 +61,12 @@ services:
             target: ${NODE_ENV}
         environment:
             - CHOKIDAR_USEPOLLING=true
-            - WDS_SOCKET_PORT=4000
-            - PORT=4000
+            - WDS_SOCKET_PORT=${FRONTEND_PORT}
+            - PORT=${FRONTEND_PORT}
         volumes:
             - ./packages/frontend/src:/usr/src/app/src
         ports:
-            - "4000:4000"
+            - "${FRONTEND_PORT}:${FRONTEND_PORT}"
         networks:
             - transcendence-network
         restart: always
