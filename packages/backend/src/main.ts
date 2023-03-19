@@ -17,11 +17,11 @@ async function bootstrap() {
   const logger = new Logger();
   const configService = app.get(ConfigService);
 
-  // Configure CORS (see https://docs.nestjs.com/security/cors)
-  // app.enableCors({
-  // origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4000',
-  // credentials: true,
-  // });
+// //Configure CORS (see https://docs.nestjs.com/security/cors)
+// app.enableCors({
+// origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4000',
+// credentials: true,
+// });
 
   // Use helmet (see https://docs.nestjs.com/security/helmet)
   app.use(helmet());
