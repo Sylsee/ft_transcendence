@@ -1,23 +1,40 @@
-import { authenticate } from "../../store/auth-slice/auth-slice";
+import {
+	authenticate,
+	logout,
+	setToken,
+} from "../../store/auth-slice/auth-slice";
 import { RootState } from "../../store/store-types";
 import { Middleware } from "@reduxjs/toolkit";
-import { BACKEND_URL } from "../../config";
+import Cookies from "js-cookie";
+import jwt_decode from "jwt-decode";
+
+interface DecodedToken {
+	sub: string;
+	name: string;
+	iat: number;
+	exp: number;
+}
 
 const authenticateMiddleware: Middleware<{}, RootState> =
 	(store) => (next) => async (action) => {
-		// Votre logique personnalisée pour l'action authenticate
 		if (action.type === authenticate.type) {
-			console.log("Authenticate middleware triggered");
-			console.log(BACKEND_URL);
-
-			// Faites ici ce que vous voulez avec l'action authenticate
-
 			try {
-				//	const api = await authenticateUser();
-				//	console.log(api);
+				const cookie = Cookies.get("jwt");
+				if (cookie) {
+					const token = jwt_decode(cookie) as DecodedToken;
+					console.log(token);
+
+					if (new Date() >= new Date(token.exp * 1000)) {
+						store.dispatch(logout());
+					} else store.dispatch(setToken({ token: cookie }));
+				} else store.dispatch(logout());
 			} catch (error) {
-				console.log(error);
+				store.dispatch(logout());
 			}
+			//const toke
+		} else if (action.type === logout.type) {
+			Cookies.remove("jwt");
+			console.log("YO");
 		}
 
 		// Passez l'action au middleware suivant ou au reducer

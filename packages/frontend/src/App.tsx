@@ -21,6 +21,11 @@ const router = createBrowserRouter([
 			{
 				path: "/callback",
 				element: <Callback />,
+				loader: async () => {
+					console.log("loading");
+
+					return null;
+				},
 			},
 			{
 				element: <ProtectedRoute />,
