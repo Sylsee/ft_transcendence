@@ -6,6 +6,7 @@ import { HeaderWrapper } from "./components/HeaderWrapper/HeaderWrapper";
 import "./index.css";
 import { ErrorPage } from "./pages/ErrorPage/ErrorPage";
 import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
+import { Callback } from "./components/Callback/Callback";
 
 const router = createBrowserRouter([
 	{
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
 			{
 				path: "/",
 				element: <Home />,
+			},
+			{
+				path: "/callback",
+				element: <Callback />,
 			},
 			{
 				element: <ProtectedRoute />,
