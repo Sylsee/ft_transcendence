@@ -3,7 +3,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as passport from 'passport';
 import * as session from 'express-session';
 import helmet from 'helmet';
-import { Logger } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -18,13 +18,19 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Configure CORS (see https://docs.nestjs.com/security/cors)
-  // app.enableCors({
-  // origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4000',
-  // credentials: true,
-  // });
+  app.enableCors({
+    credentials: true,
+    origin:
+      configService.get<string>('NODE_ENV') === 'production'
+        ? configService.get<string>('APP_DOMAIN')
+        : true,
+  });
 
   // Use helmet (see https://docs.nestjs.com/security/helmet)
   app.use(helmet());
+
+  // Use global validation pipe (see https://docs.nestjs.com/techniques/validation)
+  app.useGlobalPipes(new ValidationPipe());
 
   // Configure express-session middleware (see https://docs.nestjs.com/techniques/session)
   app.use(
@@ -49,8 +55,9 @@ async function bootstrap() {
 
   // Configure Swagger (see https://docs.nestjs.com/openapi/introduction)
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('Transcendence API')
-    .setVersion('0.5')
+    .setTitle('Transcendence API documentation')
+    .setVersion('1.0')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);

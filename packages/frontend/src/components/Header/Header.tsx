@@ -3,12 +3,20 @@ import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeaderLink } from "./HeaderLink/HeaderLink";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store-types";
+import { logout } from "../../store/auth-slice/auth-slice";
+import { HeaderButton } from "./HeaderButton/HeaderButton";
 
 const Header: React.FC = () => {
 	const [navbarState, setNavbarState] = useState(false);
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
+	const dispatch = useDispatch();
+
+	const logoutHandler = () => {
+		dispatch(logout());
+		console.log("truc");
+	};
 
 	return (
 		<nav className="min-h-[5%] relative flex flex-wrap items-center justify-between px-2 py-3 bg-{2E4F4F} lg:px-4 lg:py-4">
@@ -41,7 +49,10 @@ const Header: React.FC = () => {
 						<ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
 							<HeaderLink name="Chat" link="/chat" />
 							<HeaderLink name="Profile" link="/user/1" />
-							<HeaderLink name="Logout" link="/logout" />
+							<HeaderButton
+								onClick={logoutHandler}
+								name="Logout"
+							/>
 						</ul>
 					)}
 				</div>
