@@ -6,7 +6,7 @@ services:
     env_file: .env
     build:
       context: packages/backend
-      target: ${DEPLOYMENT_ENV}
+      target: ${NODE_ENV}
     volumes:
       - ./packages/backend/:/usr/src/app
       - /usr/src/app/node_modules
@@ -58,7 +58,7 @@ services:
   #   env_file: .env
   #   build:
   #     context: ./packages/frontend
-  #     target: ${DEPLOYMENT_ENV}
+  #     target: ${NODE_ENV}
   #   environment:
   #     - CHOKIDAR_USEPOLLING=true
   #   volumes:

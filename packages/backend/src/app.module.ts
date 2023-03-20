@@ -1,29 +1,46 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'joi';
 
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './to delete users/users.module';
-// import { UserModule } from './user/user.module';
+import { AuthModule } from 'src/auth/auth.module';
+import { UsersModule } from 'src/to delete users/users.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      envFilePath: `.env.${process.env.NODE_ENV}`,
+      isGlobal: true,
+      expandVariables: true,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production')
+          .default('development'),
+
+        PORT: Joi.number().default(3000),
+        POSTGRES_PORT: Joi.number().default(5432),
+        FRONTEND_PORT: Joi.number().required(),
+        APP_DOMAIN: Joi.string().required(),
+
+        POSTGRES_HOST: Joi.string().required(),
+        POSTGRES_DB: Joi.string().required(),
+        POSTGRES_USER: Joi.string().required(),
+        POSTGRES_PASSWORD: Joi.string().required(),
+
+        JWT_SECRET: Joi.string().required(),
+        JWT_EXPIRATION_TIME: Joi.number().default(20),
+
+        API_42_UID: Joi.string().required(),
+        API_42_SECRET: Joi.string().required(),
+      }),
+      validationOptions: {
+        allowUnknown: true,
+        abortEarly: false,
+      },
+    }),
     PassportModule.register({ session: true }),
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: process.env.DB_HOST,
-    //   port: Number(process.env.DB_PORT),
-    //   username: process.env.DB_USER,
-    //   password: process.env.DB_PASSWORD,
-    //   database: process.env.DB_NAME,
-    //   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    //   synchronize: process.env.DEPLOYMENT_ENV !== 'prod',
-    // }),
     AuthModule,
     UsersModule,
-    // UserModule,
   ],
 })
 export class AppModule {}

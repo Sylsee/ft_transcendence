@@ -1,35 +1,50 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Header } from "./components/Header/Header";
+import { Home } from "./components/Home/Home";
+import { Profile } from "./components/Profile/Profile";
+import { HeaderWrapper } from "./components/HeaderWrapper/HeaderWrapper";
+import "./index.css";
+import { ErrorPage } from "./pages/ErrorPage/ErrorPage";
+import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        
-        </p>
-        <h1 className="title">
-            <style>{"\
-                .title{\
-                    color: cyan;\
-                }\
-            "}</style>
-            Ft_transcendence :) !
-            </h1>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const router = createBrowserRouter([
+	{
+		path: "/",
+		element: <HeaderWrapper />,
+		errorElement: <ErrorPage />,
+		children: [
+			{
+				path: "/",
+				element: <Home />,
+			},
+			{
+				element: <ProtectedRoute />,
+				children: [
+					{
+						path: "/user/:id",
+						element: <Profile />,
+					},
+					{
+						path: "/user/edit",
+						element: <Profile />,
+					},
+				],
+			},
+			{
+				path: "*",
+				element: <ErrorPage />,
+			},
+		],
+	},
+]);
+
+const App: React.FC = () => {
+	return (
+		<>
+			<RouterProvider router={router} />
+		</>
+	);
+};
 
 export default App;

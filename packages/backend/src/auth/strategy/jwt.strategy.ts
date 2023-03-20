@@ -1,22 +1,42 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
+import { UsersService } from 'src/to delete users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(JwtStrategy.name);
 
-  constructor() {
+  constructor(
+    private readonly userService: UsersService,
+    private configService: ConfigService,
+  ) {
+    const extractJwtFromCookie = (req) => {
+      let token = null;
+      if (req && req.cookies) {
+        token = req.cookies['token'];
+      }
+      return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+    };
+
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: extractJwtFromCookie,
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
-    this.logger.debug('TODO: JWT strategy', payload);
+    this.logger.debug('Validate JWT');
 
-    return { username: payload.profile.login, sub: payload.profile.id };
+    const user = await this.userService.findOneById(payload.sub);
+    if (!user) {
+      this.logger.warn(`Failed to validate JWT user with ID: ${payload.sub}`);
+      throw new UnauthorizedException();
+    }
+    this.logger.log(`JWT user with ID: ${user.id} validated`);
+
+    return { id: user.id, email: user.email };
   }
 }

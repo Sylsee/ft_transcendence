@@ -1,4 +1,4 @@
-COMPOSE_FILE	=	docker-compose.yml
+COMPOSE_FILE	=	docker-compose.dev.yml
 DOCKER			=	docker compose # docker-compose
 OPTIONS			=	#-d
 
@@ -8,9 +8,17 @@ _GREEN			=	\e[32m
 _YELLOW			=	\e[33m
 _CYAN			=	\e[36m
 
+# dev:
+# docker-compose -f docker-compose.dev.yml up backend db frontend
+
+# down:
+# docker-compose -f docker-compose.dev.yml down
 
 all:
 	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS)
+
+front:
+	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS) frontend
 
 help: SHELL:=/bin/bash
 help:	
@@ -44,13 +52,15 @@ clean: down
 fclean: clean
 	$(DOCKER) -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
-dev:
+setup-dev:
 	npm i ./packages/backend/ --prefix ./packages/backend/
 	# npm i ./packages/frontend/ --prefix ./packages/frontend/
 	npm i
 
 clean-dev:
-	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage ./node_modules
+	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage
+	rm -rf ./packages/frontend/node_modules ./packages/frontend/dist ./packages/frontend/coverage
+	rm -rf ./node_modules
 
 clean-docker:
 	docker system prune

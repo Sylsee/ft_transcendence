@@ -5,40 +5,64 @@ import {
   UseGuards,
   Logger,
   Res,
-  Request,
+  HttpStatus,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 
 import { OAuthGuard } from './guard/oauth.guard';
 import { AuthService } from './auth.service';
-import { JwtGuard } from './guard/jwt.guard';
+import { JwtAuthGuard } from './guard/jwt.guard';
+import { UsersService } from '../to delete users/users.service';
 
-@ApiTags('auth')
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UsersService,
+    private readonly configService: ConfigService,
+  ) {}
 
-  @Get()
+  @Get('login')
   @UseGuards(OAuthGuard)
-  // @ApiOperation({ summary: 'Redirect to 42 authentication api' })
-  // @ApiOAuth2(['public'])
-  async login() {}
+  async login(@Req() req, @Res() res: Response) {
+    this.logger.debug(`User ID: ${req.user.id} requested to log in`);
 
-  @Get('42')
-  @UseGuards(OAuthGuard)
-  // @ApiOperation({ summary: 'Redirection of 42 authentication' })
-  // @ApiResponse({ status: 302, description: 'Redirect to 42 api' })
-  async redirect(@Req() req, @Res() res: Response) {
-    this.logger.debug('TODO: ftAuth42');
-    return this.authService.login(req.user);
+    const { token, user } = this.authService.login(req.user);
+
+    this.logger.log(`User ID: ${user.id} successfully logged in`);
+
+    res.cookie('token', token, {
+      maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
+      httpOnly: this.configService.get<string>('NODE_ENV') === 'production',
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      domain:
+        this.configService.get<string>('NODE_ENV') === 'production'
+          ? 'frontend'
+          : undefined,
+      path: '/',
+    });
+    res.redirect(`${this.configService.get<string>('APP_DOMAIN')}/callback`);
+    // res.redirect(`../auth/profile`);
+    // this.logger.debug(`JWT: ${token} sent to user ID: ${user.id}`);
   }
 
   @Get('profile')
-  @UseGuards(JwtGuard)
+  @UseGuards(JwtAuthGuard)
   getProfile(@Req() req) {
-    this.logger.debug('getProfile', req.user);
-    return req.user;
+    this.logger.debug(`User ID: ${req.user.id} requested profile information`);
+
+    const user = this.userService.findOneById(req.user.id);
+    if (!user) {
+      this.logger.warn(`User ID: ${req.user} not found in database`);
+      throw new Error('User not found');
+    }
+
+    this.logger.debug(`User ID: ${req.user.id} profile information sent`);
+    return user;
   }
 }
