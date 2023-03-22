@@ -7,6 +7,9 @@ import { lastValueFrom } from 'rxjs';
 
 import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
+import { ftUserResponseDto } from '../dto/ft-user-response.dto';
 
 const callbackURL = 'http://localhost:3000/auth/login';
 
@@ -37,26 +40,28 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
   async validate(accessToken: string, refreshToken: string): Promise<any> {
     this.logger.debug('Validate OAuth token');
 
-    const data = await lastValueFrom(
+    const response = await lastValueFrom(
       this.httpService.get('https://api.intra.42.fr/v2/me', {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       }),
     );
-    if (!data) {
+    if (!response) {
       this.logger.warn("Failed to fetch user data via 42's API");
       throw new UnauthorizedException();
     }
 
-    const user = await this.authService.validateOAuthUser(
-      accessToken,
-      refreshToken,
-      data.data,
-    );
+    const validatedData = plainToInstance(ftUserResponseDto, response.data);
+    await validateOrReject(validatedData).catch((errors) => {
+      this.logger.warn('Failed to validate OAuth user', JSON.stringify(errors));
+      throw new Error(JSON.stringify(errors));
+    });
+
+    const user = await this.authService.validateOAuthUser(validatedData);
     if (!user) {
       this.logger.warn(
-        `Failed to validate OAuth user with ID: ${data.data.id}`,
+        `Failed to validate OAuth user with ID: ${validatedData.id42}`,
       );
       throw new UnauthorizedException();
     }

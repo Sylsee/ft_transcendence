@@ -1,67 +1,63 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User {
-  @PrimaryGeneratedColumn({
-    type: 'bigint',
-    name: 'id',
+  @ApiProperty({
+    example: '64f52fdb-7621-454f-a35e-524ee2ab3466',
   })
-  id: number;
+  @IsString()
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column({
-    nullable: false,
-    default: '',
+  @ApiProperty({
+    example: 2337,
   })
+  @IsNotEmpty()
+  @IsNumber()
+  @Column({
+    unique: true,
+  })
+  id42: number;
+
+  @ApiProperty({
+    example: 'spoliart',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Column({
+    unique: true,
+  })
+  login: string;
+
+  @ApiProperty({
+    example: 'Arnaud',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Column()
   name: string;
 
-  @Column({
-    nullable: false,
-    default: '',
+  @ApiProperty({
+    example: 'https://example.com/avatar.png',
   })
-  description: string;
+  @IsNotEmpty()
+  @IsString()
+  @Column({
+    unique: true,
+  })
+  avatar: string;
+
+  @ApiProperty()
+  @ManyToMany(() => User, (user) => user.friends)
+  friends: User[];
+
+  @ApiProperty()
+  @ManyToMany(() => User, (user) => user.friendRequests)
+  friendRequests: User[];
+
+  @ApiProperty()
+  @ManyToMany(() => User, (user) => user.blockedUsers)
+  blockedUsers: User[];
 }
-
-/*
-import { ApplicationComponent } from 'src/application-components/entities/application-component.entity';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
-} from 'typeorm';
-
-@Entity('products')
-export class Product {
-  @PrimaryGeneratedColumn({
-    type: 'bigint',
-    name: 'id',
-  })
-  id: number;
-
-  @Column({
-    nullable: false,
-    default: '',
-  })
-  name: string;
-
-  @Column({
-    nullable: false,
-    default: '',
-  })
-  description: string;
-
-  // @OneToMany(
-  //   () => ApplicationComponent,
-  //   (applicationComponent) => applicationComponent.product,
-  //   {cascade: true}
-  // )
-  @ManyToMany(
-    () => ApplicationComponent,
-    (applicationComponent) => applicationComponent.products,
-    { cascade: true },
-  )
-  @JoinTable()
-  componentIds: ApplicationComponent[];
-}
-*/

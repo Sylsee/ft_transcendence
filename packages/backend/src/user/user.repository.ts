@@ -19,7 +19,19 @@ export class UserRepository {
     return await this.userRepository.save(newUser);
   }
 
-  async find() {
+  async find(): Promise<User[]> {
     return await this.userRepository.find();
+  }
+
+  findOneBy42Id(id42: number): Promise<User> {
+    return this.userRepository.findOneBy({ id42: id42 });
+  }
+
+  findOneById(id: string): Promise<User> {
+    return this.userRepository.findOneBy({ id: id });
+  }
+
+  async remove(id: string): Promise<void> {
+    await this.userRepository.delete(id);
   }
 }

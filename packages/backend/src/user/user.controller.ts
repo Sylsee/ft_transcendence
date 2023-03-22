@@ -9,7 +9,6 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -17,13 +16,13 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 
-import { ErrorBadRequestSchema } from 'src/error/error-bad-request.schema';
+import { ErrorBadRequest } from 'src/error/error-bad-request';
 
-@ApiExtraModels(ErrorBadRequestSchema)
+@ApiExtraModels(ErrorBadRequest)
 @ApiBadRequestResponse({
-  description: ErrorBadRequestSchema.description,
+  description: ErrorBadRequest.description,
   schema: {
-    $ref: getSchemaPath(ErrorBadRequestSchema),
+    $ref: getSchemaPath(ErrorBadRequest),
   },
 })
 @Controller('users')
@@ -43,16 +42,11 @@ export class UserController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.findOne(id);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

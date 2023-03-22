@@ -4,7 +4,7 @@ FROM node:14-alpine as development
 WORKDIR /home/node/app
 
 # Install NestJS CLI
-RUN npm i -g @nestjs/cli --silent
+RUN npm i -g @nestjs/cli
 
 # Create a non-root user
 RUN chown -R node:node /home/node/app

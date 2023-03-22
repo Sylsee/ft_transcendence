@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import * as Joi from 'joi';
 
 import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/to delete users/users.module';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
@@ -38,9 +39,23 @@ import { UsersModule } from 'src/to delete users/users.module';
         abortEarly: false,
       },
     }),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: process.env.POSTGRES_HOST,
+      port: +process.env.POSTGRES_PORT,
+
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+
+      entities: ['dist/**/*.entity{.ts,.js}'],
+      synchronize: process.env.NODE_ENV !== 'production',
+
+      autoLoadEntities: true,
+    }),
     PassportModule.register({ session: true }),
     AuthModule,
-    UsersModule,
+    UserModule,
   ],
 })
 export class AppModule {}

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
+
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.repository';
 import { User } from './entities/user.entity';
 
@@ -8,7 +8,15 @@ import { User } from './entities/user.entity';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async createOAuthUser(user: any): Promise<User> {
+    const userExists = await this.userRepository.findOneBy42Id(user.id42);
+
+    if (!userExists) {
+      return this.create(user);
+    }
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User> {
     return this.userRepository.create(createUserDto);
   }
 
@@ -16,15 +24,15 @@ export class UserService {
     return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findOneBy42Id(id42: number) {
+    return this.userRepository.findOneBy42Id(id42);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  findOne(id: string) {
+    return this.userRepository.findOneById(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  remove(id: string) {
+    this.userRepository.remove(id);
   }
 }
