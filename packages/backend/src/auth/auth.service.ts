@@ -5,15 +5,17 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { User, UsersService } from '../to delete users/users.service';
+import { UserService } from 'src/user/user.service';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { ftUserResponseDto } from './dto/ft-user-response.dto';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
   constructor(
-    private usersService: UsersService,
     private jwtService: JwtService,
+    private userService: UserService,
   ) {}
 
   login(user) {
@@ -32,18 +34,13 @@ export class AuthService {
   }
 
   async validateOAuthUser(
-    accessToken: string,
-    refreshToken: string,
-    profile: any,
-  ): Promise<User | undefined> {
-    this.logger.debug('Validating OAuth User');
+    profile: ftUserResponseDto,
+  ): Promise<UserEntity | undefined> {
+    this.logger.debug('Validating OAuth UserEntity');
 
     try {
-      const user = await this.usersService.updateOrCreateOAuthUser(
-        accessToken,
-        refreshToken,
-        profile,
-      );
+      const user = await this.userService.createOAuthUser(profile);
+
       this.logger.debug(`OAuth user with ID: ${user.id} validated`);
       return user;
     } catch (error) {

@@ -1,10 +1,16 @@
+// Nest dependencies
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
+import { TypeOrmModule } from '@nestjs/typeorm';
+
+// Other dependencies
 import * as Joi from 'joi';
 
+// Local files
 import { AuthModule } from 'src/auth/auth.module';
-import { UsersModule } from 'src/to delete users/users.module';
+import { UserModule } from 'src/user/user.module';
+import { ConfigService as CustomConfigService } from './config/config.service';
 
 @Module({
   imports: [
@@ -18,14 +24,14 @@ import { UsersModule } from 'src/to delete users/users.module';
           .default('development'),
 
         PORT: Joi.number().default(3000),
-        POSTGRES_PORT: Joi.number().default(5432),
+        DB_PORT: Joi.number().default(5432),
         FRONTEND_PORT: Joi.number().required(),
         APP_DOMAIN: Joi.string().required(),
 
-        POSTGRES_HOST: Joi.string().required(),
-        POSTGRES_DB: Joi.string().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
+        DB_HOST: Joi.string().required(),
+        DB_NAME: Joi.string().required(),
+        DB_USER: Joi.string().required(),
+        DB_PASS: Joi.string().required(),
 
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.number().default(20),
@@ -38,9 +44,14 @@ import { UsersModule } from 'src/to delete users/users.module';
         abortEarly: false,
       },
     }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useClass: CustomConfigService,
+    }),
     PassportModule.register({ session: true }),
     AuthModule,
-    UsersModule,
+    UserModule,
   ],
+  providers: [CustomConfigService],
 })
 export class AppModule {}

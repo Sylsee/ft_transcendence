@@ -14,7 +14,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { OAuthGuard } from './guard/oauth.guard';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guard/jwt.guard';
-import { UsersService } from '../to delete users/users.service';
+import { UserService } from 'src/user/user.service';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -23,7 +23,7 @@ export class AuthController {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UsersService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -56,7 +56,7 @@ export class AuthController {
   getProfile(@Req() req) {
     this.logger.debug(`User ID: ${req.user.id} requested profile information`);
 
-    const user = this.userService.findOneById(req.user.id);
+    const user = this.userService.findOne(req.user.id);
     if (!user) {
       this.logger.warn(`User ID: ${req.user} not found in database`);
       throw new Error('User not found');
