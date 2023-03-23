@@ -6,7 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 
 import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/entities/user.entity';
+import { UserEntity } from 'src/user/entities/user.entity';
 import { ftUserResponseDto } from './dto/ft-user-response.dto';
 
 @Injectable()
@@ -35,8 +35,8 @@ export class AuthService {
 
   async validateOAuthUser(
     profile: ftUserResponseDto,
-  ): Promise<User | undefined> {
-    this.logger.debug('Validating OAuth User');
+  ): Promise<UserEntity | undefined> {
+    this.logger.debug('Validating OAuth UserEntity');
 
     try {
       const user = await this.userService.createOAuthUser(profile);

@@ -3,7 +3,7 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 @Entity('users')
-export class User {
+export class UserEntity {
   @ApiProperty({
     example: '64f52fdb-7621-454f-a35e-524ee2ab3466',
   })
@@ -50,14 +50,14 @@ export class User {
   avatar: string;
 
   @ApiProperty()
-  @ManyToMany(() => User, (user) => user.friends)
-  friends: User[];
+  @ManyToMany(() => UserEntity, (user) => user.friends)
+  friends: UserEntity[];
 
   @ApiProperty()
-  @ManyToMany(() => User, (user) => user.friendRequests)
-  friendRequests: User[];
+  @ManyToMany(() => UserEntity, (user) => user.friendRequests)
+  friendRequests: UserEntity[];
 
   @ApiProperty()
-  @ManyToMany(() => User, (user) => user.blockedUsers)
-  blockedUsers: User[];
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  blockedUsers: UserEntity[];
 }

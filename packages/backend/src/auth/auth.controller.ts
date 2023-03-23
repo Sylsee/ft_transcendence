@@ -56,7 +56,7 @@ export class AuthController {
   getProfile(@Req() req) {
     this.logger.debug(`User ID: ${req.user.id} requested profile information`);
 
-    const user = this.userService.findOneBy42Id(req.user.id);
+    const user = this.userService.findOne(req.user.id);
     if (!user) {
       this.logger.warn(`User ID: ${req.user} not found in database`);
       throw new Error('User not found');

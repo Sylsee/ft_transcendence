@@ -64,8 +64,9 @@ clean-dev:
 
 clean-docker:
 	docker system prune
+	docker volume prune
 
-r: fclean clean-dev clean-docker dev all
+r: fclean clean-dev clean-docker all
 
 re: fclean all
 

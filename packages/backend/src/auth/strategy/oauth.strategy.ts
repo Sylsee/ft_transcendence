@@ -7,7 +7,6 @@ import { lastValueFrom } from 'rxjs';
 
 import { AuthService } from '../auth.service';
 import { ConfigService } from '@nestjs/config';
-import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { ftUserResponseDto } from '../dto/ft-user-response.dto';
 
@@ -52,9 +51,9 @@ export class OAuthStrategy extends PassportStrategy(Strategy, 'oauth2') {
       throw new UnauthorizedException();
     }
 
-    const validatedData = plainToInstance(ftUserResponseDto, response.data);
+    const validatedData = ftUserResponseDto.transform(response.data);
     await validateOrReject(validatedData).catch((errors) => {
-      this.logger.warn('Failed to validate OAuth user', JSON.stringify(errors));
+      this.logger.warn('Failed to validate OAuth user');
       throw new Error(JSON.stringify(errors));
     });
 
