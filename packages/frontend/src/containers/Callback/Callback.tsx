@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { authenticate } from "../../store/auth-slice/auth-slice";
 import { RootState } from "../../store/store-types";
-import { Loader } from "../Loader/Loader";
+import { Loader } from "../../components/Loader/Loader";
 
 const Callback: React.FC = () => {
 	const [loading, setLoading] = useState(true);

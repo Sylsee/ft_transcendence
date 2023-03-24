@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
-import authenticateMiddleware from "../middlewares/auth/authMiddleware";
+import { authenticateMiddleware } from "../middlewares/auth/authMiddleware";
 import { authSlice } from "./auth-slice/auth-slice";
 
 const rootReducer = {

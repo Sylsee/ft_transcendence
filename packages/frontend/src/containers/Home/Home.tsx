@@ -3,7 +3,7 @@ import { logo42 } from "../../assets/icons/42_logo";
 import { RootState } from "../../store/store-types";
 import { useSelector } from "react-redux";
 import { BACKEND_URL } from "../../config";
-import { IconButton } from "../IconButton/IconButton";
+import { IconButton } from "../../components/IconButton/IconButton";
 import { pong_logo } from "../../assets/icons/pong_logo";
 import { Link } from "react-router-dom";
 
@@ -28,7 +28,6 @@ const Home: React.FC = () => {
 			)}
 		</div>
 	);
-	return <div></div>;
 };
 
 export { Home };

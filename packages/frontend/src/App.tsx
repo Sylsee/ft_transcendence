@@ -1,12 +1,12 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./components/Home/Home";
-import { Profile } from "./components/Profile/Profile";
-import { HeaderWrapper } from "./components/HeaderWrapper/HeaderWrapper";
+import { Home } from "./containers/Home/Home";
+import { Profile } from "./containers/Profile/Profile";
+import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
 import "./index.css";
 import { ErrorPage } from "./pages/ErrorPage/ErrorPage";
-import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
-import { Callback } from "./components/Callback/Callback";
+import { ProtectedRoute } from "./containers/ProtectedRoute/ProtectedRoute";
+import { Callback } from "./containers/Callback/Callback";
 
 const router = createBrowserRouter([
 	{
@@ -21,11 +21,6 @@ const router = createBrowserRouter([
 			{
 				path: "/callback",
 				element: <Callback />,
-				loader: async () => {
-					console.log("loading");
-
-					return null;
-				},
 			},
 			{
 				element: <ProtectedRoute />,
@@ -56,4 +51,4 @@ const App: React.FC = () => {
 	);
 };
 
-export default App;
+export { App };

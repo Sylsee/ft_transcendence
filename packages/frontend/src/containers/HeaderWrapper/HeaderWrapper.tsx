@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { authenticate } from "../../store/auth-slice/auth-slice";
 import { Header } from "../Header/Header";
-import { Loader } from "../Loader/Loader";
+import { Loader } from "../../components/Loader/Loader";
 
 const HeaderWrapper: React.FC = () => {
 	const location = useLocation();

@@ -2,11 +2,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { HeaderLink } from "./HeaderLink/HeaderLink";
+import { HeaderLink } from "../../components/Header/HeaderLink/HeaderLink";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../../store/store-types";
 import { logout } from "../../store/auth-slice/auth-slice";
-import { HeaderButton } from "./HeaderButton/HeaderButton";
+import { HeaderButton } from "../../components/Header/HeaderButton/HeaderButton";
 
 const Header: React.FC = () => {
 	const [navbarState, setNavbarState] = useState(false);
@@ -15,7 +15,6 @@ const Header: React.FC = () => {
 
 	const logoutHandler = () => {
 		dispatch(logout());
-		console.log("truc");
 	};
 
 	return (

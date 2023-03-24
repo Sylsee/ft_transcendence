@@ -56,4 +56,4 @@ const authenticateMiddleware: Middleware<{}, RootState> =
 		else next(action);
 	};
 
-export default authenticateMiddleware;
+export { authenticateMiddleware };
