@@ -19,7 +19,7 @@ const HeaderWrapper: React.FC = () => {
 		<>
 			<div className="h-full flex flex-col bg-gradient-custom">
 				<Header />
-				<div className="h-[95%]">
+				<div className="h-[100%]">
 					{loading && <Loader />}
 					{!loading && <Outlet />}
 				</div>

@@ -29,6 +29,8 @@ const actionHandlers: Record<
 	) => void
 > = {
 	[authenticate.type]: (store, next, action) => {
+		return next(action);
+		/*
 		try {
 			const cookie = Cookies.get("jwt");
 			if (cookie) {
@@ -42,6 +44,7 @@ const actionHandlers: Record<
 			return store.dispatch(logout());
 		}
 		return next(action);
+*/
 	},
 	[logout.type]: (store, next, action) => {
 		Cookies.remove("jwt");

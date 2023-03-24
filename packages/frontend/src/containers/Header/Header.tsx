@@ -18,7 +18,7 @@ const Header: React.FC = () => {
 	};
 
 	return (
-		<nav className="min-h-[5%] relative flex flex-wrap items-center justify-between px-2 py-3 bg-{2E4F4F} lg:px-4 lg:py-4">
+		<nav className="h-100 relative flex flex-wrap items-center justify-between px-2 py-3 bg-{2E4F4F} lg:px-4 lg:py-4">
 			<div className="container max-w-none px-4 m-0 flex flex-wrap items-center justify-between">
 				<div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
 					<Link
