@@ -11,7 +11,6 @@ services:
   backend:
     build:
       context: packages/backend
-      dockerfile: Dockerfile.dev
     hostname: backend_dev
     volumes:
       - ./packages/backend/:/home/node/app
@@ -20,7 +19,7 @@ services:
     command:
       - sh
       - -c
-      - npm ci && npm run start:dev
+      - npm i && npm run start:dev
     depends_on:
       - db
     ports:

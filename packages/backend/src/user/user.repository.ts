@@ -1,6 +1,12 @@
+// NestJS imports
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
+// Third-party imports
 import { Repository } from 'typeorm';
+
+// Local files
+import { AuthProvider } from './dto/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -23,15 +29,14 @@ export class UserRepository {
     return await this.userRepository.find();
   }
 
-  findOneBy42Id(id42: number): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ id42: id42 });
+  async findUserByEmailAndProvider(
+    email: string,
+    provider: AuthProvider,
+  ): Promise<UserEntity | undefined> {
+    return await this.userRepository.findOne({ where: { email, provider } });
   }
 
   findOneById(id: string): Promise<UserEntity> {
     return this.userRepository.findOneBy({ id: id });
-  }
-
-  async remove(id: string): Promise<void> {
-    await this.userRepository.delete(id);
   }
 }

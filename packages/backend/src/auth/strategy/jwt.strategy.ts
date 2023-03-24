@@ -1,8 +1,12 @@
+// NestJs imports
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+
+// Third-party imports
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+// Local files
 import { UserService } from 'src/user/user.service';
 
 @Injectable()

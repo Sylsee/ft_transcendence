@@ -1,24 +1,46 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUrl } from 'class-validator';
+
+// Third-party imports
+import { IsEmail, IsNotEmpty, IsString, IsUrl, IsEnum } from 'class-validator';
+import { ProfileDto } from 'src/auth/dto/profile.dto';
+
+// Local files
+import { AuthProvider } from './auth-provider.enum';
 
 export class CreateUserDto {
-  @ApiProperty()
-  @IsNumber()
+  @ApiProperty({ enum: AuthProvider, description: 'Authentication provider' })
+  @IsEnum(AuthProvider)
   @IsNotEmpty()
-  id42: number;
+  provider: AuthProvider;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'Provider ID from the authentication provider' })
   @IsString()
   @IsNotEmpty()
-  login: string;
+  providerId: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'User email address' })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty({ description: 'User display name' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ description: 'User avatar URL' })
   @IsUrl()
   @IsNotEmpty()
-  avatar: string;
+  avatarUrl: string;
+
+  static transform(profile: ProfileDto): CreateUserDto {
+    return {
+      provider: AuthProvider.GOOGLE,
+      providerId: profile.id,
+      email: profile.email,
+      name: profile.displayName,
+      avatarUrl: profile.photoUrl,
+    };
+  }
 }

@@ -10,7 +10,7 @@ import * as Joi from 'joi';
 // Local files
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
-import { ConfigService as CustomConfigService } from './config/config.service';
+import { TypeOrmConfigService } from './config/config.service';
 
 @Module({
   imports: [
@@ -36,8 +36,13 @@ import { ConfigService as CustomConfigService } from './config/config.service';
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRATION_TIME: Joi.number().default(20),
 
-        API_42_UID: Joi.string().required(),
-        API_42_SECRET: Joi.string().required(),
+        FORTYTWO_UID: Joi.string().required(),
+        FORTYTWO_SECRET: Joi.string().required(),
+        FORTYTWO_CALLBACK_URL: Joi.string().required(),
+
+        GOOGLE_ID: Joi.string().required(),
+        GOOGLE_SECRET: Joi.string().required(),
+        GOOGLE_CALLBACK_URL: Joi.string().required(),
       }),
       validationOptions: {
         allowUnknown: true,
@@ -46,12 +51,12 @@ import { ConfigService as CustomConfigService } from './config/config.service';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useClass: CustomConfigService,
+      useClass: TypeOrmConfigService,
     }),
     PassportModule.register({ session: true }),
     AuthModule,
     UserModule,
   ],
-  providers: [CustomConfigService],
+  providers: [TypeOrmConfigService],
 })
 export class AppModule {}
