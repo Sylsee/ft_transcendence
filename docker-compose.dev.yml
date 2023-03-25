@@ -72,13 +72,15 @@ services:
   # Node - Frontend
   # ------------------------------------------------------------
   # frontend:
-  #   build:
-  #     context: packages/frontend
-  #     target: ${NODE_ENV}
-  #   hostname: frontend_dev
+  #   container_name: frontend
   #   env_file: .env
+  #   build:
+  #     context: ./packages/frontend
+  #     target: ${NODE_ENV}
   #   environment:
-  #     - CHOKIDAR_USEPOLLING=true
+  #     CHOKIDAR_USEPOLLING: true
+  #     WDS_SOCKET_PORT: ${FRONTEND_PORT}
+  #     PORT: ${FRONTEND_PORT}
   #   volumes:
   #     - ./packages/frontend/src:/usr/src/app/src
   #   ports:
