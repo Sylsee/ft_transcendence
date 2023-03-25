@@ -1,7 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsEmail, IsUrl } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsUrl, IsEnum } from 'class-validator';
+import { AuthProvider } from 'src/user/dto/auth-provider.enum';
 
 export class ProfileDto {
+  @ApiProperty({ enum: AuthProvider, description: 'Authentication provider' })
+  @IsNotEmpty()
+  @IsEnum(AuthProvider)
+  provider: AuthProvider;
+
   @ApiProperty({ description: 'Profile ID from Google' })
   @IsNotEmpty()
   @IsString()

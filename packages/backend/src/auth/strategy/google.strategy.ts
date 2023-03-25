@@ -7,6 +7,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
+import { AuthProvider } from 'src/user/dto/auth-provider.enum';
 
 // Local files
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -35,6 +36,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   ): Promise<any> {
     // Validate user data using class-validator
     const profileDto = plainToInstance(ProfileDto, {
+      provider: AuthProvider.GOOGLE,
       id: profile.id,
       displayName: profile.name.givenName,
       email: profile.emails[0].value,

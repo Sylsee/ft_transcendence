@@ -36,7 +36,7 @@ export class CreateUserDto {
 
   static transform(profile: ProfileDto): CreateUserDto {
     return {
-      provider: AuthProvider.GOOGLE,
+      provider: profile.provider,
       providerId: profile.id,
       email: profile.email,
       name: profile.displayName,

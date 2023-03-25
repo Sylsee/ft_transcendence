@@ -16,6 +16,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { AuthProvider } from 'src/user/dto/auth-provider.enum';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -60,10 +61,11 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
 
     // Validate user data using class-validator
     const profileDto = plainToInstance(ProfileDto, {
-      id: response.data.id,
+      provider: AuthProvider.FORTYTWO,
+      id: response.data.id.toString(),
       displayName: response.data.usual_first_name || response.data.first_name,
       email: response.data.email,
-      photoUrl: response.data.image_url,
+      photoUrl: response.data.image.link,
     });
 
     // Create user if not exists
