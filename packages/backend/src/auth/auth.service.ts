@@ -1,6 +1,8 @@
 // NestJS imports
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Req, Res } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
 
 // Local imports
 import { UserService } from 'src/user/user.service';
@@ -12,6 +14,7 @@ export class AuthService {
   constructor(
     private jwtService: JwtService,
     private userService: UserService,
+    private configService: ConfigService,
   ) {}
 
   async findOrCreateUser(profile: any): Promise<any | undefined> {
@@ -28,18 +31,26 @@ export class AuthService {
     return { ...userExists, new: false };
   }
 
-  signIn(user) {
-    this.logger.debug(`Processing login request for user with ID: ${user.id}`);
+  async signIn(@Res() res: Response, user) {
+    const token = await this.jwtService.sign({ sub: user.id });
 
-    const payload = { sub: user.id };
-    const token = this.jwtService.sign(payload);
-    const responseUser = {
-      id: user.id,
-      login: user.login,
-      avatar: user.avatar,
-    };
+    res.cookie('token', token, {
+      maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
+      // httpOnly: this.configService.get<string>('NODE_ENV') === 'production',
+      // secure: this.configService.get<string>('NODE_ENV') === 'production',
+      // domain:
+      //   this.configService.get<string>('NODE_ENV') === 'production'
+      //     ? 'frontend'
+      //     : undefined,
+      // path: '/',
+    });
 
-    this.logger.debug(`Login request processed for user with ID: ${user.id}`);
-    return { token, user: responseUser };
+    res.redirect(
+      `${this.configService.get<string>('APP_DOMAIN')}/callback${
+        user.new ? '?new=true' : ''
+      }`,
+    );
+
+    this.logger.debug(`User ID: ${user.id} successfully logged in`);
   }
 }
