@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 // Local files
-import { AuthProvider } from './dto/auth-provider.enum';
+import { AuthProvider } from '../auth/dto/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 
@@ -29,11 +29,13 @@ export class UserRepository {
     return await this.userRepository.find();
   }
 
-  async findUserByEmailAndProvider(
-    email: string,
+  async findUserByProviderIDAndProvider(
+    providerId: string,
     provider: AuthProvider,
   ): Promise<UserEntity | undefined> {
-    return await this.userRepository.findOne({ where: { email, provider } });
+    return await this.userRepository.findOne({
+      where: { providerId, provider },
+    });
   }
 
   findOneById(id: string): Promise<UserEntity> {

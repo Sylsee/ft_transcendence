@@ -6,12 +6,12 @@ import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 // Local files
-import { AuthProvider } from '../dto/auth-provider.enum';
+import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 @Entity('users')
 export class UserEntity {
   @ApiProperty({
-    example: '64f52fdb-7621-454f-a35e-524ee2ab3466',
+    example: '12345678-abcd-1234-abcd-1234567890ab',
   })
   @IsString()
   @PrimaryGeneratedColumn('uuid')

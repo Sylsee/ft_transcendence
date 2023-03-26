@@ -6,32 +6,32 @@ import { IsEmail, IsNotEmpty, IsString, IsUrl, IsEnum } from 'class-validator';
 import { ProfileDto } from 'src/auth/dto/profile.dto';
 
 // Local files
-import { AuthProvider } from './auth-provider.enum';
+import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 export class CreateUserDto {
   @ApiProperty({ enum: AuthProvider, description: 'Authentication provider' })
-  @IsEnum(AuthProvider)
   @IsNotEmpty()
+  @IsEnum(AuthProvider)
   provider: AuthProvider;
 
   @ApiProperty({ description: 'Provider ID from the authentication provider' })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   providerId: string;
 
   @ApiProperty({ description: 'User email address' })
-  @IsEmail()
   @IsNotEmpty()
+  @IsEmail()
   email: string;
 
   @ApiProperty({ description: 'User display name' })
-  @IsString()
   @IsNotEmpty()
+  @IsString()
   name: string;
 
   @ApiProperty({ description: 'User avatar URL' })
-  @IsUrl()
   @IsNotEmpty()
+  @IsUrl()
   avatarUrl: string;
 
   static transform(profile: ProfileDto): CreateUserDto {

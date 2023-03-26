@@ -16,7 +16,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { AuthProvider } from 'src/user/dto/auth-provider.enum';
+import { AuthProvider } from '../dto/auth-provider.enum';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {

@@ -4,7 +4,7 @@ import { Injectable } from '@nestjs/common';
 // Local files
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
-import { UserEntity } from './entities/user.entity';
+import { AuthProvider } from '../auth/dto/auth-provider.enum';
 import { AuthProvider } from './dto/auth-provider.enum';
 
 @Injectable()
@@ -15,11 +15,14 @@ export class UserService {
     return this.userRepository.create(user);
   }
 
-  async findUserByEmailAndProvider(
-    email: string,
+  async findUserByProviderIDAndProvider(
+    providerId: string,
     provider: AuthProvider,
-  ): Promise<UserEntity | undefined> {
-    return this.userRepository.findUserByEmailAndProvider(email, provider);
+  ): Promise<User | undefined> {
+    return this.userRepository.findUserByProviderIDAndProvider(
+      providerId,
+      provider,
+    );
   }
 
   findAll(): Promise<UserEntity[]> {

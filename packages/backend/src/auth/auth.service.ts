@@ -18,8 +18,8 @@ export class AuthService {
   ) {}
 
   async findOrCreateUser(profile: any): Promise<any | undefined> {
-    const userExists = await this.userService.findUserByEmailAndProvider(
-      profile.email,
+    const userExists = await this.userService.findUserByProviderIDAndProvider(
+      profile.providerId,
       profile.provider,
     );
 
@@ -36,6 +36,7 @@ export class AuthService {
 
     res.cookie('token', token, {
       maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
+      // TODO: Make the cookie settings
       // httpOnly: this.configService.get<string>('NODE_ENV') === 'production',
       // secure: this.configService.get<string>('NODE_ENV') === 'production',
       // domain:
@@ -50,7 +51,5 @@ export class AuthService {
         user.new ? '?new=true' : ''
       }`,
     );
-
-    this.logger.debug(`User ID: ${user.id} successfully logged in`);
   }
 }
