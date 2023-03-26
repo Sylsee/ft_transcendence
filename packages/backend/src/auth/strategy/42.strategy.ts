@@ -12,11 +12,11 @@ import { lastValueFrom } from 'rxjs';
 // Local imports
 import { AuthService } from '../auth.service';
 import { validateOrReject } from 'class-validator';
-import { UserEntity } from 'src/user/entities/user.entity';
 import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthProvider } from '../dto/auth-provider.enum';
+import { User } from 'src/user/model/user.model';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -45,7 +45,7 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
   async validate(
     _accessToken: string,
     _refreshToken: string,
-  ): Promise<{ user: UserEntity; new: Boolean } | undefined> {
+  ): Promise<{ user: User; new: Boolean } | undefined> {
     // Fetch user data from 42's API
     const response = await lastValueFrom(
       this.httpService.get('https://api.intra.42.fr/v2/me', {
