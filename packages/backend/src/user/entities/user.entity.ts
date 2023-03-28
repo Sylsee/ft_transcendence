@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToMany } from 'typeorm';
 
 // Local files
 import { AuthProvider } from '../../auth/dto/auth-provider.enum';
@@ -62,7 +62,7 @@ export class UserEntity {
   avatarUrl: string;
 
   @ApiProperty()
-  @ManyToMany(() => UserEntity, (user) => user.friends)
+  @OneToMany(() => UserEntity, (user) => user.friends)
   friends: UserEntity[];
 
   @ApiProperty()
@@ -70,6 +70,6 @@ export class UserEntity {
   friendRequests: UserEntity[];
 
   @ApiProperty()
-  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  @OneToMany(() => UserEntity, (user) => user.blockedUsers)
   blockedUsers: UserEntity[];
 }

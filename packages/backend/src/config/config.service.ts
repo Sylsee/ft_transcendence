@@ -8,6 +8,8 @@ import * as env from 'dotenv';
 
 // Local files
 import { UserEntity } from 'src/user/entities/user.entity';
+import { UserFriend } from 'src/user/entities/user_friend.entity';
+import { FriendRequest } from 'src/user/entities/friend_request.entity';
 
 env.config();
 
@@ -33,7 +35,7 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.get('DB_PASS'),
       database: this.get('DB_NAME'),
 
-      entities: [UserEntity],
+      entities: [UserEntity, UserFriend, FriendRequest],
       synchronize: !this.isProduction(),
 
       autoLoadEntities: true,
