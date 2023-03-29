@@ -1,35 +1,47 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+
+// Third-party imports
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+
+// Local files
+import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 @Entity('users')
 export class UserEntity {
   @ApiProperty({
-    example: '64f52fdb-7621-454f-a35e-524ee2ab3466',
+    example: '12345678-abcd-1234-abcd-1234567890ab',
   })
   @IsString()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ApiProperty({
-    example: 2337,
+    example: '42',
   })
   @IsNotEmpty()
-  @IsNumber()
   @Column({
-    unique: true,
+    type: 'enum',
+    enum: AuthProvider,
   })
-  id42: number;
+  provider: AuthProvider;
 
   @ApiProperty({
-    example: 'spoliart',
+    example: '123456789',
   })
   @IsNotEmpty()
   @IsString()
-  @Column({
-    unique: true,
+  @Column()
+  providerId: string;
+
+  @ApiProperty({
+    example: 'example@example.com',
   })
-  login: string;
+  @IsNotEmpty()
+  @IsEmail()
+  @Column()
+  email: string;
 
   @ApiProperty({
     example: 'Arnaud',
@@ -47,7 +59,7 @@ export class UserEntity {
   @Column({
     unique: true,
   })
-  avatar: string;
+  avatarUrl: string;
 
   @ApiProperty()
   @ManyToMany(() => UserEntity, (user) => user.friends)

@@ -46,23 +46,26 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Configure Swagger (see https://docs.nestjs.com/openapi/introduction)
+  if (configService.get<string>('NODE_ENV') !== 'production') {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle('Transcendence API documentation')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .addCookieAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('swagger', app, document);
+    logger.log(
+      'Swagger has been configured and is available at /swagger',
+      'NestApplication',
+    );
+  }
+
   // Start the application by listening on a port
   await app.listen(configService.get<number>('BACKEND_PORT') || 3000);
   logger.log(
     `Application is running on: ${await app.getUrl()}`,
-    'NestApplication',
-  );
-
-  // Configure Swagger (see https://docs.nestjs.com/openapi/introduction)
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Transcendence API documentation')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build();
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('swagger', app, document);
-  logger.log(
-    'Swagger has been configured and is available at /swagger',
     'NestApplication',
   );
 

@@ -1,14 +1,14 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
-import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
+// NestJs imports
+import { Controller, Get, Param } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
-  ApiCreatedResponse,
   ApiExtraModels,
   getSchemaPath,
 } from '@nestjs/swagger';
 
+// Local files
 import { ErrorBadRequest } from 'src/error/error-bad-request';
+import { UserService } from './user.service';
 
 @ApiExtraModels(ErrorBadRequest)
 @ApiBadRequestResponse({
@@ -17,15 +17,9 @@ import { ErrorBadRequest } from 'src/error/error-bad-request';
     $ref: getSchemaPath(ErrorBadRequest),
   },
 })
-@Controller('users')
+@Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-
-  @ApiCreatedResponse()
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
 
   @Get()
   findAll() {
@@ -35,10 +29,5 @@ export class UserController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(id);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
   }
 }

@@ -1,24 +1,46 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsNumber, IsString, IsUrl } from 'class-validator';
+
+// Third-party imports
+import { IsEmail, IsNotEmpty, IsString, IsUrl, IsEnum } from 'class-validator';
+import { ProfileDto } from 'src/auth/dto/profile.dto';
+
+// Local files
+import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 export class CreateUserDto {
-  @ApiProperty()
-  @IsNumber()
+  @ApiProperty({ enum: AuthProvider, description: 'Authentication provider' })
   @IsNotEmpty()
-  id42: number;
+  @IsEnum(AuthProvider)
+  provider: AuthProvider;
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ description: 'Provider ID from the authentication provider' })
   @IsNotEmpty()
-  login: string;
+  @IsString()
+  providerId: string;
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ description: 'User email address' })
   @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ description: 'User display name' })
+  @IsNotEmpty()
+  @IsString()
   name: string;
 
-  @ApiProperty()
-  @IsUrl()
+  @ApiProperty({ description: 'User avatar URL' })
   @IsNotEmpty()
-  avatar: string;
+  @IsUrl()
+  avatarUrl: string;
+
+  static transform(profile: ProfileDto): CreateUserDto {
+    return {
+      provider: profile.provider,
+      providerId: profile.id,
+      email: profile.email,
+      name: profile.displayName,
+      avatarUrl: profile.photoUrl,
+    };
+  }
 }

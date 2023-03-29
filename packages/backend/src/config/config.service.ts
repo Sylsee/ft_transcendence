@@ -12,13 +12,11 @@ import { UserEntity } from 'src/user/entities/user.entity';
 env.config();
 
 @Injectable()
-export class ConfigService implements TypeOrmOptionsFactory {
+export class TypeOrmConfigService implements TypeOrmOptionsFactory {
   constructor(private nestConfigService: NestConfigService) {}
 
   public get(key: string): any {
-    const value = this.nestConfigService.get(key);
-    console.log(`ConfigService.get(${key}) = ${value}`);
-    return value;
+    return this.nestConfigService.get(key);
   }
 
   public isProduction(): boolean {

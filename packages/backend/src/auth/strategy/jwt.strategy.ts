@@ -1,8 +1,12 @@
+// NestJs imports
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
+
+// Third-party imports
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
+// Local files
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -29,14 +33,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    this.logger.debug('Validate JWT');
-
     const user = await this.userService.findOne(payload.sub);
     if (!user) {
-      this.logger.warn(`Failed to validate JWT user with ID: ${payload.sub}`);
+      this.logger.warn(
+        `Failed to retrieve from database: user ID: ${payload.sub}`,
+      );
       throw new UnauthorizedException();
     }
-    this.logger.debug(`JWT user with ID: ${user.id} validated`);
 
     return { id: user.id };
   }

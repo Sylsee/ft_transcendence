@@ -4,39 +4,32 @@ import { Injectable } from '@nestjs/common';
 // Local files
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
-import { UserEntity } from './entities/user.entity';
-import { ftUserResponseDto } from 'src/auth/dto/ft-user-response.dto';
+import { AuthProvider } from '../auth/dto/auth-provider.enum';
+import { AuthProvider } from './dto/auth-provider.enum';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async createOAuthUser(user: ftUserResponseDto): Promise<UserEntity> {
-    const userExists = await this.userRepository.findOneBy42Id(user.id42);
-
-    if (!userExists) {
-      return this.create(user);
-    }
-    return userExists;
+  async create(user: CreateUserDto): Promise<UserEntity> {
+    return this.userRepository.create(user);
   }
 
-  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
-    return this.userRepository.create(createUserDto);
+  async findUserByProviderIDAndProvider(
+    providerId: string,
+    provider: AuthProvider,
+  ): Promise<User | undefined> {
+    return this.userRepository.findUserByProviderIDAndProvider(
+      providerId,
+      provider,
+    );
   }
 
   findAll(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }
 
-  findOneBy42Id(id42: number) {
-    return this.userRepository.findOneBy42Id(id42);
-  }
-
   findOne(id: string) {
     return this.userRepository.findOneById(id);
-  }
-
-  remove(id: string) {
-    this.userRepository.remove(id);
   }
 }
