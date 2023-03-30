@@ -1,4 +1,7 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
+
+// Third-party imports
 import {
   IsBoolean,
   IsEnum,
@@ -8,19 +11,9 @@ import {
   IsUrl,
 } from 'class-validator';
 
-export enum UserStatus {
-  active,
-  inactive,
-  inGame,
-  inQueue,
-}
-
-export enum UserRelationship {
-  friends,
-  notFriends,
-  friendRequestSent,
-  friendRequestReceived,
-}
+// Local imports
+import { UserRelationship } from '../enum/user-relationship.enum';
+import { UserStatus } from '../enum/user-status.enum';
 
 export class UserRelationshipDto {
   @ApiProperty({
@@ -34,7 +27,7 @@ export class UserRelationshipDto {
   status: UserRelationship;
 }
 
-export class User {
+export class UserDto {
   @ApiProperty({
     description: 'User id',
     example: '12345678-abcd-1234-abcd-1234567890ab',

@@ -24,7 +24,7 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserRelationshipDto } from './model/user.model';
+import { UserDto, UserRelationshipDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
 const ApiUserIdParam = ApiParam({
@@ -54,7 +54,7 @@ export class UserController {
     summary: 'Get all users',
     description: 'Retrieve all users.',
   })
-  @ApiOkResponse({ description: 'Users found', type: [User] })
+  @ApiOkResponse({ description: 'Users found', type: [UserDto] })
   async getAllUsers() {
     return this.userService.findAll();
   }
@@ -69,7 +69,7 @@ export class UserController {
     description: 'Retrieve a user by their unique identifier.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User found', type: User })
+  @ApiOkResponse({ description: 'User found', type: UserDto })
   async getUserById(@Param('id') id: string) {
     return this.userService.findOne(id);
   }
@@ -81,7 +81,7 @@ export class UserController {
     description: 'Update the specified user with the provided data.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User updated', type: User })
+  @ApiOkResponse({ description: 'User updated', type: UserDto })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async updateUser(
     @Param('id') id: string,
@@ -100,7 +100,7 @@ export class UserController {
     description: 'Retrieve the friends of the specified user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User friends found', type: [User] })
+  @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
   async getUserFriends(@Param('id') id: string) {
     // Implement the method to fetch user friends
   }
@@ -129,7 +129,7 @@ export class UserController {
       "Remove the specified user from the current user's friends list.",
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend deleted', type: [User] })
+  @ApiOkResponse({ description: 'Friend deleted', type: [UserDto] })
   async deleteUserFriend(@Param('id') id: string) {
     // Implement the method to delete a friend
   }
@@ -144,7 +144,7 @@ export class UserController {
     description: 'Send a friend request to the specified user ID.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend request sent', type: [User] })
+  @ApiOkResponse({ description: 'Friend request sent', type: [UserDto] })
   async sendUserFriendRequest(@Param('id') id: string) {
     // Implement the method to send a friend request
   }
@@ -159,7 +159,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({
     description: 'User friend requests found',
-    type: [User],
+    type: [UserDto],
   })
   async getUserFriendRequests(@Param('id') id: string) {
     // Implement the method to fetch user friend requests
@@ -173,7 +173,7 @@ export class UserController {
       'Accept or deny a received friend request from the specified user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend request updated', type: [User] })
+  @ApiOkResponse({ description: 'Friend request updated', type: [UserDto] })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async updateUserFriendRequest(
     @Param('id') id: string,
@@ -189,7 +189,7 @@ export class UserController {
     description: 'Cancel a friend request sent to the specified user ID.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend request deleted', type: [User] })
+  @ApiOkResponse({ description: 'Friend request deleted', type: [UserDto] })
   async deleteUserFriendRequest(@Param('id') id: string) {
     // Implement the method to delete a sent friend request
   }
@@ -205,7 +205,7 @@ export class UserController {
       'Block the specified user ID from interacting with the current user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User blocked', type: [User] })
+  @ApiOkResponse({ description: 'User blocked', type: [UserDto] })
   async blockUser(@Param('id') id: string) {
     // Implement the method to block a user
   }
@@ -217,7 +217,7 @@ export class UserController {
     description: 'Retrieve a list of blocked users for the current user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Blocked users found', type: [User] })
+  @ApiOkResponse({ description: 'Blocked users found', type: [UserDto] })
   async getBlockedUsers(@Param('id') id: string) {
     // Implement the method to fetch blocked users
   }
@@ -229,7 +229,7 @@ export class UserController {
     description: 'Unblock the specified user by their unique identifier.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User unblocked', type: [User] })
+  @ApiOkResponse({ description: 'User unblocked', type: [UserDto] })
   async unblockUser(@Param('id') id: string) {
     // Implement the method to unblock a user
   }

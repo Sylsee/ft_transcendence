@@ -8,15 +8,15 @@ import { ConfigService } from '@nestjs/config';
 import { Strategy } from 'passport-oauth2';
 import { stringify } from 'querystring';
 import { lastValueFrom } from 'rxjs';
+import { validateOrReject } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
 // Local imports
 import { AuthService } from '../auth.service';
-import { validateOrReject } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
 import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthProvider } from '../dto/auth-provider.enum';
-import { User } from 'src/user/model/user.model';
+import { UserDto } from 'src/user/dto/user.dto';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -45,7 +45,7 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
   async validate(
     _accessToken: string,
     _refreshToken: string,
-  ): Promise<{ user: User; new: Boolean } | undefined> {
+  ): Promise<{ user: UserDto; new: Boolean } | undefined> {
     // Fetch user data from 42's API
     const response = await lastValueFrom(
       this.httpService.get('https://api.intra.42.fr/v2/me', {

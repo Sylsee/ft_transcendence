@@ -10,7 +10,7 @@ import * as Joi from 'joi';
 // Local files
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
-import { TypeOrmConfigService } from './config/config.service';
+import { TypeOrmConfigService } from './config/typeOrmConfig';
 
 @Module({
   imports: [
