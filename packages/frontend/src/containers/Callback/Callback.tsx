@@ -1,20 +1,18 @@
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { authenticate } from "../../store/auth-slice/auth-slice";
-import { RootState } from "../../store/store-types";
+import { RootState } from "../../types/global";
 import { Loader } from "../../components/Loader/Loader";
 
 const Callback: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-	const dispatch = useDispatch();
+	const id = useSelector((store: RootState) => store.USER.user?.id);
 
 	useEffect(() => {
-		dispatch(authenticate());
-
-		setLoading(false);
-	}, [dispatch]);
+		if (isAuth === false) setLoading(false);
+		if (isAuth === true && id !== undefined) setLoading(false);
+	}, [isAuth, id]);
 
 	if (loading)
 		return (
@@ -23,7 +21,7 @@ const Callback: React.FC = () => {
 			</>
 		);
 
-	return isAuth ? <Navigate to={"/user/1"} /> : <Navigate to={"/"} />;
+	return isAuth ? <Navigate to={`/user/${id}`} /> : <Navigate to={"/"} />;
 };
 
 export { Callback };
