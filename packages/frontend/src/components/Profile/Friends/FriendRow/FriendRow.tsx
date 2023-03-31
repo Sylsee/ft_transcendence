@@ -21,7 +21,7 @@ const FriendRow: React.FC<FriendRowProps> = ({
 					<div className="w-full md:w-1/2">
 						<button
 							onClick={onClick}
-							className="bg-green-300 border-solid border-2 rounded-lg w-[95%]"
+							className="bg-green-700 border-solid border-2 rounded-lg w-[95%]"
 						>
 							Accept
 						</button>
