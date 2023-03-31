@@ -3,7 +3,7 @@ import {
 	logout,
 	setToken,
 } from "../../store/auth-slice/auth-slice";
-import { RootState } from "../../store/store-types";
+import { RootState } from "../../types/global";
 import {
 	AnyAction,
 	Middleware,
@@ -12,6 +12,8 @@ import {
 } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
+import { JWT_NAME } from "../../config";
+import { getUser } from "../../store/selfUser-slice/selfUser-slice";
 
 interface DecodedToken {
 	sub: string;
@@ -29,25 +31,24 @@ const actionHandlers: Record<
 	) => void
 > = {
 	[authenticate.type]: (store, next, action) => {
-		return next(action);
-		/*
 		try {
-			const cookie = Cookies.get("jwt");
-			if (cookie) {
-				const token = jwt_decode(cookie) as DecodedToken;
+			const cookie = Cookies.get(JWT_NAME);
+			if (!cookie) return store.dispatch(logout());
 
-				if (new Date() >= new Date(token.exp * 1000))
-					return store.dispatch(logout());
-				else store.dispatch(setToken({ token: cookie }));
-			} else return store.dispatch(logout());
+			const token: DecodedToken = jwt_decode(cookie);
+
+			if (new Date() >= new Date(token.exp * 1000))
+				return store.dispatch(logout());
+
+			store.dispatch(setToken({ token: cookie }));
+			store.dispatch(getUser({ id: token.sub }));
 		} catch (error) {
 			return store.dispatch(logout());
 		}
 		return next(action);
-*/
 	},
 	[logout.type]: (store, next, action) => {
-		Cookies.remove("jwt");
+		Cookies.remove(JWT_NAME);
 		return next(action);
 	},
 };
