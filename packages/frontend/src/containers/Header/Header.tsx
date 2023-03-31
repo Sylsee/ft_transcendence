@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { HeaderLink } from "../../components/Header/HeaderLink/HeaderLink";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../store/store-types";
+import { RootState } from "../../types/global";
 import { logout } from "../../store/auth-slice/auth-slice";
 import { HeaderButton } from "../../components/Header/HeaderButton/HeaderButton";
 
@@ -12,6 +12,7 @@ const Header: React.FC = () => {
 	const [navbarState, setNavbarState] = useState(false);
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
 	const dispatch = useDispatch();
+	const id = useSelector((store: RootState) => store.USER.user?.id);
 
 	const logoutHandler = () => {
 		dispatch(logout());
@@ -44,10 +45,10 @@ const Header: React.FC = () => {
 					}`}
 					id="example-navbar-danger"
 				>
-					{isAuth && (
+					{isAuth && id && (
 						<ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
 							<HeaderLink name="Chat" link="/chat" />
-							<HeaderLink name="Profile" link="/user/1" />
+							<HeaderLink name="Profile" link={`/user/${id}`} />
 							<HeaderButton
 								onClick={logoutHandler}
 								name="Logout"
