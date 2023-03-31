@@ -15,7 +15,7 @@ export class FriendRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: false})
   accepted: boolean;
 
   @ManyToOne(() => UserEntity, { nullable: false })

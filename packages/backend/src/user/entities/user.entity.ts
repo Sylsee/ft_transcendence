@@ -9,6 +9,7 @@ import {
 
 // Local files
 import { AuthProvider } from '../../auth/dto/auth-provider.enum';
+import { FriendRequest } from './friend_request.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -34,12 +35,12 @@ export class UserEntity {
   avatarUrl: string;
 
   // Relationships
-  @OneToMany(() => UserEntity, (user) => user.friends)
+  @ManyToMany(() => UserEntity, (user) => user.friends)
   friends: UserEntity[];
 
-  @ManyToMany(() => UserEntity, (user) => user.friendRequests)
-  friendRequests: UserEntity[];
-
-  @OneToMany(() => UserEntity, (user) => user.blockedUsers)
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
   blockedUsers: UserEntity[];
+  
+  @OneToMany(() => UserEntity, (user) => user.friendRequests)
+  friendRequests: FriendRequest[];
 }
