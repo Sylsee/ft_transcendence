@@ -41,6 +41,9 @@ export class UserEntity {
   @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
   blockedUsers: UserEntity[];
   
-  @OneToMany(() => UserEntity, (user) => user.friendRequests)
-  friendRequests: FriendRequest[];
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender)
+  sentFriendRequests: FriendRequest[];
+
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver)
+  receivedFriendRequests: FriendRequest[];
 }

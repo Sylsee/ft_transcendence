@@ -102,7 +102,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
   async getUserFriends(@Param('id') id: string) {
-    // Implement the method to fetch user friends
+    this.userService.getFriendsById(id);
   }
 
   @Get('friend-status/:id')

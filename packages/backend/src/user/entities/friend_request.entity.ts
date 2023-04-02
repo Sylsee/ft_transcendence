@@ -10,7 +10,7 @@ import {
 // Local files
 import { UserEntity } from './user.entity';
 
-@Entity()
+@Entity('friend_requests')
 export class FriendRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -18,17 +18,15 @@ export class FriendRequest {
   @Column({ nullable: false, default: false})
   accepted: boolean;
 
-  @ManyToOne(() => UserEntity, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.sentFriendRequests, { nullable: false })
   @JoinColumn({
-    name: `FromUser`,
-    foreignKeyConstraintName: `FK_FromUser_UserEntity`,
+    foreignKeyConstraintName: `FK_Sender_UserEntity`
   })
-  fromUser: UserEntity;
+  sender: UserEntity;
 
-  @ManyToOne(() => UserEntity, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.receivedFriendRequests, { nullable: false })
   @JoinColumn({
-    name: `ToUser`,
-    foreignKeyConstraintName: `FK_ToUser_UserEntity`,
+    foreignKeyConstraintName: `FK_Receiver_UserEntity`
   })
-  toUser: UserEntity;
+  receiver: UserEntity;
 }

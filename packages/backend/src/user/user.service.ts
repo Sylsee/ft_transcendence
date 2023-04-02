@@ -32,4 +32,8 @@ export class UserService {
   findOne(id: string) {
     return this.userRepository.findOneById(id);
   }
+
+  getFriendsById(id: string): Promise<UserDto[]> {
+    return this.userRepository.getFriendsById(id);
+  }
 }
