@@ -5,6 +5,8 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   OneToMany,
+  AfterLoad,
+  JoinTable,
 } from 'typeorm';
 
 // Local files
@@ -36,9 +38,11 @@ export class UserEntity {
 
   // Relationships
   @ManyToMany(() => UserEntity, (user) => user.friends)
+  @JoinTable()
   friends: UserEntity[];
 
   @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  @JoinTable()
   blockedUsers: UserEntity[];
   
   @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender)
@@ -46,4 +50,14 @@ export class UserEntity {
 
   @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver)
   receivedFriendRequests: FriendRequest[];
+
+  @AfterLoad()
+  async nullChecks() {
+    if (!this.friends) {
+      this.friends = [];
+    }
+    if (!this.blockedUsers) {
+      this.blockedUsers = [];
+    }
+  }
 }

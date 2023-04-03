@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -146,7 +147,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Friend request sent', type: [UserDto] })
   async sendUserFriendRequest(@Param('id') id: string) {
-    // Implement the method to send a friend request
+    //this.userService.sendFriendRequest(id);
   }
 
   @Get('friend-request/:id')
@@ -162,7 +163,7 @@ export class UserController {
     type: [UserDto],
   })
   async getUserFriendRequests(@Param('id') id: string) {
-    // Implement the method to fetch user friend requests
+    //this.userService.getUserFriendRequests(id);
   }
 
   @Patch('friend-request/:id')
