@@ -5,7 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserRepository } from './user.repository';
 import { AuthProvider } from '../auth/dto/auth-provider.enum';
-import { UserDto } from './dto/user.dto';
+import { UserDto, UserRelationshipDto } from './dto/user.dto';
+import { FriendRequestDto } from './dto/friend_request.dto';
+import { FriendRequest } from './entities/friend_request.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
@@ -33,7 +37,43 @@ export class UserService {
     return this.userRepository.findOneById(id);
   }
 
+  updateOne(userId: string, updateUserDto: UpdateUserDto): Promise<UserDto> {
+    return this.userRepository.updateOne(userId, updateUserDto);
+  }
+
   getFriendsById(id: string): Promise<UserDto[]> {
     return this.userRepository.getFriendsById(id);
+  }
+
+  getSentFriendRequests(id: string): Promise<FriendRequestDto[]> {
+    return this.userRepository.getSentFriendRequests(id);
+  }
+
+  getReceivedFriendRequests(id: string): Promise<FriendRequestDto[]> {
+    return this.userRepository.getReceivedFriendRequests(id);
+  }
+
+  sendFriendRequest(sender: UserEntity, futureFriendId: string): Promise<FriendRequest> {
+    return this.userRepository.sendFriendRequest(sender, futureFriendId);
+  }
+
+  getUserFriendsStatus(currentUser: UserEntity, specifyUserId: string): Promise<UserRelationshipDto> { 
+    return this.userRepository.getUserFriendsStatus(currentUser, specifyUserId);
+  }
+
+  deleteFriend(currentUser: UserEntity, friendToDeleteId: string): Promise<UserDto> {
+    return this.userRepository.deleteFriendById(currentUser, friendToDeleteId);
+  }
+
+  blockUserById(currentUser: UserEntity, userToBlockId: string): Promise<void> {
+    return this.userRepository.blockUserById(currentUser, userToBlockId);
+  }
+
+  getBlockedUsers(currentUser: UserEntity): Promise<UserDto[]> {
+    return this.userRepository.getBlockedUsers(currentUser);
+  }
+
+  unblockUserById(currentUser: UserEntity, userToBlockId: string): Promise<void> {
+    return this.userRepository.unblockUserById(currentUser, userToBlockId);
   }
 }
