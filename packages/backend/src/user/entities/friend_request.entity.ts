@@ -9,24 +9,34 @@ import {
 
 // Local files
 import { UserEntity } from './user.entity';
+import { FriendRequestStatus } from '../enum/friend_request-status.enum';
 
 @Entity('friend_requests')
 export class FriendRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false, default: false})
-  accepted: boolean;
+  @Column({
+    type: 'enum',
+    enum: FriendRequestStatus,
+    nullable: false,
+    default: FriendRequestStatus.waitForApprove,
+  })
+  status: FriendRequestStatus;
 
-  @ManyToOne(() => UserEntity, (user) => user.sentFriendRequests, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.sentFriendRequests, {
+    nullable: false,
+  })
   @JoinColumn({
-    foreignKeyConstraintName: `FK_Sender_UserEntity`
+    foreignKeyConstraintName: `FK_Sender_UserEntity`,
   })
   sender: UserEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.receivedFriendRequests, { nullable: false })
+  @ManyToOne(() => UserEntity, (user) => user.receivedFriendRequests, {
+    nullable: false,
+  })
   @JoinColumn({
-    foreignKeyConstraintName: `FK_Receiver_UserEntity`
+    foreignKeyConstraintName: `FK_Receiver_UserEntity`,
   })
   receiver: UserEntity;
 }
