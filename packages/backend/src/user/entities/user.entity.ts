@@ -59,5 +59,11 @@ export class UserEntity {
     if (!this.blockedUsers) {
       this.blockedUsers = [];
     }
+    if (!this.sentFriendRequests) {
+      this.sentFriendRequests = [];
+    }
+    if (!this.receivedFriendRequests) {
+      this.receivedFriendRequests = [];
+    }
   }
 }
