@@ -33,17 +33,16 @@ export class AuthService {
     return { ...userExists, new: false };
   }
 
-  async signIn(@Res() res: Response, user) {
-    const token = await this.jwtService.sign({ sub: user.id });
+  async signIn(@Res() res: Response, user): Promise<void> {
+    const access_token = await this.jwtService.sign({ sub: user.id });
 
-    res.cookie('token', token, {
+    res.cookie('access_token', access_token, {
       maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
       // TODO: Make the cookie settings
-      // httpOnly: this.configService.get<string>('NODE_ENV') === 'production',
-      // secure: this.configService.get<string>('NODE_ENV') === 'production',
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
       // domain:
       //   this.configService.get<string>('NODE_ENV') === 'production'
-      //     ? 'frontend'
+      //     ? '.localhost'
       //     : undefined,
       // path: '/',
     });

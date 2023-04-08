@@ -5,6 +5,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 // Third-party imports
+import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
 import helmet from 'helmet';
 import * as passport from 'passport';
@@ -49,6 +50,9 @@ async function bootstrap() {
   // Configure passport middleware (see https://docs.nestjs.com/security/authentication)
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Configure cookie parser middleware (see https://docs.nestjs.com/techniques/cookies)
+  app.use(cookieParser());
 
   // Configure Swagger (see https://docs.nestjs.com/openapi/introduction)
   if (configService.get<string>('NODE_ENV') !== 'production') {
