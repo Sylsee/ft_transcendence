@@ -6,7 +6,7 @@ import { PassportStrategy } from '@nestjs/passport';
 // Third-party imports
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-// Local files
+// Local imports
 import { UserService } from 'src/user/user.service';
 
 @Injectable()

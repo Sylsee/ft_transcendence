@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 // Third-party imports
 import { Repository } from 'typeorm';
 
-// Local files
+// Local imports
 import { AuthProvider } from '../auth/dto/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';

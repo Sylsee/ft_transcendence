@@ -1,5 +1,5 @@
 // NestJS imports
-import { Controller, Get, Req, UseGuards, Res } from '@nestjs/common';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiCookieAuth,
   ApiOperation,
@@ -11,9 +11,9 @@ import {
 import { Response } from 'express';
 
 // Local imports
+import { AuthService } from './auth.service';
 import { OAuth42Guard } from './guard/42-oauth.guard';
 import { GoogleOauthGuard } from './guard/google-oauth.guard';
-import { AuthService } from './auth.service';
 
 @ApiTags('Authentication')
 @Controller('auth')

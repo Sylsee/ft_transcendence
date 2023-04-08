@@ -49,26 +49,6 @@ services:
     restart: always
 
   # ------------------------------------------------------------
-  # PgAdmin - Database Admin
-  # ------------------------------------------------------------
-  pgadmin:
-    image: dpage/pgadmin4
-    hostname: pgadmin_dev
-    environment:
-      GUNICORN_ACCESS_LOGFILE: "/dev/null"
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    volumes:
-      - pgadmin:/root/.pgadmin
-    ports:
-      - ${PGADMIN_PORT}:80
-    networks:
-      - transcendence-network
-    depends_on:
-      - db
-    restart: always
-
-  # ------------------------------------------------------------
   # Node - Frontend
   # ------------------------------------------------------------
   # frontend:

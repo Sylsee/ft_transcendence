@@ -1,12 +1,16 @@
+// NestJS imports
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import * as passport from 'passport';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+// Third-party imports
 import * as session from 'express-session';
 import helmet from 'helmet';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import * as passport from 'passport';
 
+// Local imports
 import { AppModule } from './app.module';
-import { ConfigService } from '@nestjs/config';
 
 declare const module: any;
 

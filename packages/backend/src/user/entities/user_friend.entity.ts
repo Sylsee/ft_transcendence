@@ -1,7 +1,7 @@
 // Third-party imports
-import { Entity, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
-// Local files
+// Local imports
 import { UserEntity } from './user.entity';
 
 @Entity()

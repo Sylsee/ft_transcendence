@@ -18,9 +18,9 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
-// Local files
+// Local imports
+import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';

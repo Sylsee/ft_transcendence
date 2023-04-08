@@ -1,5 +1,10 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsEmail, IsUrl, IsEnum } from 'class-validator';
+
+// Third-party imports
+import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+
+// Local imports
 import { AuthProvider } from './auth-provider.enum';
 
 export class ProfileDto {

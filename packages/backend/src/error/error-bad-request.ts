@@ -1,5 +1,7 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
 
+// Local imports
 import { Error } from './error';
 
 export class ErrorBadRequest extends Error {

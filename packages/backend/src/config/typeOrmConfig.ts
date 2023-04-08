@@ -1,12 +1,12 @@
 // Nest dependencies
 import { Injectable } from '@nestjs/common';
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
 // Other dependencies
 import * as env from 'dotenv';
 
-// Local files
+// Local imports
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserFriend } from 'src/user/entities/user_friend.entity';
 import { FriendRequest } from 'src/user/entities/friend_request.entity';

@@ -1,22 +1,22 @@
 // NestJS imports
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
 import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
 
 // Third-party imports
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { Strategy } from 'passport-oauth2';
 import { stringify } from 'querystring';
 import { lastValueFrom } from 'rxjs';
-import { validateOrReject } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
 
 // Local imports
-import { AuthService } from '../auth.service';
-import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { AuthProvider } from '../dto/auth-provider.enum';
 import { UserDto } from 'src/user/dto/user.dto';
+import { AuthService } from '../auth.service';
+import { AuthProvider } from '../dto/auth-provider.enum';
+import { ProfileDto } from '../dto/profile.dto';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -44,8 +44,9 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
 
   async validate(
     _accessToken: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _refreshToken: string,
-  ): Promise<{ user: UserDto; new: Boolean } | undefined> {
+  ): Promise<{ user: UserDto; new: boolean } | undefined> {
     // Fetch user data from 42's API
     const response = await lastValueFrom(
       this.httpService.get('https://api.intra.42.fr/v2/me', {

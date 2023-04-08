@@ -1,13 +1,14 @@
 // Third-party imports
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
+  Entity,
+  JoinTable,
   ManyToMany,
   OneToMany,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
-// Local files
+// Local imports
 import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 @Entity('users')

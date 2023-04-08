@@ -7,7 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Other dependencies
 import * as Joi from 'joi';
 
-// Local files
+// Local imports
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { TypeOrmConfigService } from './config/typeOrmConfig';

@@ -1,11 +1,11 @@
 // Nest dependencies
 import { Injectable } from '@nestjs/common';
 
-// Local files
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserRepository } from './user.repository';
+// Local imports
 import { AuthProvider } from '../auth/dto/auth-provider.enum';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {

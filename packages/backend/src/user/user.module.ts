@@ -2,13 +2,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// Local files
-import { UserService } from './user.service';
+// Local imports
+import { FriendRequest } from './entities/friend_request.entity';
+import { UserEntity } from './entities/user.entity';
+import { UserFriend } from './entities/user_friend.entity';
 import { UserController } from './user.controller';
 import { UserRepository } from './user.repository';
-import { UserEntity } from './entities/user.entity';
-import { FriendRequest } from './entities/friend_request.entity';
-import { UserFriend } from './entities/user_friend.entity';
+import { UserService } from './user.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, FriendRequest, UserFriend])],

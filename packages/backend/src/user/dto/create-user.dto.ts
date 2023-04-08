@@ -2,10 +2,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsEmail, IsNotEmpty, IsString, IsUrl, IsEnum } from 'class-validator';
-import { ProfileDto } from 'src/auth/dto/profile.dto';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
 
-// Local files
+// Local imports
+import { ProfileDto } from 'src/auth/dto/profile.dto';
 import { AuthProvider } from '../../auth/dto/auth-provider.enum';
 
 export class CreateUserDto {
