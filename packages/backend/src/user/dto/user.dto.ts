@@ -4,28 +4,15 @@ import { ApiProperty } from '@nestjs/swagger';
 // Third-party imports
 import {
   IsBoolean,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
+  IsUUID,
   IsUrl,
 } from 'class-validator';
 
 // Local imports
-import { UserRelationship } from '../enum/user-relationship.enum';
 import { UserStatus } from '../enum/user-status.enum';
-
-export class UserRelationshipDto {
-  @ApiProperty({
-    enum: UserRelationship,
-    isArray: true,
-    description: 'The relationship status between two users',
-    example: UserRelationship.friends,
-  })
-  @IsNotEmpty()
-  @IsEnum(UserRelationship)
-  status: UserRelationship;
-}
 
 export class UserDto {
   @ApiProperty({
@@ -33,7 +20,7 @@ export class UserDto {
     example: '12345678-abcd-1234-abcd-1234567890ab',
   })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 
   @ApiProperty({

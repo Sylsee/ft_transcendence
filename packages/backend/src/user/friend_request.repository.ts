@@ -23,7 +23,7 @@ export class FriendRequestRepository {
 
   async changeFriendRequestStatus(id: string, updateFriendRequestDto: UpdateFriendRequestDto): Promise<void> {
     const request = await this.friendRequestRepository.findOneBy({id: id});
-    request.status = updateFriendRequestDto.status == true?  FriendRequestStatus.approved : FriendRequestStatus.denied;
+    request.status = updateFriendRequestDto.status;
     this.friendRequestRepository.save(request);
   }
 

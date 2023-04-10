@@ -2,14 +2,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsBoolean, IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { FriendRequestStatus } from '../enum/friend_request-status.enum';
 
 export class UpdateFriendRequestDto {
   @ApiProperty({
-    description: 'The status of the friend request',
+    description: 'The new status of the friend request',
     example: true,
   })
   @IsNotEmpty()
-  @IsBoolean()
-  status: boolean;
+  @IsEnum(FriendRequestStatus)
+  status: FriendRequestStatus;
 }

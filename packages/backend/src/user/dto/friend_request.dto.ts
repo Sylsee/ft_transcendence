@@ -3,10 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
 import {
-  IsBoolean,
+  IsEnum,
   IsNotEmpty,
-  IsOptional,
-  IsString,
+  IsUUID,
 } from 'class-validator';
 
 // Local imports
@@ -18,17 +17,18 @@ export class FriendRequestDto {
     example: '12345678-abcd-1234-abcd-1234567890ab',
   })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 
   @ApiProperty({
+    enum: FriendRequestStatus,
+    isArray: true,
     description:
       'Indicates whether the requests status',
-    example: true,
+    example: FriendRequestStatus.approved,
     required: true,
   })
-  @IsOptional()
-  @IsBoolean()
   @IsNotEmpty()
+  @IsEnum(FriendRequestStatus)
   status: FriendRequestStatus;
 }

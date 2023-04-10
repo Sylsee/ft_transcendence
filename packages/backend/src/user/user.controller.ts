@@ -25,12 +25,13 @@ import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserDto, UserRelationshipDto } from './dto/user.dto';
+import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 import { FriendRequestDto } from './dto/friend_request.dto';
 import { FriendRequestService } from './friend_request.service';
 import { UseContainerOptions } from 'class-validator';
 import { UserEntity } from './entities/user.entity';
+import { UserRelationshipDto } from './dto/user-relationship.dto';
 
 const ApiUserIdParam = ApiParam({
   name: 'id',
