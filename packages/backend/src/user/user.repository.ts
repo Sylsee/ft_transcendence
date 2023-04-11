@@ -56,14 +56,12 @@ export class UserRepository {
   }
 
   async getFriendsById(userId: string): Promise<UserEntity[]> {
-    const queryBuilder = this.userRepository
-      .createQueryBuilder('user')
-      .leftJoinAndSelect('user.friends', 'friend')
-      .where('user.id = :id', { id: userId })
-      .getMany();
-
-    const user = await queryBuilder;
-    return user[0].friends;
+    return this.userRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.friends', 'friend')
+    .where('user.id = :id', { id: userId })
+    .getOne()
+    .then((user) => user?.friends);
   }
 
   async getUserWithRelation(userId: string, relation: string): Promise<UserEntity> {

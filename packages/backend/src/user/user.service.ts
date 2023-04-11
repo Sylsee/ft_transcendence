@@ -119,6 +119,13 @@ export class UserService {
     return relationship;
   }
 
+  async addNewFriend(currentUser: UserEntity, newFriendId: string): Promise<void> {
+    const friend: UserEntity = await this.userRepository.findOneById(newFriendId);
+    currentUser.friends.push(friend);
+    friend.friends.push(currentUser);
+    await this.userRepository.saveArray([currentUser, friend]);
+  }
+
   async deleteFriend(user: UserEntity, friendToDeleteId: string): Promise<UserDto> {
     if (!user) {
       throw new Error(`User in deleteFriendByID not found`);

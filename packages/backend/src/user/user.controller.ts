@@ -32,6 +32,7 @@ import { FriendRequestService } from './friend_request.service';
 import { UseContainerOptions } from 'class-validator';
 import { UserEntity } from './entities/user.entity';
 import { UserRelationshipDto } from './dto/user-relationship.dto';
+import { FriendRequestStatus } from './enum/friend_request-status.enum';
 
 const ApiUserIdParam = ApiParam({
   name: 'id',
@@ -189,10 +190,20 @@ export class UserController {
   @ApiOkResponse({ description: 'Friend request updated', type: [UserDto] })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async updateUserFriendRequest(
+    @Req() req,
     @Param('id') id: string,
     @Body() updateFriendRequestDto: UpdateFriendRequestDto,
   ) {
-    return this.friendRequestService.changeFriendRequestStatus(id, updateFriendRequestDto);
+    // const user: UserEntity = req.user;
+    // const newFriendRequest =
+    //   await this.friendRequestService.changeFriendRequestStatus(
+    //     user,
+    //     id,
+    //     updateFriendRequestDto,
+    //   );
+    // if ((newFriendRequest).status === FriendRequestStatus.approved) {
+    //   await this.userService.addNewFriend(user, id);
+    // }
   }
 
   @Delete('friend-request/:id')
@@ -204,7 +215,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Friend request deleted', type: [UserDto] })
   async deleteUserFriendRequest(@Param('id') id: string) {
-    this.friendRequestService.deleteFriendRequestById(id);
+    this.friendRequestService.deleteFriendRequestByReceiverId(id);
   }
 
   // ------------------------------------------------------------

@@ -7,31 +7,42 @@ import { Repository } from 'typeorm';
 
 // Local files
 import { FriendRequest } from './entities/friend_request.entity';
-import { FriendRequestStatus } from './enum/friend_request-status.enum';
-import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 
 @Injectable()
 export class FriendRequestRepository {
   constructor(
     @InjectRepository(FriendRequest)
-    private friendRequestRepository: Repository<FriendRequest>
+    private friendRequestRepository: Repository<FriendRequest>,
   ) {}
 
-  async saveFriendRequest(newFriendRequest: FriendRequest): Promise<void> {
-    this.friendRequestRepository.save(newFriendRequest);
+  async findOneById(id: string): Promise<FriendRequest> {
+    return this.friendRequestRepository.findOneBy({ id: id });
   }
 
-  async changeFriendRequestStatus(id: string, updateFriendRequestDto: UpdateFriendRequestDto): Promise<void> {
-    const request = await this.friendRequestRepository.findOneBy({id: id});
-    request.status = updateFriendRequestDto.status;
-    this.friendRequestRepository.save(request);
+  async findSpecifyFriendRequest(
+    receiverId: string,
+    senderId: string,
+  ): Promise<FriendRequest> {
+    return await this.friendRequestRepository
+      .createQueryBuilder('req')
+      .leftJoinAndSelect('req.sender', 'sender')
+      .leftJoinAndSelect('req.receiver', 'receiver')
+      .where('req.receiverId = :receiverId', { receiverId: receiverId })
+      .andWhere('req.senderId = :senderId', { senderId: senderId })
+      .getOne();
   }
 
-  async deleteFriendRequestById(id: string) {
+  async saveFriendRequest(
+    newFriendRequest: FriendRequest,
+  ): Promise<FriendRequest> {
+    return await this.friendRequestRepository.save(newFriendRequest);
+  }
+
+  async deleteFriendRequestByReceiverId(recevierId: string) {
     await this.friendRequestRepository
-    .createQueryBuilder()
-    .delete()
-    .where('id = :id', { id })
-    .execute(); 
+      .createQueryBuilder()
+      .delete()
+      .where('receiverId = :id', { id: recevierId })
+      .execute();
   }
 }
