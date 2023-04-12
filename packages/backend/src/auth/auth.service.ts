@@ -1,5 +1,5 @@
 // NestJS imports
-import { Injectable, Logger, Req, Res } from '@nestjs/common';
+import { Injectable, Logger, Res, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
@@ -47,10 +47,23 @@ export class AuthService {
       // path: '/',
     });
 
-    res.redirect(
-      `${this.configService.get<string>('APP_DOMAIN')}/callback${
-        user.new ? '?new=true' : ''
-      }`,
-    );
+    if (this.configService.get<string>('NODE_ENV') === 'production') {
+      res.redirect(
+        `${this.configService.get<string>('APP_DOMAIN')}/callback${
+          user.new ? '?new=true' : ''
+        }`,
+      );
+    } else {
+      res.redirect('http://localhost:3000/users');
+    }
+  }
+
+  verify(token: string): string {
+    try {
+      const payload = this.jwtService.verify(token);
+      return payload.sub;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token', error);
+    }
   }
 }

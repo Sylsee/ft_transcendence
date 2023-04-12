@@ -4,11 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import {
   ApiBadRequestResponse,
   ApiExtraModels,
@@ -18,6 +21,9 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
+
+// Third-party imports
+import { Request } from 'express';
 
 // Local imports
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
@@ -43,7 +49,12 @@ const ApiUserIdParam = ApiParam({
 })
 @Controller('users')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  private readonly logger = new Logger(UserController.name);
+
+  constructor(
+    private userService: UserService,
+    private configService: ConfigService,
+  ) {}
 
   // TODO: Remove this endpoint
   // ------------------------------------------------------------
@@ -55,8 +66,14 @@ export class UserController {
     description: 'Retrieve all users.',
   })
   @ApiOkResponse({ description: 'Users found', type: [UserDto] })
-  async getAllUsers() {
-    return this.userService.findAll();
+  async getAllUsers(@Req() request: Request): Promise<any> {
+    if (this.configService.get<string>('NODE_ENV') === 'production') {
+      throw new ErrorBadRequest();
+    }
+    return {
+      token: request.cookies['access_token'],
+      ...(await this.userService.findAll()),
+    };
   }
 
   // ------------------------------------------------------------
@@ -71,7 +88,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User found', type: UserDto })
   async getUserById(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return await this.userService.findOneById(id);
   }
 
   @Patch(':id')

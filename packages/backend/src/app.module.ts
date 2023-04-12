@@ -10,6 +10,7 @@ import * as Joi from 'joi';
 // Local imports
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
+import { ChatModule } from './chat/chat.module';
 import { TypeOrmConfigService } from './config/typeOrmConfig';
 
 @Module({
@@ -56,6 +57,7 @@ import { TypeOrmConfigService } from './config/typeOrmConfig';
     PassportModule.register({ session: true }),
     AuthModule,
     UserModule,
+    ChatModule,
   ],
   providers: [TypeOrmConfigService],
 })

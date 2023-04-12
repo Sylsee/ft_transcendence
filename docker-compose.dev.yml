@@ -19,12 +19,11 @@ services:
     command:
       - sh
       - -c
-      - npm i && npm run start:dev
+      - npm ci && npm run start:dev
     depends_on:
       - db
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
-      - 9229:9229 # for NodeJS debugging
     networks:
       - transcendence-network
     restart: unless-stopped

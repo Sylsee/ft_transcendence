@@ -7,9 +7,12 @@ import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import * as env from 'dotenv';
 
 // Local imports
+import { ChannelEntity } from 'src/chat/entities/channel.entity';
+import { MessageEntity } from 'src/chat/entities/message.entity';
+import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
+import { FriendRequest } from 'src/user/entities/friend_request.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserFriend } from 'src/user/entities/user_friend.entity';
-import { FriendRequest } from 'src/user/entities/friend_request.entity';
 
 env.config();
 
@@ -35,7 +38,14 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.get('DB_PASS'),
       database: this.get('DB_NAME'),
 
-      entities: [UserEntity, UserFriend, FriendRequest],
+      entities: [
+        UserEntity,
+        UserFriend,
+        FriendRequest,
+        ChannelEntity,
+        MessageEntity,
+        MuteUserEntity,
+      ],
       synchronize: !this.isProduction(),
 
       autoLoadEntities: true,
