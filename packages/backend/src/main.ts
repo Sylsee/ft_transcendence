@@ -7,7 +7,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 // Third-party imports
 import * as cookieParser from 'cookie-parser';
 import * as session from 'express-session';
-import helmet from 'helmet';
 import * as passport from 'passport';
 
 // Local imports
@@ -16,23 +15,22 @@ import { AppModule } from './app.module';
 declare const module: any;
 
 async function bootstrap() {
-  // Create a Nest application instance
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create(AppModule);
 
+  // Configure Logger (see https://docs.nestjs.com/techniques/logger)
   const logger = new Logger();
+
+  // Configure config service (see https://docs.nestjs.com/techniques/configuration)
   const configService = app.get(ConfigService);
 
   // Configure CORS (see https://docs.nestjs.com/security/cors)
   app.enableCors({
-    credentials: true,
     origin:
       configService.get<string>('NODE_ENV') === 'production'
         ? configService.get<string>('APP_DOMAIN')
         : true,
+    credentials: true,
   });
-
-  // Use helmet (see https://docs.nestjs.com/security/helmet)
-  app.use(helmet());
 
   // Use global validation pipe (see https://docs.nestjs.com/techniques/validation)
   app.useGlobalPipes(new ValidationPipe());
