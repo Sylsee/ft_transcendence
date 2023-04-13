@@ -60,13 +60,6 @@ export class UserRepository {
     });
   }
 
-  async isBlockingUser(
-    user: UserEntity,
-    blockedUserId: string,
-  ): Promise<boolean> {
-    return user.blockedUsers.some((user) => user.id === blockedUserId);
-  }
-
   async findBlockingBy(userId: string): Promise<UserEntity[] | void> {
     return this.userRepository
       .createQueryBuilder('user')

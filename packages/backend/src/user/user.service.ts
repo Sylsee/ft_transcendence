@@ -21,6 +21,7 @@ export class UserService {
     return this.userRepository.create(user);
   }
 
+  // TODO: Remove this method
   findAll() {
     return this.userRepository.find();
   }
@@ -41,10 +42,6 @@ export class UserService {
       providerId,
       provider,
     );
-  }
-
-  userExists(userId: string): boolean {
-    return this.userRepository.findOneById(userId) !== null;
   }
 
   // -------------------- Socket Methods ------------------------
