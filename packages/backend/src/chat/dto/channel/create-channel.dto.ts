@@ -10,6 +10,8 @@ import {
   Length,
   ValidateIf,
 } from 'class-validator';
+
+// Local imports
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 
 export class CreateChannelDto {

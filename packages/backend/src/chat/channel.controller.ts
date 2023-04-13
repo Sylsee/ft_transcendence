@@ -18,7 +18,6 @@ import {
   ApiCreatedResponse,
   ApiExtraModels,
   ApiForbiddenResponse,
-  ApiFoundResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -61,7 +60,7 @@ export class ChannelController {
     summary: 'Get all channels',
     description: 'Retrieve all channels.',
   })
-  @ApiOkResponse({ description: 'Channels found', type: [ChannelEntity] })
+  @ApiOkResponse({ description: 'Channels found' })
   async getAllChannels(): Promise<ChannelEntity[] | void> {
     if (this.configService.get<string>('NODE_ENV') === 'production') {
       throw new ErrorBadRequest();

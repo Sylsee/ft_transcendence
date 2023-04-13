@@ -21,6 +21,7 @@ export class UserRelationshipDto {
     isArray: true,
     description: 'The relationship status between two users',
     example: UserRelationship.friends,
+    required: true,
   })
   @IsNotEmpty()
   @IsEnum(UserRelationship)
@@ -31,6 +32,7 @@ export class UserDto {
   @ApiProperty({
     description: 'User id',
     example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -39,6 +41,7 @@ export class UserDto {
   @ApiProperty({
     description: 'The display name of the user',
     example: 'John',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -47,6 +50,7 @@ export class UserDto {
   @ApiProperty({
     description: 'The URL to the user avatar image',
     example: 'https://example.com/avatar.png',
+    required: true,
   })
   @IsNotEmpty()
   @IsUrl()

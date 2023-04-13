@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 // Local imports
-import { AuthProvider } from '../auth/dto/auth-provider.enum';
+import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserStatus } from './enum/user-status.enum';

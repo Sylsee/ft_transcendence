@@ -15,8 +15,8 @@ import { lastValueFrom } from 'rxjs';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserDto } from 'src/user/dto/user.dto';
 import { AuthService } from '../auth.service';
-import { AuthProvider } from '../dto/auth-provider.enum';
 import { ProfileDto } from '../dto/profile.dto';
+import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {

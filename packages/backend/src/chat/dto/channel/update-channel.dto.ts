@@ -18,6 +18,7 @@ export class UpdateChannelDto {
   @ApiProperty({
     description: 'The name of the channel',
     example: 'channel-name',
+    required: false,
   })
   @IsOptional()
   @Length(3, 20)
@@ -29,6 +30,7 @@ export class UpdateChannelDto {
     isArray: true,
     description: 'The type of the channel',
     example: ChannelType.PUBLIC,
+    required: false,
   })
   @IsOptional()
   @IsEnum(ChannelType)
@@ -37,6 +39,7 @@ export class UpdateChannelDto {
   @ApiProperty({
     description: 'The password of the channel',
     example: 'password',
+    required: false,
   })
   @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED && !o.password)
   @IsNotEmpty()

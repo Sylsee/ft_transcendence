@@ -9,6 +9,7 @@ class SenderDto {
   @ApiProperty({
     description: 'The id of the sender',
     example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
   })
   @IsNotEmpty()
   @IsUUID()
@@ -17,6 +18,7 @@ class SenderDto {
   @ApiProperty({
     description: 'The name of the sender',
     example: 'John Doe',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -25,6 +27,7 @@ class SenderDto {
   @ApiProperty({
     description: 'The avatar of the sender',
     example: 'https://example.com/avatar.png',
+    required: true,
   })
   @IsNotEmpty()
   @IsUrl()
@@ -35,6 +38,7 @@ export class MessageDto {
   @ApiProperty({
     description: 'The id of the recipient',
     example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
   })
   @IsNotEmpty()
   @IsUUID()
@@ -43,6 +47,7 @@ export class MessageDto {
   @ApiProperty({
     description: 'The content of the message',
     example: 'Hello world!',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -51,6 +56,7 @@ export class MessageDto {
   @ApiProperty({
     description: 'The sender of the message',
     type: SenderDto,
+    required: true,
   })
   @IsNotEmpty()
   sender: SenderDto;
@@ -58,6 +64,7 @@ export class MessageDto {
   @ApiProperty({
     description: 'The timestamp of the message',
     example: '2021-01-01T00:00:00.000Z',
+    required: true,
   })
   @IsNotEmpty()
   @IsDate()

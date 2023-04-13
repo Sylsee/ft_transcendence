@@ -9,13 +9,13 @@ import { WsException } from '@nestjs/websockets';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command/command.interface';
+import { ChannelDto } from '../dto/channel/channel.dto';
 import { CommandArgsDto } from '../dto/command/command-args.dto';
 import { MessageDto } from '../dto/message/message.dto';
 import { ChannelEntity } from '../entities/channel.entity';
+import { ChatEvent } from '../enum/chat-event.enum';
 import { ChannelService } from './channel.service';
 import { MessageService } from './message.service';
-import { ChannelDto } from '../dto/channel/channel.dto';
-import { ChatEvent } from '../enum/chat-event.enum';
 
 @Injectable()
 export class ChatService {

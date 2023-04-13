@@ -2,7 +2,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 // Local imports
-import { AuthProvider } from '../auth/dto/auth-provider.enum';
+import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';

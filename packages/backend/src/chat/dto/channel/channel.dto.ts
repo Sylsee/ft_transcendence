@@ -20,6 +20,7 @@ export class ChannelDto {
   @ApiProperty({
     description: 'The id of the channel',
     example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
   })
   @IsNotEmpty()
   @IsUUID()
@@ -28,6 +29,7 @@ export class ChannelDto {
   @ApiProperty({
     description: 'The name of the channel',
     example: 'channel-name',
+    required: true,
   })
   @IsNotEmpty()
   @Length(3, 20)
@@ -40,6 +42,7 @@ export class ChannelDto {
     description: 'The type of the channel',
     example: ChannelType.PRIVATE,
     enum: ChannelType,
+    required: true,
   })
   @IsNotEmpty()
   @IsEnum(ChannelType)
@@ -48,6 +51,7 @@ export class ChannelDto {
   @ApiProperty({
     description: 'The user is in the channel',
     example: true,
+    required: false,
   })
   @IsOptional()
   @IsBoolean()
