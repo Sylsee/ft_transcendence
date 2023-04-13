@@ -2,7 +2,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsOptional, Length } from 'class-validator';
+import * as sanitizeHtml from 'sanitize-html';
+
+// Local imports
+import { IsAlphanumericWithHyphenUnderscore } from 'src/validator/isAlphanumericWithHyphenUnderscore.validator';
 
 export class UpdateUserDto {
   @ApiProperty({
@@ -11,7 +16,9 @@ export class UpdateUserDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
+  @Length(1, 32)
+  @IsAlphanumericWithHyphenUnderscore()
+  @Transform(({ value }) => sanitizeHtml(value))
   name?: string;
 
   @ApiProperty({

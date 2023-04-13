@@ -2,7 +2,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
+import { Transform } from 'class-transformer';
 import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import * as sanitizeHtml from 'sanitize-html';
 
 // Local imports
 import { ProfileDto } from 'src/auth/dto/profile.dto';
@@ -45,6 +47,7 @@ export class CreateUserDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Transform(({ value }) => sanitizeHtml(value))
   name: string;
 
   @ApiProperty({

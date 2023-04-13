@@ -7,6 +7,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Req,
@@ -101,7 +102,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   async updateChannel(
     @Req() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() body: UpdateChannelDto,
   ): Promise<ChannelDto> {
     return await this.channelService.update(req.user.id, id, body);
@@ -119,7 +120,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteChannel(
     @Req() req: any,
-    @Param('id') channelId: string,
+    @Param('id', ParseUUIDPipe) channelId: string,
   ): Promise<void> {
     return await this.channelService.delete(req.user.id, channelId);
   }
@@ -139,7 +140,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   async joinChannel(
     @Req() req: any,
-    @Param('id') channelId: string,
+    @Param('id', ParseUUIDPipe) channelId: string,
     @Body() body: JoinChannelDto,
   ): Promise<ChannelDto> {
     return await this.channelService.joinChannel(
@@ -161,7 +162,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async leaveChannel(
     @Req() req: any,
-    @Param('id') channelId: string,
+    @Param('id', ParseUUIDPipe) channelId: string,
   ): Promise<void> {
     return await this.channelService.leaveChannel(req.user, channelId);
   }
@@ -192,7 +193,7 @@ export class ChannelController {
   @HttpCode(HttpStatus.OK)
   async getMessagesInChannel(
     @Req() req: any,
-    @Param('id') channelId: string,
+    @Param('id', ParseUUIDPipe) channelId: string,
   ): Promise<MessageDto[]> {
     return await this.channelService.findMessagesInChannel(
       req.user.id,
