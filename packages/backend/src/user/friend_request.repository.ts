@@ -32,17 +32,48 @@ export class FriendRequestRepository {
       .getOne();
   }
 
+  async findPossibleFriendRequest(
+    first: string,
+    second: string,
+  ): Promise<FriendRequest> {
+    let friendRequest: FriendRequest;
+
+    friendRequest = await this.friendRequestRepository
+      .createQueryBuilder('req')
+      .leftJoinAndSelect('req.sender', 'sender')
+      .leftJoinAndSelect('req.receiver', 'receiver')
+      .where('req.receiverId = :receiverId', { receiverId: first })
+      .andWhere('req.senderId = :senderId', { senderId: second })
+      .getOne();
+    if (!friendRequest) {
+      friendRequest = await this.friendRequestRepository
+      .createQueryBuilder('req')
+      .leftJoinAndSelect('req.sender', 'sender')
+      .leftJoinAndSelect('req.receiver', 'receiver')
+      .where('req.receiverId = :receiverId', { receiverId: second })
+      .andWhere('req.senderId = :senderId', { senderId: first })
+      .getOne();
+    }
+
+    return friendRequest;
+  }
+
   async saveFriendRequest(
     newFriendRequest: FriendRequest,
   ): Promise<FriendRequest> {
     return await this.friendRequestRepository.save(newFriendRequest);
   }
 
-  async deleteFriendRequestByReceiverId(recevierId: string) {
+  async deleteFriendRequestByReceiverId(senderId: string, recevierId: string) {
     await this.friendRequestRepository
       .createQueryBuilder()
       .delete()
-      .where('receiverId = :id', { id: recevierId })
+      .where('senderId = :senderId', {senderId: senderId})
+      .andWhere('receiverId = :receiverId', { recevierId: recevierId })
       .execute();
+  }
+
+  async deleteFriendRequest(friendRequest: FriendRequest): Promise<void> {
+    await this.friendRequestRepository.delete(friendRequest);
   }
 }

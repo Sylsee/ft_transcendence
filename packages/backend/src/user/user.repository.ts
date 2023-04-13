@@ -64,10 +64,14 @@ export class UserRepository {
     .then((user) => user?.friends);
   }
 
-  async getUserWithRelation(userId: string, relation: string): Promise<UserEntity> {
-    return await this.userRepository.findOne({
-      where: { id: userId },
-      relations: [relation],
-    });
+  async findOneByIdWithRelations(
+    id: string,
+    relations: string[],
+  ): Promise<UserEntity | void> {
+    return await this.userRepository
+      .findOne({ where: { id: id }, relations: relations })
+      .catch((error) => {
+        console.log(error);
+      });
   }
 }

@@ -97,7 +97,7 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return this.userService.updateOne(id, updateUserDto);
+    return await this.userService.updateOne(id, updateUserDto);
   }
 
   // ------------------------------------------------------------
@@ -112,7 +112,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
   async getUserFriends(@Param('id') id: string) {
-    this.userService.getFriendsById(id);
+    return this.userService.getFriendsById(id);
   }
 
   @Get('friend-status/:id')
@@ -129,7 +129,7 @@ export class UserController {
   })
   async getUserFriendStatus(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    return this.userService.getUserFriendsStatus(user, id);
+    return this.userService.getUserFriendsStatus(user.id, id);
   }
 
   @Delete('friend/:id')
@@ -143,7 +143,8 @@ export class UserController {
   @ApiOkResponse({ description: 'Friend deleted', type: [UserDto] })
   async deleteUserFriend(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    return this.userService.deleteFriend(user, id);
+    await this.friendRequestService.deleteFriendRequestBetweenUsers(user.id, id);
+    return await this.userService.deleteFriend(user.id, id);
   }
 
   // ------------------------------------------------------------
@@ -159,8 +160,7 @@ export class UserController {
   @ApiOkResponse({ description: 'Friend request sent', type: [UserDto] })
   async sendUserFriendRequest(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    const newRequest = await this.userService.sendFriendRequest(user, id);
-    this.friendRequestService.saveFriendRequest(newRequest);
+    await this.userService.sendFriendRequest(user.id, id);
   }
 
   @Get('friend-request/:id')
@@ -194,16 +194,17 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateFriendRequestDto: UpdateFriendRequestDto,
   ) {
-    // const user: UserEntity = req.user;
-    // const newFriendRequest =
-    //   await this.friendRequestService.changeFriendRequestStatus(
-    //     user,
-    //     id,
-    //     updateFriendRequestDto,
-    //   );
-    // if ((newFriendRequest).status === FriendRequestStatus.approved) {
-    //   await this.userService.addNewFriend(user, id);
-    // }
+    const user: UserEntity = req.user;
+
+    if (updateFriendRequestDto.status === FriendRequestStatus.approved) {
+      await this.userService.addNewFriend(user.id, id);
+    }
+
+    await this.friendRequestService.changeFriendRequestStatus(
+        user,
+        id,
+        updateFriendRequestDto,
+    );
   }
 
   @Delete('friend-request/:id')
@@ -214,8 +215,10 @@ export class UserController {
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Friend request deleted', type: [UserDto] })
-  async deleteUserFriendRequest(@Param('id') id: string) {
-    this.friendRequestService.deleteFriendRequestByReceiverId(id);
+  async deleteUserFriendRequest(@Req() req, @Param('id') id: string) {
+    const user: UserEntity = req.user;
+
+    this.friendRequestService.deleteFriendRequestByReceiverId(user.id, id);
   }
 
   // ------------------------------------------------------------
@@ -232,7 +235,7 @@ export class UserController {
   @ApiOkResponse({ description: 'User blocked', type: [UserDto] })
   async blockUser(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    this.userService.blockUserById(user, id);
+    this.userService.blockUserById(user.id, id);
   }
 
   @Get('block/:id')
@@ -245,7 +248,7 @@ export class UserController {
   @ApiOkResponse({ description: 'Blocked users found', type: [UserDto] })
   async getBlockedUsers(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    this.userService.getBlockedUsers(user);
+    return this.userService.getBlockedUsers(user.id);
   }
 
   @Delete('block/:id')
@@ -258,6 +261,6 @@ export class UserController {
   @ApiOkResponse({ description: 'User unblocked', type: [UserDto] })
   async unblockUser(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    this.userService.unblockUserById(user, id);
+    this.userService.unblockUserById(user.id, id);
   }
 }

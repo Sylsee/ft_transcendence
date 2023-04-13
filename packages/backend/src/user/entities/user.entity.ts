@@ -37,33 +37,27 @@ export class UserEntity {
   avatarUrl: string;
 
   // Relationships
-  @ManyToMany(() => UserEntity, (user) => user.friends)
+  @ManyToMany(() => UserEntity, (user) => user.friends, {
+    nullable: true
+  })
   @JoinTable()
   friends: UserEntity[];
 
-  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers, {
+    nullable: true
+  })
   @JoinTable()
   blockedUsers: UserEntity[];
   
-  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender)
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender, {
+    nullable: true,
+    cascade: true,
+  })
   sentFriendRequests: FriendRequest[];
 
-  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver)
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver, {
+    nullable: true,
+    cascade: true
+  })
   receivedFriendRequests: FriendRequest[];
-
-  @AfterLoad()
-  async nullChecks() {
-    if (!this.friends) {
-      this.friends = [];
-    }
-    if (!this.blockedUsers) {
-      this.blockedUsers = [];
-    }
-    if (!this.sentFriendRequests) {
-      this.sentFriendRequests = [];
-    }
-    if (!this.receivedFriendRequests) {
-      this.receivedFriendRequests = [];
-    }
-  }
 }

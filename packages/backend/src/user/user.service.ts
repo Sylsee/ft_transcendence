@@ -48,28 +48,39 @@ export class UserService {
 
     user.name = updateUserDto.name;
     
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   getFriendsById(id: string): Promise<UserDto[]> {
     return this.userRepository.getFriendsById(id);
   }
 
-  async getSentFriendRequests(id: string): Promise<FriendRequestDto[]> {
-    const user = await this.userRepository.getUserWithRelation(id, 'sentFriendRequests');
+  async getSentFriendRequests(userId: string): Promise<FriendRequestDto[]> {
+    const user = await this.userRepository.findOneByIdWithRelations(userId, ['sentFriendRequests']);
+    if (!user) {
+      return [];
+    }
+
     return user.sentFriendRequests;
   }
 
-  async getReceivedFriendRequests(id: string): Promise<FriendRequestDto[]> {
-    const user = await this.userRepository.getUserWithRelation(id, 'receivedFriendRequests');
+  async getReceivedFriendRequests(userId: string): Promise<FriendRequestDto[]> {
+    const user = await this.userRepository.findOneByIdWithRelations(userId, ['receivedFriendRequests']);
+    if (!user) {
+      return [];
+    }
+
     return user.receivedFriendRequests;
   }
 
-  async sendFriendRequest(sender: UserEntity, futureFriendId: string): Promise<FriendRequest> {
-    const receiver = await this.userRepository.findOneById(futureFriendId);
+  async sendFriendRequest(senderId: string, futureFriendId: string): Promise<void> {
+    const receiver = await this.userRepository.findOneByIdWithRelations(futureFriendId, ['receivedFriendRequests']);
+    const sender = await this.userRepository.findOneByIdWithRelations(senderId, ['sentFriendRequests']);
 
-    if (!receiver) {
+    if (!receiver || !sender) {
       throw new Error(`User with ID ${futureFriendId} not found`);
+    } else if (sender.id === receiver.id) {
+      throw new Error(`User ${sender.id} send request himself`);
     }
 
     const friendRequest = new FriendRequest();
@@ -80,93 +91,137 @@ export class UserService {
     receiver.receivedFriendRequests.push(friendRequest);
 
     await this.userRepository.saveArray([sender, receiver]);
-    return friendRequest;
-
   }
 
-  getUserFriendsStatus(currentUser: UserEntity, specifyUserId: string): UserRelationshipDto { 
+  async getUserFriendsStatus(currentUserId: string, specifyUserId: string): Promise<UserRelationshipDto> {
+    const currentUser = 
+      await this.userRepository.findOneByIdWithRelations(currentUserId, ['blockedUsers', 'friends', 'sentFriendRequests', 'receivedFriendRequests']);
     let relationship = new UserRelationshipDto();
 
     if (!currentUser) {
-      throw new Error('In getUserFriendsStatus(): users not found');
+      throw new Error('Error: in getUserFriendsStatus(): users not found');
     }
 
     if (currentUser.friends.some((friend) => friend.id === specifyUserId)) {
       relationship.status = UserRelationship.friends;
-    }
-
-    if (currentUser.blockedUsers.some((blockedUser) => blockedUser.id === specifyUserId)) {
+    } else if (currentUser.blockedUsers.some((blockedUser) => blockedUser.id === specifyUserId)) {
+      relationship.status = UserRelationship.notFriends;
+    } else if (currentUser.sentFriendRequests.some((request) => request.receiver.id === specifyUserId)) {
+      relationship.status = UserRelationship.friendRequestSent;
+    } else if (currentUser.receivedFriendRequests.some((request) => request.sender.id === specifyUserId)) {
+      relationship.status = UserRelationship.friendRequestReceived;
+    } else {
       relationship.status = UserRelationship.notFriends;
     }
 
-    const sentFriendRequest = currentUser.sentFriendRequests.find(
-      (request) => request.receiver.id === specifyUserId
-    );
-
-    if (sentFriendRequest) {
-      relationship.status = UserRelationship.friendRequestSent;
-    }
-
-    const receivedFriendRequest = currentUser.receivedFriendRequests.find(
-      (request) => request.sender.id === specifyUserId
-    );
-
-    if (receivedFriendRequest) {
-      relationship.status = UserRelationship.friendRequestReceived;
-    }
-
-    relationship.status = UserRelationship.notFriends;
     return relationship;
   }
 
-  async addNewFriend(currentUser: UserEntity, newFriendId: string): Promise<void> {
-    const friend: UserEntity = await this.userRepository.findOneById(newFriendId);
+  async addNewFriend(currentUserId: string, newFriendId: string): Promise<void> {
+    const currentUser = await this.findOneWithRelations(currentUserId, ['friends']);
+    const friend = await this.findOneWithRelations(newFriendId, ['friends']);
+
+    if (!currentUser || !friend) {
+      throw new Error("Error: in addNewFriend(): currentUser or friend not found");
+    }
+
+    const isAlreadyFriends = currentUser.friends.some(user => {user.id === newFriendId}) 
+    || friend.friends.some(user => {user.id === currentUserId});
+
+    if (isAlreadyFriends) {
+      return;
+    }
+
     currentUser.friends.push(friend);
     friend.friends.push(currentUser);
+
     await this.userRepository.saveArray([currentUser, friend]);
   }
 
-  async deleteFriend(user: UserEntity, friendToDeleteId: string): Promise<UserDto> {
-    if (!user) {
-      throw new Error(`User in deleteFriendByID not found`);
+  async deleteFriend(currentUserId: string, friendToDeleteId: string): Promise<UserDto[]> {
+    const currentUser = await this.findOneWithRelations(currentUserId, ['friends']);
+    if (!currentUser) {
+      throw new Error('In deleteFriend(): users not found');
     }
 
-    user.friends = user.friends.filter(
-      (friend) => friend.id !== friendToDeleteId,
-    );
+    if (currentUser.friends.some((friend) => friend.id === friendToDeleteId)) {
+      const friendToDelete = await this.findOneWithRelations(friendToDeleteId, ['friends']);
+      if (!friendToDelete) {
+        throw new Error('In deleteFriend(): users not found');
+      }
 
-    return await this.userRepository.save(user);
+      currentUser.friends = currentUser.friends.filter(
+        (friend) => friend.id !== friendToDeleteId,
+      )
+      friendToDelete.friends = friendToDelete.friends.filter(
+        (friend) => friend.id !== currentUserId,
+      )
+
+      return await this.userRepository.saveArray([currentUser, friendToDelete]);
+    }
   }
 
-  async blockUserById(user: UserEntity, userToBlockId: string): Promise<void> {
-    const userToBlock = await this.userRepository.findOneById(userToBlockId);
+  async deleteFriendByEntities(currentUser: UserEntity, friendToDelete: UserEntity): Promise<void> {
+    if (!currentUser.friends || !friendToDelete.friends) {
+      throw new Error("Error: in deleteFriendWithByEntities: currentUser.friends or friendToDelete.friend not specified");
+    }
 
-    if (!userToBlock) {
+    currentUser.friends = currentUser.friends.filter(
+      friend => {friend.id !== friendToDelete.id}
+    );
+
+    friendToDelete.friends = friendToDelete.friends.filter(
+      friend => {friend.id !== currentUser.id}
+    )
+
+    await this.userRepository.saveArray([currentUser, friendToDelete]);
+  }
+
+  async blockUserById(currentUserId: string, userToBlockId: string): Promise<void> {
+    const userToBlock = await this.userRepository.findOneById(userToBlockId);
+    const currentUser = await this.userRepository.findOneByIdWithRelations(currentUserId, ['blockedUsers', 'friends']);
+
+    if (!userToBlock || !currentUser) {
       throw new Error('User to block not found');
     }
 
-    const isUserAlreadyBlocked = user.blockedUsers.some((u) => u.id === userToBlock.id);
-
+    const isUserAlreadyBlocked = currentUser.blockedUsers.some((u) => u.id === userToBlock.id);
     if (isUserAlreadyBlocked) {
-      throw new Error('User is already blocked');
+      return;
     }
 
-    user.blockedUsers.push(userToBlock);
-    await this.userRepository.save(user);
-  }
-
-  getBlockedUsers(user: UserEntity): UserDto[] {
-    return user.blockedUsers;
-  }
-
-  async unblockUserById(currentUser: UserEntity, userToUnblockId: string): Promise<void> {
-    const userToUnblock = currentUser.blockedUsers.find((u) => u.id === userToUnblockId);
-  
-    if (!userToUnblock) {
-      throw new Error('User to unblock not found');
+    const isUserFriend = currentUser.friends.some((u) => u.id === userToBlock.id);
+    if (isUserFriend) {
+        this.deleteFriendByEntities(currentUser, userToBlock);
     }
-  
-    currentUser.blockedUsers = currentUser.blockedUsers.filter((u) => u.id !== userToUnblock.id);
+
+    currentUser.blockedUsers.push(userToBlock);
     await this.userRepository.save(currentUser);
+  }
+
+  async getBlockedUsers(currentUserId: string): Promise<UserDto[]> {
+    const currentUser = await this.userRepository.findOneByIdWithRelations(currentUserId, ['blockedUsers']);
+    if (!currentUser) {
+      throw new Error('Error: in getBlockUsers: current User not found');
+    }
+
+    return currentUser.blockedUsers;
+  }
+
+  async unblockUserById(currentUserId: string, userToUnblockId: string): Promise<void> {
+    const currentUser = await this.userRepository.findOneByIdWithRelations(currentUserId, ['blockedUsers']);
+    if (!currentUser) {
+      throw new Error('Error: in unblockUserById: current User not found');
+    }
+  
+    currentUser.blockedUsers = currentUser.blockedUsers.filter((u) => u.id !== userToUnblockId);
+    await this.userRepository.save(currentUser);
+  }
+
+  async findOneWithRelations(
+    id: string,
+    relations: string[],
+  ): Promise<UserEntity | void> {
+    return await this.userRepository.findOneByIdWithRelations(id, relations);
   }
 }
