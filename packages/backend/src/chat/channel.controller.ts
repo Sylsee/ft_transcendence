@@ -175,7 +175,7 @@ export class ChannelController {
     summary: 'Get visible channels',
     description: 'Retrieve all channels that are visible to the user.',
   })
-  @ApiFoundResponse({ description: 'Channels found', type: [ChannelDto] })
+  @ApiOkResponse({ description: 'Channels found', type: [ChannelDto] })
   @HttpCode(HttpStatus.OK)
   async getVisibleChannels(@Req() req: any): Promise<ChannelDto[]> {
     return await this.channelService.findVisibleChannels(req.user.id);
@@ -187,7 +187,7 @@ export class ChannelController {
     summary: 'Get messages in a channel',
     description: 'Retrieve all messages in a channel.',
   })
-  @ApiFoundResponse({ description: 'Messages found', type: [MessageDto] })
+  @ApiOkResponse({ description: 'Messages found', type: [MessageDto] })
   @ApiNotFoundResponse({ description: 'Channel not found' })
   @ApiForbiddenResponse({ description: 'User not authorized' })
   @HttpCode(HttpStatus.OK)
