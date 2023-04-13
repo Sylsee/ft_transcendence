@@ -118,9 +118,14 @@ export default class InviteCommand implements Command {
       },
     );
 
-    this.chatService.sendEvent(server, sender, ChatEvent.CHANNEL_MESSAGE, {
-      channelID: channel.id,
-      message: `Invited ${invitedUser.name} to ${channel.name}`,
-    });
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `Invited ${invitedUser.name} to ${channel.name}`,
+      },
+    );
   }
 }

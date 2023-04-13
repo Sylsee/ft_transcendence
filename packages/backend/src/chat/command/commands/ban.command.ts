@@ -100,9 +100,14 @@ export default class BanCommand implements Command {
       message: `You have been banned from ${channel.name}`,
     });
 
-    this.chatService.sendEvent(server, sender, ChatEvent.CHANNEL_MESSAGE, {
-      channelID: channel.id,
-      message: `User ${banUser.name} has been banned`,
-    });
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `User ${banUser.name} has been banned`,
+      },
+    );
   }
 }

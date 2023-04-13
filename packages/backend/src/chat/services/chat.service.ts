@@ -103,7 +103,12 @@ export class ChatService {
     );
 
     // Send the message to the channel
-    await this.sendMessage(server, receivers, message);
+    await this.sendMessage(
+      server,
+      receivers,
+      message,
+      ChatEvent.CHANNEL_MESSAGE,
+    );
   }
 
   async handleDirectMessageChannel(
@@ -253,7 +258,7 @@ export class ChatService {
     server: Server,
     users: UserEntity | UserEntity[],
     message: MessageDto | string | object,
-    event = 'message',
+    event: ChatEvent,
   ) {
     if (!Array.isArray(users)) {
       users = [users];

@@ -98,11 +98,13 @@ export class ChannelService {
     user: UserEntity,
   ): Promise<ChannelDto> {
     const name = createChannelDto.name || user.name;
+
     const owner =
       createChannelDto.type !== ChannelType.DIRECT_MESSAGE ? user : null;
     const admins =
       createChannelDto.type !== ChannelType.DIRECT_MESSAGE ? [user] : [];
     const users = [user];
+
     if (createChannelDto.type === ChannelType.DIRECT_MESSAGE) {
       if (
         await this.channelRepository.findDmChannel(
@@ -123,6 +125,7 @@ export class ChannelService {
       }
       users.push(dmUser);
     }
+
     const type = createChannelDto.type || ChannelType.PRIVATE;
 
     const createdChannel = await this.channelRepository.create(
@@ -283,10 +286,14 @@ export class ChannelService {
       message: `You joined the channel ${channel.name}`,
     });
 
-    this.chatGateway.sendEvent(channel.users, ChatEvent.CHANNEL_MESSAGE, {
-      channelID: channel.id,
-      message: `${user.name} joined the channel`,
-    });
+    this.chatGateway.sendEvent(
+      channel.users,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `${user.name} joined the channel`,
+      },
+    );
 
     return ChannelDto.transform(channelEntity, true);
   }
@@ -325,10 +332,14 @@ export class ChannelService {
     if (channel.users.length === 0) {
       this.chatGateway.sendChannelInvisible(channel);
     } else {
-      this.chatGateway.sendEvent(channel.users, ChatEvent.CHANNEL_MESSAGE, {
-        channelID: channel.id,
-        message: `${user.name} left the channel`,
-      });
+      this.chatGateway.sendEvent(
+        channel.users,
+        ChatEvent.CHANNEL_SERVER_MESSAGE,
+        {
+          channelID: channel.id,
+          message: `${user.name} left the channel`,
+        },
+      );
     }
   }
 

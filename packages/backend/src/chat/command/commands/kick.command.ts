@@ -117,9 +117,14 @@ export default class KickCommand implements Command {
       message: `You have been kicked from ${channel.name}`,
     });
 
-    this.chatService.sendEvent(server, sender, ChatEvent.CHANNEL_MESSAGE, {
-      channelID: channel.id,
-      message: `You have kicked ${kickUser.name} from ${channel.name}`,
-    });
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `You have kicked ${kickUser.name} from ${channel.name}`,
+      },
+    );
   }
 }

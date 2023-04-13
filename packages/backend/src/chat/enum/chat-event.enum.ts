@@ -3,10 +3,14 @@ export enum ChatEvent {
   /*
     MessageDto
   */
-  CHANNEL_MESSAGE = 'channel:message',
+  CHANNEL_SERVER_MESSAGE = 'channel:server_message',
   /*
     channelID
     message
+  */
+  CHANNEL_MESSAGE = 'channel:message',
+  /*
+    MessageDto
   */
   NOTIFICATION = 'notification',
   /*
