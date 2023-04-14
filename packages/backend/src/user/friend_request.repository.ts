@@ -15,15 +15,15 @@ export class FriendRequestRepository {
     private friendRequestRepository: Repository<FriendRequest>,
   ) {}
 
-  async findOneById(id: string): Promise<FriendRequest> {
+  findOneById(id: string): Promise<FriendRequest> {
     return this.friendRequestRepository.findOneBy({ id: id });
   }
 
-  async findSpecifyFriendRequest(
+  findSpecifyFriendRequest(
     receiverId: string,
     senderId: string,
   ): Promise<FriendRequest> {
-    return await this.friendRequestRepository
+    return this.friendRequestRepository
       .createQueryBuilder('req')
       .leftJoinAndSelect('req.sender', 'sender')
       .leftJoinAndSelect('req.receiver', 'receiver')
@@ -32,48 +32,36 @@ export class FriendRequestRepository {
       .getOne();
   }
 
-  async findPossibleFriendRequest(
-    first: string,
-    second: string,
+  findPossibleFriendRequest(
+    firstId: string,
+    secondId: string,
   ): Promise<FriendRequest> {
-    let friendRequest: FriendRequest;
-
-    friendRequest = await this.friendRequestRepository
-      .createQueryBuilder('req')
-      .leftJoinAndSelect('req.sender', 'sender')
-      .leftJoinAndSelect('req.receiver', 'receiver')
-      .where('req.receiverId = :receiverId', { receiverId: first })
-      .andWhere('req.senderId = :senderId', { senderId: second })
-      .getOne();
-    if (!friendRequest) {
-      friendRequest = await this.friendRequestRepository
-      .createQueryBuilder('req')
-      .leftJoinAndSelect('req.sender', 'sender')
-      .leftJoinAndSelect('req.receiver', 'receiver')
-      .where('req.receiverId = :receiverId', { receiverId: second })
-      .andWhere('req.senderId = :senderId', { senderId: first })
-      .getOne();
-    }
-
-    return friendRequest;
+    return this.friendRequestRepository
+    .createQueryBuilder('req')
+    .leftJoinAndSelect('req.sender', 'sender')
+    .leftJoinAndSelect('req.receiver', 'receiver')
+    .where('req.receiverId = :receiverId1 AND req.senderId = :senderId1', {
+      receiverId1: firstId,
+      senderId1: secondId,
+    })
+    .orWhere('req.receiverId = :receiverId2 AND req.senderId = :senderId2', {
+      receiverId2: secondId,
+      senderId2: firstId,
+    })
+    .getOne();
   }
 
-  async saveFriendRequest(
+  saveFriendRequest(
     newFriendRequest: FriendRequest,
   ): Promise<FriendRequest> {
-    return await this.friendRequestRepository.save(newFriendRequest);
+    return this.friendRequestRepository.save(newFriendRequest);
   }
 
   async deleteFriendRequestByReceiverId(senderId: string, recevierId: string) {
-    await this.friendRequestRepository
-      .createQueryBuilder()
-      .delete()
-      .where('senderId = :senderId', {senderId: senderId})
-      .andWhere('receiverId = :receiverId', { recevierId: recevierId })
-      .execute();
+    this.deleteFriendRequest(await this.findSpecifyFriendRequest(recevierId, senderId));
   }
 
-  async deleteFriendRequest(friendRequest: FriendRequest): Promise<void> {
-    await this.friendRequestRepository.delete(friendRequest);
+  deleteFriendRequest(friendRequest: FriendRequest) {
+    this.friendRequestRepository.delete(friendRequest);
   }
 }

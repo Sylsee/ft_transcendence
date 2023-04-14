@@ -1,5 +1,5 @@
 // Nest dependencies
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 // Local files
 import { FriendRequestRepository } from './friend_request.repository';
@@ -19,36 +19,56 @@ export class FriendRequestService {
     fromUserId: string,
     updateFriendRequestDto: UpdateFriendRequestDto,
   ): Promise<FriendRequest> {
-    const request: FriendRequest = await this.friendRequestRepository.findSpecifyFriendRequest(
-      currentUser.id,
-      fromUserId,
-    );
+    const request: FriendRequest =
+      await this.friendRequestRepository.findSpecifyFriendRequest(
+        currentUser.id,
+        fromUserId,
+      );
     if (request === undefined || request === null) {
-      throw new Error(`Friend request with specify id doesn't exists`);
+      throw new NotFoundException(
+        `Friend request with specify id doesn't exists`,
+      );
     }
     request.status = updateFriendRequestDto.status;
     return await this.friendRequestRepository.saveFriendRequest(request);
   }
 
-  async deleteFriendRequestByReceiverId(senderId: string, receiverId: string): Promise<void> {
-    const request = await this.friendRequestRepository.findSpecifyFriendRequest(receiverId, senderId);
-    if (!request || request.status === FriendRequestStatus.approved) { //we can't delete already approved request
+  async deleteFriendRequestByReceiverId(
+    senderId: string,
+    receiverId: string,
+  ): Promise<void> {
+    const request = await this.friendRequestRepository.findSpecifyFriendRequest(
+      receiverId,
+      senderId,
+    );
+    if (!request || request.status === FriendRequestStatus.approved) {
+      //we can't delete already approved request
       return;
     }
 
-    return this.friendRequestRepository.deleteFriendRequestByReceiverId(senderId, receiverId);
+    return await this.friendRequestRepository.deleteFriendRequestByReceiverId(
+      senderId,
+      receiverId,
+    );
   }
 
-  async deleteFriendRequestBetweenUsers(first: string, second: string): Promise<void> {
-    const request = await this.friendRequestRepository.findPossibleFriendRequest(first, second);
+  async deleteFriendRequestBetweenUsers(
+    first: string,
+    second: string,
+  ): Promise<void> {
+    const request =
+      await this.friendRequestRepository.findPossibleFriendRequest(
+        first,
+        second,
+      );
     if (!request) {
       return;
     }
 
-    await this.friendRequestRepository.deleteFriendRequest(request);
+    this.friendRequestRepository.deleteFriendRequest(request);
   }
 
   async saveFriendRequest(friendRequest: FriendRequest) {
-    return this.friendRequestRepository.saveFriendRequest(friendRequest);
+    return await this.friendRequestRepository.saveFriendRequest(friendRequest);
   }
 }

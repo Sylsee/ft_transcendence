@@ -42,33 +42,33 @@ export class UserRepository {
     return await this.userRepository.find();
   }
 
-  async findUserByProviderIDAndProvider(
+  findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
   ): Promise<UserEntity | undefined> {
-    return await this.userRepository.findOne({
+    return this.userRepository.findOne({
       where: { providerId, provider },
     });
   }
 
-  async findOneById(id: string): Promise<UserEntity> {
-    return await this.userRepository.findOneBy({ id: id });
+  findOneById(id: string): Promise<UserEntity> {
+    return this.userRepository.findOneBy({ id: id });
   }
 
-  async getFriendsById(userId: string): Promise<UserEntity[]> {
+  getFriendsById(userId: string): Promise<UserEntity[]> {
     return this.userRepository
     .createQueryBuilder('user')
     .leftJoinAndSelect('user.friends', 'friend')
     .where('user.id = :id', { id: userId })
     .getOne()
-    .then((user) => user?.friends);
+    .then((user) => {return user?.friends});
   }
 
-  async findOneByIdWithRelations(
+  findOneByIdWithRelations(
     id: string,
     relations: string[],
   ): Promise<UserEntity | void> {
-    return await this.userRepository
+    return this.userRepository
       .findOne({ where: { id: id }, relations: relations })
       .catch((error) => {
         console.log(error);
