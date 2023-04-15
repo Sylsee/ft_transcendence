@@ -11,7 +11,6 @@ import { UserService } from 'src/user/user.service';
 import { Command } from '../command/command.interface';
 import { ChannelDto } from '../dto/channel/channel.dto';
 import { CommandArgsDto } from '../dto/command/command-args.dto';
-import { MessageDto } from '../dto/message/message.dto';
 import { ChannelEntity } from '../entities/channel.entity';
 import { ChatEvent } from '../enum/chat-event.enum';
 import { ChannelService } from './channel.service';
@@ -103,12 +102,7 @@ export class ChatService {
     );
 
     // Send the message to the channel
-    await this.sendMessage(
-      server,
-      receivers,
-      message,
-      ChatEvent.CHANNEL_MESSAGE,
-    );
+    await this.sendEvent(server, receivers, ChatEvent.CHANNEL_MESSAGE, message);
   }
 
   async handleDirectMessageChannel(
@@ -219,7 +213,7 @@ export class ChatService {
   async sendEvent(
     server: Server,
     user: string | UserEntity | Array<string | UserEntity>,
-    event: string,
+    event: ChatEvent,
     data: object | string,
   ): Promise<void> {
     const socketIds: string[] = [];
@@ -250,23 +244,9 @@ export class ChatService {
     }
 
     Promise.all(
-      socketIds.map((socketId) => server.to(socketId).emit(event, data)),
+      socketIds.map((socketId) => {
+        server.to(socketId).emit(event, data);
+      }),
     );
-  }
-
-  private async sendMessage(
-    server: Server,
-    users: UserEntity | UserEntity[],
-    message: MessageDto | string | object,
-    event: ChatEvent,
-  ) {
-    if (!Array.isArray(users)) {
-      users = [users];
-    }
-
-    const socketIds = await this.userService.findSocketIdsByUsers(users);
-    socketIds.forEach((socketId) => {
-      server.to(socketId).emit(event, message);
-    });
   }
 }

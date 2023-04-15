@@ -229,7 +229,7 @@ export class ChatGateway
 
   async sendEvent(
     user: string | UserEntity | Array<string | UserEntity>,
-    event: string,
+    event: ChatEvent,
     data: object | string,
   ): Promise<void> {
     return this.chatService.sendEvent(this.server, user, event, data);
