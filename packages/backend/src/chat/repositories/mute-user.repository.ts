@@ -48,7 +48,7 @@ export class MuteUserRepository {
   ): Promise<boolean> {
     const currentTime = new Date();
 
-    const muteUser = this.muteUserRepository
+    const muteUser = await this.muteUserRepository
       .createQueryBuilder('muteUser')
       .innerJoinAndSelect('muteUser.user', 'user')
       .innerJoinAndSelect('muteUser.channel', 'channel')
