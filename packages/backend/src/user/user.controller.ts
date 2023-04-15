@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // NestJs imports
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -15,12 +16,10 @@ import {
 import { ConfigService } from '@nestjs/config';
 import {
   ApiBadRequestResponse,
-  ApiExtraModels,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 
 // Third-party imports
@@ -28,7 +27,6 @@ import { Request } from 'express';
 
 // Local imports
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto, UserRelationshipDto } from './dto/user.dto';
@@ -41,13 +39,6 @@ const ApiUserIdParam = ApiParam({
 });
 
 @ApiTags('Users')
-@ApiExtraModels(ErrorBadRequest)
-@ApiBadRequestResponse({
-  description: ErrorBadRequest.description,
-  schema: {
-    $ref: getSchemaPath(ErrorBadRequest),
-  },
-})
 @Controller('users')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
@@ -69,7 +60,7 @@ export class UserController {
   @ApiOkResponse({ description: 'Users found', type: [UserDto] })
   async getAllUsers(@Req() request: Request): Promise<any> {
     if (this.configService.get<string>('NODE_ENV') === 'production') {
-      throw new ErrorBadRequest();
+      throw new BadRequestException();
     }
     return {
       token: request.cookies['access_token'],

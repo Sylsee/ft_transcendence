@@ -1,5 +1,6 @@
 // NestJS imports
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -17,19 +18,16 @@ import { ConfigService } from '@nestjs/config';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
-  ApiExtraModels,
   ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 
 // Local imports
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
-import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { ChannelDto } from './dto/channel/channel.dto';
 import { CreateChannelDto } from './dto/channel/create-channel.dto';
 import { JoinChannelDto } from './dto/channel/join-channel.dto';
@@ -39,13 +37,6 @@ import { ChannelEntity } from './entities/channel.entity';
 import { ChannelService } from './services/channel.service';
 
 @ApiTags('Channel')
-@ApiExtraModels(ErrorBadRequest)
-@ApiBadRequestResponse({
-  description: ErrorBadRequest.description,
-  schema: {
-    $ref: getSchemaPath(ErrorBadRequest),
-  },
-})
 @Controller('channels')
 export class ChannelController {
   constructor(
@@ -64,7 +55,7 @@ export class ChannelController {
   @ApiOkResponse({ description: 'Channels found' })
   async getAllChannels(): Promise<ChannelEntity[] | void> {
     if (this.configService.get<string>('NODE_ENV') === 'production') {
-      throw new ErrorBadRequest();
+      throw new BadRequestException();
     }
     return await this.channelService.findAllChannels();
   }
