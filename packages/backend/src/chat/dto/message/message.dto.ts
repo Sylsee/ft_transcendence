@@ -31,7 +31,7 @@ class SenderDto {
   })
   @IsNotEmpty()
   @IsUrl()
-  avatar: string;
+  avatarUrl: string;
 }
 
 export class MessageDto {
@@ -77,7 +77,7 @@ export class MessageDto {
       sender: {
         id: message.sender.id,
         name: message.sender.name,
-        avatar: message.sender.avatarUrl,
+        avatarUrl: message.sender.avatarUrl,
       },
       timestamp: message.createdAt,
     };
