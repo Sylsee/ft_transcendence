@@ -47,15 +47,11 @@ export class AuthService {
       // path: '/',
     });
 
-    if (this.configService.get<string>('NODE_ENV') === 'production') {
-      res.redirect(
-        `${this.configService.get<string>('APP_DOMAIN')}/callback${
-          user.new ? '?new=true' : ''
-        }`,
-      );
-    } else {
-      res.redirect('http://localhost:3000/users');
-    }
+    res.redirect(
+      `${this.configService.get<string>('APP_DOMAIN')}/callback${
+        user.new ? '?new=true' : ''
+      }`,
+    );
   }
 
   verify(token: string): string {
