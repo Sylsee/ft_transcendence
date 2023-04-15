@@ -13,7 +13,7 @@ import { UserRepository } from './user.repository';
 export class UserService {
   private readonly logger = new Logger(UserService.name);
 
-  private socketUserMap = new Map<string, string>();
+  private socketUserMap = new Map<string, string>(); // socketId -> userId
 
   constructor(private userRepository: UserRepository) {}
 
