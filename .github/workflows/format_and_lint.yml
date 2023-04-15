@@ -43,4 +43,4 @@ jobs:
       - name: Run ESLint
         run: |
           cd packages/backend
-          npm run lint
+          npm run lint -- --max-warnings=0
