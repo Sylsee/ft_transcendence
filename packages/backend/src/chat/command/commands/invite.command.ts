@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 // Local imports
-import { ChannelDto } from 'src/chat/dto/channel/channel.dto';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
@@ -92,31 +91,30 @@ export default class InviteCommand implements Command {
     await this.channelService.save(channel);
 
     // Notify invited user
-    const socketID = await this.userService.findSocketIdByUserID(
-      invitedUser.id,
-    );
-    if (channel.type === ChannelType.PRIVATE) {
-      const channelDto = ChannelDto.transform(channel, false);
+    const socketID = await this.userService.getSocketID(invitedUser.id);
+    if (socketID) {
+      if (channel.type === ChannelType.PRIVATE) {
+        this.chatService.sendChannelAvailableEvent(
+          server,
+          channel,
+          invitedUser.id,
+          socketID,
+        );
+      }
       this.chatService.sendEvent(
         server,
         socketID,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
+        ChatEvent.NOTIFICATION_INVITE,
+        {
+          sender: sender.name,
+          channelID: {
+            id: channel.id,
+            name: channel.name,
+          },
+          message: `${sender.name} invited you to ${channel.name}`,
+        },
       );
     }
-    this.chatService.sendEvent(
-      server,
-      socketID,
-      ChatEvent.NOTIFICATION_INVITE,
-      {
-        sender: sender.name,
-        channelID: {
-          id: channel.id,
-          name: channel.name,
-        },
-        message: `${sender.name} invited you to ${channel.name}`,
-      },
-    );
 
     this.chatService.sendEvent(
       server,

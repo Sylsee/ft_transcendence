@@ -23,7 +23,6 @@ import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
 import { UserService } from 'src/user/user.service';
-import { ChannelDto } from './dto/channel/channel.dto';
 import { CreateMessageDto } from './dto/message/create-message.dto';
 import { ChannelEntity } from './entities/channel.entity';
 import { ChannelType } from './enum/channel-type.enum';
@@ -104,7 +103,7 @@ export class ChatGateway
       throw new WsException(errors);
     });
 
-    const sender = await this.userService.findUserBySocketId(client.id);
+    const sender = await this.userService.getUserBySocket(client.id);
     if (!sender) {
       throw new WsException('Sender not found');
     }
@@ -148,21 +147,15 @@ export class ChatGateway
 
   // ---------------------------- Utils ----------------------------
 
-  async sendChannelVisibility(
+  async sendChannelAvailablity(
     channelEntity: ChannelEntity,
-    channelDto?: ChannelDto,
     newChannel = false,
   ): Promise<void> {
-    if (!channelDto) {
-      channelDto = ChannelDto.transform(channelEntity);
-    }
-
     switch (channelEntity.type) {
       case ChannelType.DIRECT_MESSAGE:
         await this.chatService.handleDirectMessageChannel(
           this.server,
           channelEntity,
-          channelDto,
         );
         break;
       case ChannelType.PUBLIC:
@@ -170,23 +163,20 @@ export class ChatGateway
         await this.chatService.handlePublicOrPasswordProtectedChannel(
           this.server,
           channelEntity,
-          channelDto,
-          newChannel,
         );
         break;
       case ChannelType.PRIVATE:
         await this.chatService.handlePrivateChannel(
           this.server,
           channelEntity,
-          channelDto,
           newChannel,
         );
         break;
     }
   }
 
-  async sendChannelInvisible(channelEntity: ChannelEntity): Promise<void> {
-    // Public and password protected channels are visible for everyone
+  async sendChannelUnavailability(channelEntity: ChannelEntity): Promise<void> {
+    // Public and password protected channels are available for everyone
     if (
       channelEntity.type === ChannelType.PUBLIC ||
       channelEntity.type === ChannelType.PASSWORD_PROTECTED
@@ -204,12 +194,12 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         socketsIds,
-        ChatEvent.CHANNEL_INVISIBLE,
+        ChatEvent.CHANNEL_UNAVAILABILITY,
         { channelID: channelEntity.id },
       );
     }
 
-    // Private channels are visible only for users who are in the channel or invited
+    // Private channels are available only for users who are in the channel or invited
     if (
       channelEntity.type === ChannelType.PRIVATE ||
       channelEntity.type === ChannelType.DIRECT_MESSAGE
@@ -221,7 +211,7 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         users,
-        ChatEvent.CHANNEL_INVISIBLE,
+        ChatEvent.CHANNEL_UNAVAILABILITY,
         { channelID: channelEntity.id },
       );
     }

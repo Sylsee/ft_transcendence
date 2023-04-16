@@ -87,18 +87,24 @@ export default class BanCommand implements Command {
 
     this.channelService.removeUserFromList(channel.users, banUser.id);
     this.channelService.removeUserFromList(channel.invitedUsers, banUser.id);
-    this.muteUserService.delete(banUser.id);
 
     await this.channelService.save(channel);
 
     // Send events to the banned user
-    const socketID = await this.userService.findSocketIdByUserID(banUser.id);
-    this.chatService.sendEvent(server, socketID, ChatEvent.CHANNEL_INVISIBLE, {
-      channelID: channel.id,
-    });
-    this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-      message: `You have been banned from ${channel.name}`,
-    });
+    const socketID = await this.userService.getSocketID(banUser.id);
+    if (socketID) {
+      this.chatService.sendEvent(
+        server,
+        socketID,
+        ChatEvent.CHANNEL_UNAVAILABILITY,
+        {
+          channelID: channel.id,
+        },
+      );
+      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+        message: `You have been banned from ${channel.name}`,
+      });
+    }
 
     this.chatService.sendEvent(
       server,

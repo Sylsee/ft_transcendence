@@ -7,7 +7,9 @@ import { Server } from 'socket.io';
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
+import { ChatService } from 'src/chat/services/chat.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -21,6 +23,7 @@ export default class UnMuteCommand implements Command {
     private channelService: ChannelService,
     private userService: UserService,
     private muteUserService: MuteUserService,
+    private chatService: ChatService,
   ) {}
 
   async execute(
@@ -51,7 +54,7 @@ export default class UnMuteCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.unMuteUser(sender, channel, user);
+          const error = await this.unMuteUser(server, sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -67,23 +70,43 @@ export default class UnMuteCommand implements Command {
   }
 
   private async unMuteUser(
-    user: UserEntity,
+    server: Server,
+    sender: UserEntity,
     channel: ChannelEntity,
     unMuteUser: UserEntity,
   ): Promise<string | void> {
-    if (user.id === unMuteUser.id) {
+    if (sender.id === unMuteUser.id) {
       return 'You cannot unmute yourself';
     }
 
-    if (
-      !(await this.muteUserService.isUserMuteInChannel(
-        unMuteUser.id,
-        channel.id,
-      ))
-    ) {
+    const user = await this.muteUserService.findOneByUserIdAndChannelId(
+      unMuteUser.id,
+      channel.id,
+    );
+    if (!user) {
       return 'User is not mute';
     }
 
-    await this.muteUserService.delete(unMuteUser.id);
+    await this.muteUserService.delete(user);
+
+    this.chatService.sendEvent(
+      server,
+      unMuteUser,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `You have been unmuted from ${channel.name}`,
+      },
+    );
+
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `${unMuteUser.name} has been unmuted`,
+      },
+    );
   }
 }

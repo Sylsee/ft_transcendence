@@ -7,7 +7,9 @@ import { Server } from 'socket.io';
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
+import { ChatService } from 'src/chat/services/chat.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -17,6 +19,7 @@ export default class DeOpCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
+    private chatService: ChatService,
   ) {}
 
   async execute(
@@ -47,7 +50,7 @@ export default class DeOpCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.deOpUser(channel, user);
+          const error = await this.deOpUser(server, sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -63,6 +66,8 @@ export default class DeOpCommand implements Command {
   }
 
   private async deOpUser(
+    server: Server,
+    sender: UserEntity,
     channel: ChannelEntity,
     deOpUser: UserEntity,
   ): Promise<string | void> {
@@ -73,5 +78,28 @@ export default class DeOpCommand implements Command {
     this.channelService.removeUserFromList(channel.admins, deOpUser.id);
 
     await this.channelService.save(channel);
+
+    const socketID = await this.userService.getSocketID(deOpUser.id);
+    if (socketID) {
+      this.chatService.sendChannelAvailableEvent(
+        server,
+        channel,
+        deOpUser.id,
+        socketID,
+      );
+      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+        message: `You have been deopped from ${channel.name}`,
+      });
+    }
+
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `${deOpUser.name} has been deopped`,
+      },
+    );
   }
 }

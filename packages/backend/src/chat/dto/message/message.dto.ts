@@ -45,6 +45,15 @@ export class MessageDto {
   id: string;
 
   @ApiProperty({
+    description: 'The id of the channel',
+    example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsUUID()
+  channelId: string;
+
+  @ApiProperty({
     description: 'The content of the message',
     example: 'Hello world!',
     required: true,
@@ -73,6 +82,7 @@ export class MessageDto {
   static transform(message: MessageEntity): MessageDto {
     return {
       id: message.id,
+      channelId: message.channel.id,
       content: message.content,
       sender: {
         id: message.sender.id,

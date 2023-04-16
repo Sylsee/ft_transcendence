@@ -27,11 +27,11 @@ export enum ChatEvent {
         message: `${sender.name} invited you to ${channel.name}`,
       },
   */
-  CHANNEL_VISIBLE = 'channel:visible',
+  CHANNEL_AVAILABLE = 'channel:available',
   /*
     channelDto
   */
-  CHANNEL_INVISIBLE = 'channel:invisible',
+  CHANNEL_UNAVAILABILITY = 'channel:unavailable',
   /*
     channelID
   */

@@ -4,7 +4,6 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
-  InternalServerErrorException,
   Logger,
   NotFoundException,
   forwardRef,
@@ -54,18 +53,15 @@ export class ChannelService {
     ]);
   }
 
-  async findVisibleChannels(userID: string): Promise<ChannelDto[]> {
-    const channels = await this.channelRepository.findVisibleChannels(userID);
+  async findAvailableChannels(userID: string): Promise<ChannelDto[]> {
+    const channels = await this.channelRepository.findAvailableChannels(userID);
     if (!channels) {
       return [];
     }
 
     return Promise.all(
       channels.map((channel) => {
-        const isUserInChannel = channel.users.some(
-          (user) => user.id === userID,
-        );
-        return ChannelDto.transform(channel, isUserInChannel);
+        return ChannelDto.transform(channel, userID);
       }),
     );
   }
@@ -76,7 +72,7 @@ export class ChannelService {
   ): Promise<MessageDto[]> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
       channelId,
-      ['users', 'messages', 'messages.sender'],
+      ['users', 'messages', 'messages.sender', 'messages.channel'],
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
@@ -87,7 +83,9 @@ export class ChannelService {
     }
 
     return await Promise.all(
-      channel.messages?.map((message) => MessageDto.transform(message)),
+      channel.messages?.map((message) => {
+        return MessageDto.transform(message);
+      }),
     );
   }
 
@@ -135,15 +133,10 @@ export class ChannelService {
       users,
       type,
     );
-    const channelDto = ChannelDto.transform(createdChannel);
 
-    await this.chatGateway.sendChannelVisibility(
-      createdChannel,
-      channelDto,
-      true,
-    );
+    await this.chatGateway.sendChannelAvailablity(createdChannel, true);
 
-    return channelDto;
+    return ChannelDto.transform(createdChannel, user.id);
   }
 
   async save(channel: ChannelEntity): Promise<ChannelEntity> {
@@ -161,7 +154,7 @@ export class ChannelService {
 
     const channel = await this.channelRepository.findOneByIdWithRelations(
       channelId,
-      ['admins'],
+      ['owner', 'users', 'admins', 'invitedUsers', 'banUsers'],
     );
 
     if (!channel) {
@@ -174,10 +167,6 @@ export class ChannelService {
       throw new ForbiddenException('Not an admin of this channel');
     }
 
-    const sendVisibility = updateChannelDto.type
-      ? updateChannelDto.type !== channel.type
-      : false;
-
     channel.name = updateChannelDto.name ?? channel.name;
     channel.type = updateChannelDto.type ?? channel.type;
 
@@ -187,26 +176,9 @@ export class ChannelService {
     }
 
     await this.channelRepository.save(channel);
-    const channelEntity = await this.channelRepository.findOneByIdWithRelations(
-      channelId,
-      ['users', 'banUsers', 'invitedUsers'],
-    );
-    if (!channelEntity) {
-      this.logger.error('Unable to fetch channel after updated it');
-      throw new InternalServerErrorException(
-        'Unable to fetch channel after updated it',
-      );
-    }
+    await this.chatGateway.sendChannelAvailablity(channel);
 
-    const channelDto = ChannelDto.transform(channelEntity);
-
-    // Send channel visibility only for update from private to not private (and vice versa)
-    if (sendVisibility) {
-      await this.chatGateway.sendChannelVisibility(channelEntity, channelDto);
-    }
-
-    channelDto.isJoined = true;
-    return channelDto;
+    return ChannelDto.transform(channel, userId);
   }
 
   async delete(userId: string, channelId: string): Promise<void> {
@@ -225,7 +197,7 @@ export class ChannelService {
       throw new ForbiddenException('Not an admin of this channel');
     }
 
-    await this.chatGateway.sendChannelInvisible(channel);
+    await this.chatGateway.sendChannelUnavailability(channel);
 
     this.channelRepository.delete(channel);
   }
@@ -246,7 +218,7 @@ export class ChannelService {
   ): Promise<ChannelDto> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
       channelID,
-      ['users', 'banUsers', 'invitedUsers'],
+      ['users', 'banUsers', 'invitedUsers', 'admins', 'owner'],
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
@@ -275,12 +247,12 @@ export class ChannelService {
       if (!this.userIdInList(channel.invitedUsers, user.id)) {
         throw new ForbiddenException('Not invited to this channel');
       }
-
-      this.removeUserFromList(channel.invitedUsers, user.id);
     }
 
+    this.removeUserFromList(channel.invitedUsers, user.id);
     channel.users.push(user);
-    const channelEntity = await this.channelRepository.save(channel);
+
+    await this.channelRepository.save(channel);
 
     this.chatGateway.sendEvent(user, ChatEvent.NOTIFICATION, {
       message: `You joined the channel ${channel.name}`,
@@ -295,7 +267,7 @@ export class ChannelService {
       },
     );
 
-    return ChannelDto.transform(channelEntity, true);
+    return ChannelDto.transform(channel, user.id);
   }
 
   async leaveChannel(user: UserEntity, channelID: string): Promise<void> {
@@ -320,7 +292,6 @@ export class ChannelService {
       this.channelRepository.delete(channel);
     } else {
       this.removeUserFromList(channel.admins, user.id);
-      this.muteUserService.delete(user.id);
 
       this.channelRepository.save(channel);
     }
@@ -330,7 +301,7 @@ export class ChannelService {
     });
 
     if (channel.users.length === 0) {
-      this.chatGateway.sendChannelInvisible(channel);
+      this.chatGateway.sendChannelUnavailability(channel);
     } else {
       this.chatGateway.sendEvent(
         channel.users,
@@ -350,14 +321,6 @@ export class ChannelService {
     relations: string[],
   ): Promise<ChannelEntity | void> {
     return this.channelRepository.findOneByIdWithRelations(id, relations);
-  }
-
-  async isUserMute(channel: ChannelEntity, userId: string): Promise<boolean> {
-    if (channel.owner && channel.owner.id === userId) {
-      return false;
-    }
-
-    return await this.muteUserService.isUserMuteInChannel(userId, channel.id);
   }
 
   removeUserFromList(userList: UserEntity[], userId: string): void {

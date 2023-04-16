@@ -31,7 +31,7 @@ export class MessageService {
     if (!messageEntity) {
       throw new Error('Failed to create message');
     }
-    const transformedMessage = await MessageDto.transform(messageEntity);
+    const transformedMessage = MessageDto.transform(messageEntity);
     if (!transformedMessage) {
       throw new Error('Failed to transform message');
     }

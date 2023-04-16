@@ -15,6 +15,7 @@ import { ChannelEntity } from '../entities/channel.entity';
 import { ChatEvent } from '../enum/chat-event.enum';
 import { ChannelService } from './channel.service';
 import { MessageService } from './message.service';
+import { MuteUserService } from './mute-user.service';
 
 @Injectable()
 export class ChatService {
@@ -27,6 +28,7 @@ export class ChatService {
     private channelService: ChannelService,
     @Inject(forwardRef(() => 'COMMAND_MAP'))
     private readonly commandMap: Map<string, Command>,
+    private muteUserService: MuteUserService,
   ) {}
 
   parseCommand(content: string): CommandArgsDto | null {
@@ -53,7 +55,7 @@ export class ChatService {
       try {
         await command.execute(server, sender, channel, args.arg);
       } catch (error) {
-        this.logger.error(error);
+        error.message.split('\n').forEach((line) => this.logger.warn(line));
         throw new WsException(error.message);
       }
     } else {
@@ -67,8 +69,22 @@ export class ChatService {
     channel: ChannelEntity,
     content: string,
   ): Promise<void> {
-    if (await this.channelService.isUserMute(channel, sender.id)) {
-      throw new WsException(`Sender is mute`);
+    const userMute = await this.muteUserService.findOneByUserIdAndChannelId(
+      sender.id,
+      channel.id,
+    );
+    if (userMute) {
+      const timeStamp = userMute.muteEndTime.getTime();
+      const leftTime = timeStamp - Date.now();
+      if (leftTime <= 0) {
+        await this.muteUserService.delete(userMute);
+      } else {
+        this.sendEvent(server, sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+          channelID: channel.id,
+          message: `You are muted for ${this.formatTime(leftTime)}`,
+        });
+        return;
+      }
     }
 
     const usersNotBlockingSender =
@@ -108,104 +124,57 @@ export class ChatService {
   async handleDirectMessageChannel(
     server: Server,
     channelEntity: ChannelEntity,
-    channelDto: ChannelDto,
   ): Promise<void> {
-    channelDto.isJoined = true;
-    this.sendEvent(
-      server,
-      channelEntity.users,
-      ChatEvent.CHANNEL_VISIBLE,
-      channelDto,
+    Promise.all(
+      channelEntity.users.map((user) => {
+        this.sendChannelAvailableEvent(server, channelEntity, user.id, user);
+      }),
     );
   }
 
   async handlePublicOrPasswordProtectedChannel(
     server: Server,
-    channelEntity: ChannelEntity,
-    channelDto: ChannelDto,
-    newChannel = false,
+    channel: ChannelEntity,
   ): Promise<void> {
-    if (newChannel) {
-      const users = [...(channelEntity.users ?? [])];
-      const usersIds: Set<string> = new Set(users.map((user) => user.id));
+    const socketMap = this.userService.getSocketMap();
 
-      const outChannelSocketsIds: string[] = [];
-      const inChannelSocketsIds: string[] = [];
-      this.userService.getSocketMap().forEach((value, key) => {
-        if (usersIds.has(value)) {
-          inChannelSocketsIds.push(key);
-        } else {
-          outChannelSocketsIds.push(key);
-        }
-      });
+    const eventPromises = Array.from(socketMap.entries()).map(([key, value]) =>
+      this.sendChannelAvailableEvent(server, channel, value, key),
+    );
 
-      channelDto.isJoined = false;
-      await this.sendEvent(
-        server,
-        outChannelSocketsIds,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
-      );
-
-      channelDto.isJoined = true;
-      await this.sendEvent(
-        server,
-        inChannelSocketsIds,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
-      );
-    } else {
-      const users = [...(channelEntity.banUsers ?? [])];
-      const usersIds: Set<string> = new Set(users.map((user) => user.id));
-
-      const socketsIds: string[] = [];
-      this.userService.getSocketMap().forEach((value, key) => {
-        if (!usersIds.has(value)) {
-          socketsIds.push(key);
-        }
-      });
-
-      this.sendEvent(server, socketsIds, ChatEvent.CHANNEL_VISIBLE, channelDto);
-    }
+    await Promise.all(eventPromises);
   }
 
   async handlePrivateChannel(
     server: Server,
-    channelEntity: ChannelEntity,
-    channelDto: ChannelDto,
-    newChannel: boolean,
+    channel: ChannelEntity,
+    isNew: boolean,
   ): Promise<void> {
-    const users = [...(channelEntity.users ?? [])];
+    const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
 
-    if (newChannel) {
-      const socketsIds: string[] = await this.userService.findSocketIdsByUsers(
-        users,
-      );
+    const eventPromises = users.map((user) => {
+      this.sendChannelAvailableEvent(server, channel, user.id, user);
+    });
 
-      channelDto.isJoined = true;
-      this.sendEvent(server, socketsIds, ChatEvent.CHANNEL_VISIBLE, channelDto);
-    } else {
-      users.push(...(channelEntity.invitedUsers ?? []));
+    await Promise.all(eventPromises);
+
+    if (!isNew) {
       const usersIds: Set<string> = new Set(users.map((user) => user.id));
 
-      const visibleSocketsIds: string[] = [];
-      const invisibleSocketsIds: string[] = [];
+      const unavailableSocketsIds: string[] = [];
       this.userService.getSocketMap().forEach((value, key) => {
         if (!usersIds.has(value)) {
-          invisibleSocketsIds.push(key);
-        } else {
-          visibleSocketsIds.push(key);
+          unavailableSocketsIds.push(key);
         }
       });
 
-      this.sendEvent(server, invisibleSocketsIds, ChatEvent.CHANNEL_INVISIBLE, {
-        channelID: channelEntity.id,
-      });
       this.sendEvent(
         server,
-        visibleSocketsIds,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
+        unavailableSocketsIds,
+        ChatEvent.CHANNEL_UNAVAILABILITY,
+        {
+          channelID: channel.id,
+        },
       );
     }
   }
@@ -224,7 +193,7 @@ export class ChatService {
       if (typeof user === 'string') {
         return user;
       } else {
-        return await this.userService.findSocketIdByUserID(user.id);
+        return await this.userService.getSocketID(user.id);
       }
     };
 
@@ -248,5 +217,43 @@ export class ChatService {
         server.to(socketId).emit(event, data);
       }),
     );
+  }
+
+  async sendChannelAvailableEvent(
+    server: Server,
+    channel: ChannelEntity,
+    userId: string,
+    socket: string | UserEntity,
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      const channelDto = ChannelDto.transform(channel, userId);
+      if (!channelDto) {
+        resolve();
+        return;
+      }
+
+      this.sendEvent(server, socket, ChatEvent.CHANNEL_AVAILABLE, channelDto);
+      resolve();
+    });
+  }
+
+  private formatTime(timeInMilliseconds: number): string {
+    const seconds = Math.floor((timeInMilliseconds / 1000) % 60);
+    const minutes = Math.floor((timeInMilliseconds / (1000 * 60)) % 60);
+    const hours = Math.floor((timeInMilliseconds / (1000 * 60 * 60)) % 24);
+
+    let formattedTime = '';
+
+    if (hours > 0) {
+      formattedTime += `${hours} hours, `;
+    }
+
+    if (hours > 0 || minutes > 0) {
+      formattedTime += `${minutes} minutes and `;
+    }
+
+    formattedTime += `${seconds} seconds`;
+
+    return formattedTime.trim();
   }
 }

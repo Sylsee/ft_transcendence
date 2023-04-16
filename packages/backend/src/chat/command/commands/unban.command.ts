@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 // Local imports
-import { ChannelDto } from 'src/chat/dto/channel/channel.dto';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
@@ -79,19 +78,20 @@ export default class UnBanCommand implements Command {
 
     this.channelService.save(channel);
 
-    const socketID = await this.userService.findSocketIdByUserID(unbanUser.id);
-    if (channel.type !== ChannelType.PRIVATE) {
-      const channelDto = ChannelDto.transform(channel, false);
-      this.chatService.sendEvent(
-        server,
-        socketID,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
-      );
+    const socketID = await this.userService.getSocketID(unbanUser.id);
+    if (socketID) {
+      if (channel.type !== ChannelType.PRIVATE) {
+        this.chatService.sendChannelAvailableEvent(
+          server,
+          channel,
+          unbanUser.id,
+          socketID,
+        );
+      }
+      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+        message: `You have been unbanned from ${channel.name}`,
+      });
     }
-    this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-      message: `You have been unbanned from ${channel.name}`,
-    });
 
     this.chatService.sendEvent(
       server,

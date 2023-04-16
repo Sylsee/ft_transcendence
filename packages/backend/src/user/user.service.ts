@@ -66,27 +66,18 @@ export class UserService {
     this.userRepository.setUserStatus(userId, status);
   }
 
-  async findUserBySocketId(socketId: string): Promise<UserEntity | void> {
+  async getUserBySocket(socketId: string): Promise<UserEntity | void> {
     const userId = this.findUserIdBySocketId(socketId);
     if (userId) {
       return this.findOneById(userId);
     }
   }
 
-  findUserIdBySocketId(socketId: string): string | undefined {
+  private findUserIdBySocketId(socketId: string): string | undefined {
     return this.socketUserMap.get(socketId);
   }
 
-  async findSocketIdsByUsers(users: UserEntity[]): Promise<string[]> {
-    const socketIdPromises = users.map((user) =>
-      this.findSocketIdByUserID(user.id),
-    );
-    const socketIds = await Promise.all(socketIdPromises);
-
-    return socketIds.filter((socketId) => socketId !== undefined) as string[];
-  }
-
-  async findSocketIdByUserID(userId: string): Promise<string | undefined> {
+  async getSocketID(userId: string): Promise<string | undefined> {
     for (const [socketId, id] of this.socketUserMap.entries()) {
       if (id === userId) {
         return socketId;

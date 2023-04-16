@@ -6,7 +6,6 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   Length,
@@ -15,6 +14,35 @@ import {
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+
+class PermissionsDto {
+  @ApiProperty({
+    description: 'The user is in the channel',
+    example: true,
+    required: false,
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  isMember: boolean;
+
+  @ApiProperty({
+    description: '',
+    example: '',
+    required: false,
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  canModify: boolean;
+
+  @ApiProperty({
+    description: '',
+    example: '',
+    required: false,
+  })
+  @IsNotEmpty()
+  @IsBoolean()
+  canDelete: boolean;
+}
 
 export class ChannelDto {
   @ApiProperty({
@@ -49,20 +77,49 @@ export class ChannelDto {
   type: ChannelType;
 
   @ApiProperty({
-    description: 'The user is in the channel',
-    example: true,
-    required: false,
+    description: 'The permissions of the user in the channel',
+    type: PermissionsDto,
+    required: true,
   })
-  @IsOptional()
-  @IsBoolean()
-  isJoined?: boolean;
+  @IsNotEmpty()
+  permissions: PermissionsDto;
 
-  static transform(channel: ChannelEntity, isJoined?: boolean): ChannelDto {
+  static transform(channel: ChannelEntity, userId: string): ChannelDto {
+    const isMember =
+      channel.users &&
+      channel.users.some((channelUser) => channelUser.id === userId);
+    const isInvited =
+      channel.invitedUsers &&
+      channel.invitedUsers.some((invitedUser) => invitedUser.id === userId);
+    const isBanned =
+      channel.banUsers &&
+      channel.banUsers.some((bannedUser) => bannedUser.id === userId);
+    const isAdmin =
+      channel.admins && channel.admins.some((admin) => admin.id === userId);
+    const isOwner = channel.owner && channel.owner.id === userId;
+
+    if (
+      isBanned ||
+      (!isMember && !isInvited && channel.type === ChannelType.PRIVATE)
+    ) {
+      return null;
+    }
+
     return {
       id: channel.id,
       name: channel.name,
       type: channel.type,
-      ...(typeof isJoined !== 'undefined' ? { isJoined } : {}),
+      permissions: {
+        isMember,
+        canModify:
+          (channel.type === ChannelType.DIRECT_MESSAGE && isMember) ||
+          isAdmin ||
+          isOwner,
+        canDelete:
+          (channel.type === ChannelType.DIRECT_MESSAGE && isMember) ||
+          isOwner ||
+          (!channel.owner && isAdmin),
+      },
     };
   }
 }

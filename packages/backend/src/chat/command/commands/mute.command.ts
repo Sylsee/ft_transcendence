@@ -7,7 +7,9 @@ import { Server } from 'socket.io';
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
+import { ChatService } from 'src/chat/services/chat.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -19,6 +21,7 @@ export default class MuteCommand implements Command {
     private userService: UserService,
     private channelService: ChannelService,
     private muteUserService: MuteUserService,
+    private chatService: ChatService,
   ) {}
 
   async execute(
@@ -63,19 +66,20 @@ export default class MuteCommand implements Command {
       throw new Error('Invalid duration');
     }
 
-    const error = await this.muteUser(sender, channel, user, duration);
+    const error = await this.muteUser(server, sender, channel, user, duration);
     if (error) {
       throw new Error(error);
     }
   }
 
   private async muteUser(
-    user: UserEntity,
+    server: Server,
+    sender: UserEntity,
     channel: ChannelEntity,
     muteUser: UserEntity,
     time: number,
   ): Promise<string | void> {
-    if (user.id === muteUser.id) {
+    if (sender.id === muteUser.id) {
       return 'You cannot mute yourself';
     }
 
@@ -83,9 +87,25 @@ export default class MuteCommand implements Command {
       return 'You cannot mute the owner of the channel';
     }
 
+    if (
+      await this.muteUserService.isUserMuteInChannel(muteUser.id, channel.id)
+    ) {
+      return `User ${muteUser.name} is already muted`;
+    }
+
     const muteEndTime = new Date();
     muteEndTime.setMinutes(muteEndTime.getMinutes() + time);
 
     await this.muteUserService.create(muteUser, channel, muteEndTime);
+
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `User ${muteUser.name} has been muted for ${time} minutes`,
+      },
+    );
   }
 }

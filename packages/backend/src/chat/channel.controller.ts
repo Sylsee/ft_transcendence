@@ -160,16 +160,16 @@ export class ChannelController {
 
   // -------------------- Channel Retrieval Endpoints -----------------------
 
-  @Get('visible')
+  @Get('available')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: 'Get visible channels',
-    description: 'Retrieve all channels that are visible to the user.',
+    summary: 'Get available channels',
+    description: 'Retrieve all channels that are available to the user.',
   })
   @ApiOkResponse({ description: 'Channels found', type: [ChannelDto] })
   @HttpCode(HttpStatus.OK)
-  async getVisibleChannels(@Req() req: any): Promise<ChannelDto[]> {
-    return await this.channelService.findVisibleChannels(req.user.id);
+  async getAvailableChannels(@Req() req: any): Promise<ChannelDto[]> {
+    return await this.channelService.findAvailableChannels(req.user.id);
   }
 
   @Get(':id/messages')

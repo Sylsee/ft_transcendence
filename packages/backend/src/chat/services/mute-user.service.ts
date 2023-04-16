@@ -19,16 +19,8 @@ export class MuteUserService {
     return await this.muteUserRepository.create(user, channel, muteEndTime);
   }
 
-  async delete(user: string | MuteUserEntity): Promise<void> {
-    if (typeof user === 'string') {
-      const deleteUser = await this.muteUserRepository.findOneById(user);
-
-      if (deleteUser) {
-        this.muteUserRepository.delete(deleteUser);
-      }
-    } else if (user instanceof MuteUserEntity) {
-      this.muteUserRepository.delete(user);
-    }
+  async delete(user: MuteUserEntity): Promise<void> {
+    this.muteUserRepository.delete(user);
   }
 
   async isUserMuteInChannel(
@@ -36,5 +28,15 @@ export class MuteUserService {
     channelId: string,
   ): Promise<boolean> {
     return this.muteUserRepository.isUserMuteInChannel(userId, channelId);
+  }
+
+  async findOneByUserIdAndChannelId(
+    userId: string,
+    channelId: string,
+  ): Promise<MuteUserEntity | void> {
+    return this.muteUserRepository.findOneByUserIdAndChannelId(
+      userId,
+      channelId,
+    );
   }
 }

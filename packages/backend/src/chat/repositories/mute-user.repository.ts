@@ -42,6 +42,22 @@ export class MuteUserRepository {
     });
   }
 
+  async findOneByUserIdAndChannelId(
+    userId: string,
+    channelId: string,
+  ): Promise<MuteUserEntity | void> {
+    return this.muteUserRepository
+      .createQueryBuilder('muteUser')
+      .innerJoinAndSelect('muteUser.user', 'user')
+      .innerJoinAndSelect('muteUser.channel', 'channel')
+      .where('user.id = :userId', { userId })
+      .andWhere('channel.id = :channelId', { channelId })
+      .getOne()
+      .catch((error) => {
+        this.logger.error(error);
+      });
+  }
+
   async isUserMuteInChannel(
     userId: string,
     channelId: string,

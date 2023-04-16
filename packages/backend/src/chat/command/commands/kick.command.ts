@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { Server } from 'socket.io';
 
 // Local imports
-import { ChannelDto } from 'src/chat/dto/channel/channel.dto';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
@@ -89,33 +88,33 @@ export default class KickCommand implements Command {
     this.channelService.removeUserFromList(channel.users, kickUser.id);
     this.channelService.removeUserFromList(channel.admins, kickUser.id);
     this.channelService.removeUserFromList(channel.invitedUsers, kickUser.id);
-    this.muteUserService.delete(kickUser.id);
 
     await this.channelService.save(channel);
 
     // Send notification
-    const socketId = await this.userService.findSocketIdByUserID(kickUser.id);
-    if (channel.type === ChannelType.PRIVATE) {
-      this.chatService.sendEvent(
-        server,
-        socketId,
-        ChatEvent.CHANNEL_INVISIBLE,
-        {
-          channelID: channel.id,
-        },
-      );
-    } else {
-      const channelDto = ChannelDto.transform(channel, false);
-      this.chatService.sendEvent(
-        server,
-        socketId,
-        ChatEvent.CHANNEL_VISIBLE,
-        channelDto,
-      );
+    const socketId = await this.userService.getSocketID(kickUser.id);
+    if (socketId) {
+      if (channel.type === ChannelType.PRIVATE) {
+        this.chatService.sendEvent(
+          server,
+          socketId,
+          ChatEvent.CHANNEL_UNAVAILABILITY,
+          {
+            channelID: channel.id,
+          },
+        );
+      } else {
+        this.chatService.sendChannelAvailableEvent(
+          server,
+          channel,
+          kickUser.id,
+          socketId,
+        );
+      }
+      this.chatService.sendEvent(server, socketId, ChatEvent.NOTIFICATION, {
+        message: `You have been kicked from ${channel.name}`,
+      });
     }
-    this.chatService.sendEvent(server, socketId, ChatEvent.NOTIFICATION, {
-      message: `You have been kicked from ${channel.name}`,
-    });
 
     this.chatService.sendEvent(
       server,

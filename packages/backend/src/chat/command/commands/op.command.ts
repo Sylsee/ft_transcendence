@@ -7,7 +7,9 @@ import { Server } from 'socket.io';
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
+import { ChatService } from 'src/chat/services/chat.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -17,6 +19,7 @@ export default class OpCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
+    private chatService: ChatService,
   ) {}
 
   async execute(
@@ -47,7 +50,7 @@ export default class OpCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.opUser(channel, user);
+          const error = await this.opUser(server, sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -63,6 +66,8 @@ export default class OpCommand implements Command {
   }
 
   private async opUser(
+    server: Server,
+    sender: UserEntity,
     channel: ChannelEntity,
     opUser: UserEntity,
   ): Promise<string | void> {
@@ -73,5 +78,28 @@ export default class OpCommand implements Command {
     channel.admins.push(opUser);
 
     await this.channelService.save(channel);
+
+    const socketID = await this.userService.getSocketID(opUser.id);
+    if (socketID) {
+      this.chatService.sendChannelAvailableEvent(
+        server,
+        channel,
+        opUser.id,
+        socketID,
+      );
+      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+        message: `You have been opped in ${channel.name}`,
+      });
+    }
+
+    this.chatService.sendEvent(
+      server,
+      sender,
+      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      {
+        channelID: channel.id,
+        message: `${opUser.name} has been opped`,
+      },
+    );
   }
 }

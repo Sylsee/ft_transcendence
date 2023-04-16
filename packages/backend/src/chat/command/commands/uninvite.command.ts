@@ -82,22 +82,22 @@ export default class UnInviteCommand implements Command {
     await this.channelService.save(channel);
 
     // Notify invited user
-    const socketID = await this.userService.findSocketIdByUserID(
-      uninvitedUser.id,
-    );
-    if (channel.type === ChannelType.PRIVATE) {
-      this.chatService.sendEvent(
-        server,
-        socketID,
-        ChatEvent.CHANNEL_INVISIBLE,
-        {
-          channelID: channel.id,
-        },
-      );
+    const socketID = await this.userService.getSocketID(uninvitedUser.id);
+    if (socketID) {
+      if (channel.type === ChannelType.PRIVATE) {
+        this.chatService.sendEvent(
+          server,
+          socketID,
+          ChatEvent.CHANNEL_UNAVAILABILITY,
+          {
+            channelID: channel.id,
+          },
+        );
+      }
+      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+        message: `You are uninvited to join ${channel.name}`,
+      });
     }
-    this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-      message: `You are uninvited to join ${channel.name}`,
-    });
 
     this.chatService.sendEvent(
       server,

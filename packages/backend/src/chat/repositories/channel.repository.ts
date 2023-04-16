@@ -99,13 +99,14 @@ export class ChannelRepository {
       });
   }
 
-  async findVisibleChannels(userId: string): Promise<ChannelEntity[] | void> {
+  async findAvailableChannels(userId: string): Promise<ChannelEntity[] | void> {
     return this.channelRepository
       .createQueryBuilder('channel')
       .leftJoinAndSelect('channel.users', 'user')
       .leftJoinAndSelect('channel.admins', 'admin')
       .leftJoinAndSelect('channel.invitedUsers', 'invitedUser')
       .leftJoinAndSelect('channel.banUsers', 'banUser')
+      .leftJoinAndSelect('channel.owner', 'owner')
       .where('channel.type NOT IN (:...channelTypes)', {
         channelTypes: [ChannelType.PRIVATE, ChannelType.DIRECT_MESSAGE],
       })
