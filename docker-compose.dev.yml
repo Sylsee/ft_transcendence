@@ -70,8 +70,6 @@ services:
 
 volumes:
   pgdata:
-  pgadmin:
-  node_modules:
 
 networks:
   transcendence-network:
