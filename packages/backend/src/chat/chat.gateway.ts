@@ -224,4 +224,17 @@ export class ChatGateway
   ): Promise<void> {
     return this.chatService.sendEvent(this.server, user, event, data);
   }
+
+  async sendChannelAvailableEvent(
+    channel: ChannelEntity,
+    userId: string,
+    socket: string | UserEntity,
+  ): Promise<void> {
+    this.chatService.sendChannelAvailableEvent(
+      this.server,
+      channel,
+      userId,
+      socket,
+    );
+  }
 }

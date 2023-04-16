@@ -24,7 +24,6 @@ import { ChannelEntity } from '../entities/channel.entity';
 import { ChannelType } from '../enum/channel-type.enum';
 import { ChatEvent } from '../enum/chat-event.enum';
 import { ChannelRepository } from '../repositories/channel.repository';
-import { MuteUserService } from './mute-user.service';
 
 @Injectable()
 export class ChannelService {
@@ -35,7 +34,6 @@ export class ChannelService {
     private chatGateway: ChatGateway,
     private channelRepository: ChannelRepository,
     private userService: UserService,
-    private muteUserService: MuteUserService,
   ) {}
 
   // ------------------------- Debug ----------------------------
@@ -285,6 +283,14 @@ export class ChannelService {
 
     if (channel.owner && channel.owner.id === user.id) {
       channel.owner = null;
+
+      const users = [...(channel.admins ?? [])];
+
+      const eventPromises = users.map((user) => {
+        this.chatGateway.sendChannelAvailableEvent(channel, user.id, user);
+      });
+
+      await Promise.all(eventPromises);
     }
 
     this.removeUserFromList(channel.users, user.id);
