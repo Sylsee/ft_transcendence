@@ -13,7 +13,6 @@ import { ChannelDto } from '../dto/channel/channel.dto';
 import { CommandArgsDto } from '../dto/command/command-args.dto';
 import { ChannelEntity } from '../entities/channel.entity';
 import { ChatEvent } from '../enum/chat-event.enum';
-import { ChannelService } from './channel.service';
 import { MessageService } from './message.service';
 import { MuteUserService } from './mute-user.service';
 
@@ -24,8 +23,6 @@ export class ChatService {
   constructor(
     private userService: UserService,
     private messageService: MessageService,
-    @Inject(forwardRef(() => ChannelService))
-    private channelService: ChannelService,
     @Inject(forwardRef(() => 'COMMAND_MAP'))
     private readonly commandMap: Map<string, Command>,
     private muteUserService: MuteUserService,

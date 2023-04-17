@@ -12,7 +12,6 @@ import { ChatService } from 'src/chat/services/chat.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { ChannelService } from '../../services/channel.service';
-import { MuteUserService } from '../../services/mute-user.service';
 import { Command } from '../command.interface';
 
 @Injectable()
@@ -20,7 +19,6 @@ export default class BanCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private muteUserService: MuteUserService,
     private chatService: ChatService,
   ) {}
 

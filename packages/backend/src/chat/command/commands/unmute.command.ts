@@ -12,7 +12,6 @@ import { ChannelService } from 'src/chat/services/channel.service';
 import { ChatService } from 'src/chat/services/chat.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
 
 @Injectable()
@@ -21,7 +20,6 @@ export default class UnMuteCommand implements Command {
 
   constructor(
     private channelService: ChannelService,
-    private userService: UserService,
     private muteUserService: MuteUserService,
     private chatService: ChatService,
   ) {}

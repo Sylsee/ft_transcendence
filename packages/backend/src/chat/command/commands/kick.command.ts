@@ -10,7 +10,6 @@ import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { ChatService } from 'src/chat/services/chat.service';
-import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -20,7 +19,6 @@ export default class KickCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private muteUserService: MuteUserService,
     private chatService: ChatService,
   ) {}
 
