@@ -132,7 +132,7 @@ export class ChannelService {
       type,
     );
 
-    await this.chatGateway.sendChannelAvailablity(createdChannel, true);
+    await this.chatGateway.sendChannelAvailablity(createdChannel, false);
 
     return ChannelDto.transform(createdChannel, user.id);
   }
@@ -165,6 +165,8 @@ export class ChannelService {
       throw new ForbiddenException('Not an admin of this channel');
     }
 
+    const wasPrivate = channel.type === ChannelType.PRIVATE;
+
     channel.name = updateChannelDto.name ?? channel.name;
     channel.type = updateChannelDto.type ?? channel.type;
 
@@ -174,7 +176,7 @@ export class ChannelService {
     }
 
     await this.channelRepository.save(channel);
-    await this.chatGateway.sendChannelAvailablity(channel);
+    await this.chatGateway.sendChannelAvailablity(channel, wasPrivate);
 
     return ChannelDto.transform(channel, userId);
   }

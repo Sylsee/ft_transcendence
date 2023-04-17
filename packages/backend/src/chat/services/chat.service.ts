@@ -123,11 +123,11 @@ export class ChatService {
 
   async handleDirectMessageChannel(
     server: Server,
-    channelEntity: ChannelEntity,
+    channel: ChannelEntity,
   ): Promise<void> {
     Promise.all(
-      channelEntity.users.map((user) => {
-        this.sendChannelAvailableEvent(server, channelEntity, user.id, user);
+      channel.users.map((user) => {
+        this.sendChannelAvailableEvent(server, channel, user.id, user);
       }),
     );
   }
@@ -148,7 +148,7 @@ export class ChatService {
   async handlePrivateChannel(
     server: Server,
     channel: ChannelEntity,
-    isNew: boolean,
+    wasPrivate: boolean,
   ): Promise<void> {
     const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
 
@@ -158,7 +158,7 @@ export class ChatService {
 
     await Promise.all(eventPromises);
 
-    if (!isNew) {
+    if (!wasPrivate) {
       const usersIds: Set<string> = new Set(users.map((user) => user.id));
 
       const unavailableSocketsIds: string[] = [];

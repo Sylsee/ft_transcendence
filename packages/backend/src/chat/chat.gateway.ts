@@ -148,41 +148,38 @@ export class ChatGateway
   // ---------------------------- Utils ----------------------------
 
   async sendChannelAvailablity(
-    channelEntity: ChannelEntity,
-    newChannel = false,
+    channel: ChannelEntity,
+    wasPrivate: boolean,
   ): Promise<void> {
-    switch (channelEntity.type) {
+    switch (channel.type) {
       case ChannelType.DIRECT_MESSAGE:
-        await this.chatService.handleDirectMessageChannel(
-          this.server,
-          channelEntity,
-        );
+        await this.chatService.handleDirectMessageChannel(this.server, channel);
         break;
       case ChannelType.PUBLIC:
       case ChannelType.PASSWORD_PROTECTED:
         await this.chatService.handlePublicOrPasswordProtectedChannel(
           this.server,
-          channelEntity,
+          channel,
         );
         break;
       case ChannelType.PRIVATE:
         await this.chatService.handlePrivateChannel(
           this.server,
-          channelEntity,
-          newChannel,
+          channel,
+          wasPrivate,
         );
         break;
     }
   }
 
-  async sendChannelUnavailability(channelEntity: ChannelEntity): Promise<void> {
+  async sendChannelUnavailability(channel: ChannelEntity): Promise<void> {
     // Public and password protected channels are available for everyone
     if (
-      channelEntity.type === ChannelType.PUBLIC ||
-      channelEntity.type === ChannelType.PASSWORD_PROTECTED
+      channel.type === ChannelType.PUBLIC ||
+      channel.type === ChannelType.PASSWORD_PROTECTED
     ) {
       const usersIds: Set<string> = new Set(
-        channelEntity.banUsers?.map((user) => user.id),
+        channel.banUsers?.map((user) => user.id),
       );
       const socketsIds: string[] = [];
       this.userService.getSocketMap().forEach((value, key) => {
@@ -195,24 +192,21 @@ export class ChatGateway
         this.server,
         socketsIds,
         ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channelEntity.id },
+        { channelID: channel.id },
       );
     }
 
     // Private channels are available only for users who are in the channel or invited
     if (
-      channelEntity.type === ChannelType.PRIVATE ||
-      channelEntity.type === ChannelType.DIRECT_MESSAGE
+      channel.type === ChannelType.PRIVATE ||
+      channel.type === ChannelType.DIRECT_MESSAGE
     ) {
-      const users = [
-        ...(channelEntity.users ?? []),
-        ...(channelEntity.invitedUsers ?? []),
-      ];
+      const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
       this.chatService.sendEvent(
         this.server,
         users,
         ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channelEntity.id },
+        { channelID: channel.id },
       );
     }
   }
