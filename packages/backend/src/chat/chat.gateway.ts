@@ -72,23 +72,31 @@ export class ChatGateway
 
       this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
     } catch (error) {
-      client.disconnect();
+      client.emit('exception', {
+        status: 'error',
+        message: error.message,
+      });
 
       this.logger.warn(`Unable to verify token: ${token}`);
-      this.logger.error(error);
 
-      throw new WsException('Invalid token' + error.message);
+      client.disconnect();
     }
   }
 
   // TODO: send to friends user status
   handleDisconnect(client: Socket): void {
-    const { userId } = client.data;
+    try {
+      this.userService.removeSocketUser(client.id);
 
-    this.userService.removeSocketUser(client.id);
-    this.userService.setUserStatus(userId, UserStatus.inactive);
+      const { userId } = client.data.userId;
+      this.userService.setUserStatus(userId, UserStatus.inactive);
 
-    this.logger.verbose(`User ${userId} disconnected with socket ${client.id}`);
+      this.logger.verbose(
+        `User ${userId} disconnected with socket ${client.id}`,
+      );
+    } catch (error) {
+      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+    }
   }
 
   // ---------------------------- Events ----------------------------
