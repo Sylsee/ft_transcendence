@@ -8,11 +8,11 @@ import { plainToInstance } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
 import { Strategy, VerifyCallback } from 'passport-google-oauth2';
 
-// Local files
+// Local imports
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { AuthService } from '../auth.service';
-import { AuthProvider } from '../dto/auth-provider.enum';
 import { ProfileDto } from '../dto/profile.dto';
+import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {

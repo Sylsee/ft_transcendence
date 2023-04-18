@@ -1,75 +1,84 @@
-// NestJS imports
-import { ApiProperty } from '@nestjs/swagger';
-
 // Third-party imports
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
-// Local files
-import { AuthProvider } from '../../auth/dto/auth-provider.enum';
+// Local imports
+import { ChannelEntity } from 'src/chat/entities/channel.entity';
+import { MessageEntity } from 'src/chat/entities/message.entity';
+import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
+import { AuthProvider } from '../../auth/enum/auth-provider.enum';
+import { UserStatus } from '../enum/user-status.enum';
 
 @Entity('users')
 export class UserEntity {
-  @ApiProperty({
-    example: '12345678-abcd-1234-abcd-1234567890ab',
-  })
-  @IsString()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ApiProperty({
-    example: '42',
-  })
-  @IsNotEmpty()
   @Column({
     type: 'enum',
     enum: AuthProvider,
   })
   provider: AuthProvider;
 
-  @ApiProperty({
-    example: '123456789',
-  })
-  @IsNotEmpty()
-  @IsString()
   @Column()
   providerId: string;
 
-  @ApiProperty({
-    example: 'example@example.com',
-  })
-  @IsNotEmpty()
-  @IsEmail()
   @Column()
   email: string;
 
-  @ApiProperty({
-    example: 'Arnaud',
-  })
-  @IsNotEmpty()
-  @IsString()
-  @Column()
+  @Column({ unique: true })
   name: string;
 
-  @ApiProperty({
-    example: 'https://example.com/avatar.png',
-  })
-  @IsNotEmpty()
-  @IsString()
-  @Column({
-    unique: true,
-  })
+  @Column()
   avatarUrl: string;
 
-  @ApiProperty()
-  @ManyToMany(() => UserEntity, (user) => user.friends)
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.inactive,
+  })
+  status: UserStatus;
+
+  // Relationships
+  @OneToMany(() => UserEntity, (user) => user.friends)
   friends: UserEntity[];
 
-  @ApiProperty()
   @ManyToMany(() => UserEntity, (user) => user.friendRequests)
   friendRequests: UserEntity[];
 
-  @ApiProperty()
-  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  @ManyToMany(() => UserEntity, (user) => user.blockedBy)
+  @JoinTable()
   blockedUsers: UserEntity[];
+
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
+  blockedBy: UserEntity[];
+
+  // Chat
+  @ManyToMany(() => ChannelEntity, (channel) => channel.users, {
+    nullable: true,
+  })
+  channels: ChannelEntity[];
+
+  @OneToMany(() => ChannelEntity, (channel) => channel.owner, {
+    nullable: true,
+  })
+  ownedChannels: ChannelEntity[];
+
+  @OneToMany(() => MessageEntity, (message) => message.sender, {
+    cascade: ['remove'],
+    nullable: true,
+  })
+  sendMessages: MessageEntity[];
+
+  @OneToMany(() => MuteUserEntity, (muteUser) => muteUser.user, {
+    cascade: ['remove'],
+    nullable: true,
+  })
+  muteChannels: MuteUserEntity[];
 }

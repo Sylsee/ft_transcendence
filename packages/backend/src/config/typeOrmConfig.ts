@@ -1,13 +1,18 @@
 // Nest dependencies
 import { Injectable } from '@nestjs/common';
-import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 import { ConfigService as NestConfigService } from '@nestjs/config';
+import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
 // Other dependencies
 import * as env from 'dotenv';
 
-// Local files
+// Local imports
+import { ChannelEntity } from 'src/chat/entities/channel.entity';
+import { MessageEntity } from 'src/chat/entities/message.entity';
+import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
+import { FriendRequest } from 'src/user/entities/friend_request.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
+import { UserFriend } from 'src/user/entities/user_friend.entity';
 
 env.config();
 
@@ -33,7 +38,14 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
       password: this.get('DB_PASS'),
       database: this.get('DB_NAME'),
 
-      entities: [UserEntity],
+      entities: [
+        UserEntity,
+        UserFriend,
+        FriendRequest,
+        ChannelEntity,
+        MessageEntity,
+        MuteUserEntity,
+      ],
       synchronize: !this.isProduction(),
 
       autoLoadEntities: true,
