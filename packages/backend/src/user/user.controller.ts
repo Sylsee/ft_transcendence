@@ -26,9 +26,9 @@ import { ErrorBadRequest } from 'src/error/error-bad-request';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserService } from './user.service';
+import { UserService } from './services/user.service';
 import { FriendRequestDto } from './dto/friend_request.dto';
-import { FriendRequestService } from './friend_request.service';
+import { FriendRequestService } from './services/friend_request.service';
 import { UseContainerOptions } from 'class-validator';
 import { UserEntity } from './entities/user.entity';
 import { UserRelationshipDto } from './dto/user-relationship.dto';
@@ -66,7 +66,7 @@ export class UserController {
   })
   @ApiOkResponse({ description: 'Users found', type: [UserDto] })
   async getAllUsers() {
-    return this.userService.findAll();
+    return await this.userService.findAll();
   }
 
   // ------------------------------------------------------------
@@ -81,7 +81,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User found', type: UserDto })
   async getUserById(@Param('id') id: string) {
-    return this.userService.findOne(id);
+    return await this.userService.findOne(id);
   }
 
   @Patch(':id')
@@ -112,7 +112,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
   async getUserFriends(@Param('id') id: string) {
-    return this.userService.getFriendsById(id);
+    return await this.userService.getFriendsById(id);
   }
 
   @Get('friend-status/:id')
@@ -129,7 +129,7 @@ export class UserController {
   })
   async getUserFriendStatus(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    return this.userService.getUserFriendsStatus(user.id, id);
+    return await this.userService.getUserFriendsStatus(user.id, id);
   }
 
   @Delete('friend/:id')
@@ -143,8 +143,11 @@ export class UserController {
   @ApiOkResponse({ description: 'Friend deleted', type: [UserDto] })
   async deleteUserFriend(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    await this.friendRequestService.deleteFriendRequestBetweenUsers(user.id, id);
-    return await this.userService.deleteFriend(user.id, id);
+    await this.friendRequestService.deleteFriendRequestBetweenUsers(
+      user.id,
+      id,
+    );
+    await this.userService.deleteFriend(user.id, id);
   }
 
   // ------------------------------------------------------------
@@ -176,7 +179,7 @@ export class UserController {
     type: [FriendRequestDto],
   })
   async getUserFriendRequests(@Param('id') id: string) {
-    return this.userService.getSentFriendRequests(id);
+    return await this.userService.getSentFriendRequests(id);
   }
 
   @Patch('friend-request/:id')
@@ -196,15 +199,16 @@ export class UserController {
   ) {
     const user: UserEntity = req.user;
 
+    await this.friendRequestService.changeFriendRequestStatus(
+      user,
+      id,
+      updateFriendRequestDto,
+    );
+    
     if (updateFriendRequestDto.status === FriendRequestStatus.approved) {
       await this.userService.addNewFriend(user.id, id);
     }
 
-    await this.friendRequestService.changeFriendRequestStatus(
-        user,
-        id,
-        updateFriendRequestDto,
-    );
   }
 
   @Delete('friend-request/:id')
@@ -218,7 +222,7 @@ export class UserController {
   async deleteUserFriendRequest(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
 
-    this.friendRequestService.deleteFriendRequestByReceiverId(user.id, id);
+    await this.friendRequestService.deleteFriendRequestByReceiverId(user.id, id);
   }
 
   // ------------------------------------------------------------
@@ -235,20 +239,19 @@ export class UserController {
   @ApiOkResponse({ description: 'User blocked', type: [UserDto] })
   async blockUser(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    this.userService.blockUserById(user.id, id);
+    await this.userService.blockUserById(user.id, id);
   }
 
   @Get('block/:id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary: 'Get blocked users',
-    description: 'Retrieve a list of blocked users for the current user.',
+    description: 'Retrieve a list of blocked users for the specify user.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Blocked users found', type: [UserDto] })
-  async getBlockedUsers(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    return this.userService.getBlockedUsers(user.id);
+  async getBlockedUsers(@Param('id') id: string) {
+    return await this.userService.getBlockedUsers(id);
   }
 
   @Delete('block/:id')
@@ -261,6 +264,6 @@ export class UserController {
   @ApiOkResponse({ description: 'User unblocked', type: [UserDto] })
   async unblockUser(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    this.userService.unblockUserById(user.id, id);
+    await this.userService.unblockUserById(user.id, id);
   }
 }

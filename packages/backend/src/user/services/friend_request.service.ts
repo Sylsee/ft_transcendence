@@ -1,12 +1,16 @@
 // Nest dependencies
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 // Local files
-import { FriendRequestRepository } from './friend_request.repository';
-import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
-import { FriendRequest } from './entities/friend_request.entity';
-import { UserEntity } from './entities/user.entity';
-import { FriendRequestStatus } from './enum/friend_request-status.enum';
+import { FriendRequestRepository } from '../repositories/friend_request.repository';
+import { UpdateFriendRequestDto } from '../dto/update-friend-request.dto';
+import { FriendRequest } from '../entities/friend_request.entity';
+import { UserEntity } from '../entities/user.entity';
+import { FriendRequestStatus } from '../enum/friend_request-status.enum';
 
 @Injectable()
 export class FriendRequestService {
@@ -18,19 +22,24 @@ export class FriendRequestService {
     currentUser: UserEntity,
     fromUserId: string,
     updateFriendRequestDto: UpdateFriendRequestDto,
-  ): Promise<FriendRequest> {
-    const request: FriendRequest =
-      await this.friendRequestRepository.findSpecifyFriendRequest(
-        currentUser.id,
-        fromUserId,
-      );
-    if (request === undefined || request === null) {
+  ): Promise<void> {
+    const request = await this.friendRequestRepository.findSpecifyFriendRequest(
+      currentUser.id,
+      fromUserId,
+    );
+
+    if (!request) {
       throw new NotFoundException(
         `Friend request with specify id doesn't exists`,
       );
+    } else if (request.status === updateFriendRequestDto.status) {
+      throw new BadRequestException(
+        `Request already have status ${updateFriendRequestDto.status}`,
+      );
     }
+
     request.status = updateFriendRequestDto.status;
-    return await this.friendRequestRepository.saveFriendRequest(request);
+    await this.friendRequestRepository.saveFriendRequest(request);
   }
 
   async deleteFriendRequestByReceiverId(
@@ -41,15 +50,13 @@ export class FriendRequestService {
       receiverId,
       senderId,
     );
-    if (!request || request.status === FriendRequestStatus.approved) {
-      //we can't delete already approved request
-      return;
+    if (!request) {
+      throw new NotFoundException('Friend request not found');
+    } else if (request.status === FriendRequestStatus.approved) {
+      throw new BadRequestException("You can't delete approved friend request");
     }
 
-    return await this.friendRequestRepository.deleteFriendRequestByReceiverId(
-      senderId,
-      receiverId,
-    );
+    this.friendRequestRepository.deleteFriendRequest(request);
   }
 
   async deleteFriendRequestBetweenUsers(
