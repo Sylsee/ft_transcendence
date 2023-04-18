@@ -21,6 +21,10 @@ export class UserService {
     return this.userRepository.create(user);
   }
 
+  async update(userId: string, data: object): Promise<UserEntity> {
+    return this.userRepository.update(userId, data);
+  }
+
   // TODO: Remove this method
   findAll() {
     return this.userRepository.find();
@@ -37,7 +41,7 @@ export class UserService {
   async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
-  ): Promise<UserDto | void> {
+  ): Promise<UserEntity | void> {
     return this.userRepository.findUserByProviderIDAndProvider(
       providerId,
       provider,
@@ -45,6 +49,22 @@ export class UserService {
   }
 
   // -------------------- Socket Methods ------------------------
+  // --------------------- 2fa Methods ----------------------
+
+  async turnOn2fa(userId: string): Promise<void> {
+    return this.userRepository.update(userId, {
+      isTwoFactorAuthEnabled: true,
+    });
+  }
+
+  async turnOff2fa(userId: string): Promise<void> {
+    return this.userRepository.update(userId, {
+      isTwoFactorAuthEnabled: false,
+      twoFactorAuthSecret: null,
+    });
+  }
+
+  // -------------------- Socket Methods --------------------
 
   getSockets(): string[] {
     return Array.from(this.socketUserMap.keys());

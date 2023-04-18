@@ -1,4 +1,4 @@
-// NestJs imports
+// NestJS imports
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -38,6 +38,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       this.logger.warn(
         `Failed to retrieve from database: user ID: ${payload.sub}`,
       );
+      // I don't send any message here because I don't want to give any hint to the attacker
       throw new UnauthorizedException();
     }
 

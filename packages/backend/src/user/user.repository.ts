@@ -28,6 +28,10 @@ export class UserRepository {
     return this.userRepository.save(newUser);
   }
 
+  async update(userId: string, data: object): Promise<any> {
+    return this.userRepository.update(userId, data);
+  }
+
   async find(): Promise<UserEntity[]> {
     return this.userRepository.find();
   }

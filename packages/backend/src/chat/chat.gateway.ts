@@ -64,13 +64,13 @@ export class ChatGateway
     const [, token] = authHeader.split(' '); // [Bearer, token]
 
     try {
-      const userId = this.authService.verify(token);
-      client.data = { userId };
+      const user = await this.authService.verify(token);
+      client.data = { userId: user.id };
 
-      this.userService.setSocketUser(client.id, userId);
-      this.userService.setUserStatus(userId, UserStatus.active);
+      this.userService.setSocketUser(client.id, user.id);
+      this.userService.setUserStatus(user.id, UserStatus.active);
 
-      this.logger.verbose(`User ${userId} connected with socket ${client.id}`);
+      this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
     } catch (error) {
       client.disconnect();
 

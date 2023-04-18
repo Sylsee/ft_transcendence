@@ -11,6 +11,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { OAuth42Strategy } from './strategy/42.strategy';
 import { GoogleStrategy } from './strategy/google.strategy';
+import { Jwt2faStrategy } from './strategy/jwt-2fa.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Module({
@@ -30,7 +31,13 @@ import { JwtStrategy } from './strategy/jwt.strategy';
     UserModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, OAuth42Strategy, GoogleStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    OAuth42Strategy,
+    GoogleStrategy,
+    JwtStrategy,
+    Jwt2faStrategy,
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}
