@@ -29,6 +29,9 @@ export class UserEntity {
   @Column()
   providerId: string;
 
+  @Column({ default: false })
+  profileInitialized: boolean;
+
   @Column()
   email: string;
 

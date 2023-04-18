@@ -36,6 +36,10 @@ export class AuthService {
       return { ...newUser, new: true };
     }
 
+    if (!user.profileInitialized) {
+      return { ...user, new: true };
+    }
+
     return { ...user, new: false };
   }
 
