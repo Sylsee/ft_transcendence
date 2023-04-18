@@ -27,7 +27,7 @@ import {
 } from '@nestjs/swagger';
 
 // Local imports
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
 import { ChannelDto } from './dto/channel/channel.dto';
 import { CreateChannelDto } from './dto/channel/create-channel.dto';
 import { JoinChannelDto } from './dto/channel/join-channel.dto';
@@ -63,7 +63,7 @@ export class ChannelController {
   // -------------------- Channel Management Endpoints -----------------------
 
   @Post('create')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Create a channel',
     description: 'Create a new channel with the specified name.',
@@ -82,7 +82,7 @@ export class ChannelController {
   }
 
   @Patch('update/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Update a channel',
     description: 'Update a channel with the specified id.',
@@ -100,7 +100,7 @@ export class ChannelController {
   }
 
   @Delete('delete/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Delete a channel',
     description: 'Delete a channel with the specified id.',
@@ -119,7 +119,7 @@ export class ChannelController {
   // -------------------- Channel Access Endpoints -----------------------
 
   @Post(':id/join')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Join a channel',
     description: 'Join a channel with the specified id.',
@@ -142,7 +142,7 @@ export class ChannelController {
   }
 
   @Post(':id/leave')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Leave a channel',
     description: 'Leave a channel with the specified id.',
@@ -161,7 +161,7 @@ export class ChannelController {
   // -------------------- Channel Retrieval Endpoints -----------------------
 
   @Get('available')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get available channels',
     description: 'Retrieve all channels that are available to the user.',
@@ -173,7 +173,7 @@ export class ChannelController {
   }
 
   @Get(':id/messages')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get messages in a channel',
     description: 'Retrieve all messages in a channel.',

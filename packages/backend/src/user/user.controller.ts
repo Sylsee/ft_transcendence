@@ -26,7 +26,7 @@ import {
 import { Request } from 'express';
 
 // Local imports
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto, UserRelationshipDto } from './dto/user.dto';
@@ -72,7 +72,7 @@ export class UserController {
   // -------------------- User Endpoints ------------------------
   // ------------------------------------------------------------
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user by id',
     description: 'Retrieve a user by their unique identifier.',
@@ -84,7 +84,7 @@ export class UserController {
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Update user',
     description: 'Update the specified user with the provided data.',
@@ -103,7 +103,7 @@ export class UserController {
   // -------------------- Friend Endpoints ----------------------
   // ------------------------------------------------------------
   @Get('friends/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friends',
     description: 'Retrieve the friends of the specified user.',
@@ -115,7 +115,7 @@ export class UserController {
   }
 
   @Get('friend-status/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friend status',
     description:
@@ -131,7 +131,7 @@ export class UserController {
   }
 
   @Delete('friend/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Delete a friend',
     description:
@@ -147,7 +147,7 @@ export class UserController {
   // -------------------- Friend Request Endpoints --------------
   // ------------------------------------------------------------
   @Post('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Send a friend request',
     description: 'Send a friend request to the specified user ID.',
@@ -159,7 +159,7 @@ export class UserController {
   }
 
   @Get('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friend requests',
     description:
@@ -175,7 +175,7 @@ export class UserController {
   }
 
   @Patch('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Accept or deny received friend request',
     description:
@@ -192,7 +192,7 @@ export class UserController {
   }
 
   @Delete('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Delete a sent friend request',
     description: 'Cancel a friend request sent to the specified user ID.',
@@ -207,7 +207,7 @@ export class UserController {
   // -------------------- Block User Endpoints ------------------
   // ------------------------------------------------------------
   @Post('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Block a user',
     description:
@@ -220,7 +220,7 @@ export class UserController {
   }
 
   @Get('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get blocked users',
     description: 'Retrieve a list of blocked users for the current user.',
@@ -232,7 +232,7 @@ export class UserController {
   }
 
   @Delete('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Unblock a user',
     description: 'Unblock the specified user by their unique identifier.',
