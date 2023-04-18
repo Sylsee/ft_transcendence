@@ -1,0 +1,46 @@
+# This workflow will format and lint errors on the backend source code
+
+name: Lint and Format backend source code
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "packages/backend/**"
+  pull_request:
+    paths:
+      - "packages/backend/**"
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          cd packages/backend
+          npm ci
+
+      - name: Run Prettier
+        run: |
+          cd packages/backend
+          npm run format
+
+      - name: Run ESLint
+        run: |
+          cd packages/backend
+          npm run lint -- --max-warnings=0
