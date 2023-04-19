@@ -1,12 +1,12 @@
 import React from "react";
-import { logo42 } from "../../assets/icons/42_logo";
-import { RootState } from "../../types/global";
 import { useSelector } from "react-redux";
-import { API_BASE_URL, API_ROUTES } from "../../config";
-import { IconButton } from "../../components/IconButton/IconButton";
-import { pong_logo } from "../../assets/icons/pong_logo";
 import { Link } from "react-router-dom";
+import { logo42 } from "../../assets/icons/42_logo";
 import { logoGoogle } from "../../assets/icons/google_logo";
+import { pong_logo } from "../../assets/icons/pong_logo";
+import { IconButton } from "../../components/IconButton/IconButton";
+import { API_BASE_URL, API_ROUTES } from "../../config";
+import { RootState } from "../../types/global";
 
 const Home: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
