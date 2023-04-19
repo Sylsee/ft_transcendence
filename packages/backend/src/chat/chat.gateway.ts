@@ -88,7 +88,7 @@ export class ChatGateway
     try {
       this.userService.removeSocketUser(client.id);
 
-      const { userId } = client.data.userId;
+      const { userId } = client.data;
       this.userService.setUserStatus(userId, UserStatus.inactive);
 
       this.logger.verbose(
