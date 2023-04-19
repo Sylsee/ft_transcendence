@@ -4,7 +4,6 @@ import { RootState } from "../../types/global";
 
 const ProtectedRoute: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-
 	return isAuth ? (
 		<>
 			<Outlet />
