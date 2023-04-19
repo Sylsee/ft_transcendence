@@ -1,6 +1,7 @@
 import { API_ROUTES } from "../../config";
 import { UpdateUserRequest } from "../../types/user";
 import { apiClient } from "../api";
+
 const fetchUserById = async (userId: string) => {
 	const response = await apiClient.get(API_ROUTES.USER(userId));
 	return response.data;
@@ -10,9 +11,6 @@ const updateUserById = async (userId: string, data: UpdateUserRequest) => {
 	const formData = new FormData();
 	if (data.name) {
 		formData.append("name", data.name);
-	}
-	if (data.twoFactorAuth) {
-		formData.append("twoFactorAuth", data.twoFactorAuth.toString());
 	}
 	if (data.avatar) {
 		formData.append("avatar", data.avatar);
