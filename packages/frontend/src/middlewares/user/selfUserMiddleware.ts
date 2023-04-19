@@ -1,17 +1,14 @@
 import {
-	getUser,
-	setUser,
-	update,
-} from "../../store/selfUser-slice/selfUser-slice";
-import { RootState } from "../../types/global";
-import {
 	AnyAction,
+	Dispatch,
 	Middleware,
 	MiddlewareAPI,
-	Dispatch,
 } from "@reduxjs/toolkit";
-import { User } from "../../types/user";
 import { fetchUserById } from "../../api/user/userRequests";
+import { logout } from "../../store/auth-slice/auth-slice";
+import { getUser, setUser } from "../../store/selfUser-slice/selfUser-slice";
+import { RootState } from "../../types/global";
+import { User } from "../../types/user";
 
 const actionHandlers: Record<
 	string,
@@ -28,15 +25,11 @@ const actionHandlers: Record<
 			const user: User = await fetchUserById(action.payload.id);
 			store.dispatch(setUser(user));
 		} catch (error) {
-			console.log("error");
+			store.dispatch(logout());
 		}
-
 		return next(action);
 	},
 	[setUser.type]: (store, next, action) => {
-		return next(action);
-	},
-	[update.type]: (store, next, action) => {
 		return next(action);
 	},
 };
