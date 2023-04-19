@@ -1,22 +1,23 @@
-import Cookies from "js-cookie";
 import axios from "axios";
-import { API_BASE_URL, JWT_NAME } from "../config";
+import { API_BASE_URL } from "../config";
 
 const apiClient = axios.create({
 	baseURL: `${API_BASE_URL}`,
+	withCredentials: true,
 	headers: {
 		"Content-Type": "application/json",
 	},
 });
 
-apiClient.interceptors.request.use((config) => {
-	const cookie = Cookies.get(JWT_NAME);
-	if (cookie) config.headers.Authorization = `Bearer ${cookie}`;
-	return config;
-});
+// apiClient.interceptors.request.use((config) => {
+// 	const cookie = Cookies.get(JWT_NAME);
+// 	if (cookie) config.headers.Authorization = `Bearer ${cookie}`;
+// 	return config;
+// });
 
 // apiClient.interceptors.response.use(
 // 	(response) => {
+// 		console.log("dldldldl");
 // 		return response;
 // 	},
 // 	(error) => {
