@@ -4,7 +4,6 @@ import { Injectable, Logger } from '@nestjs/common';
 // Local imports
 import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserStatus } from './enum/user-status.enum';
@@ -47,16 +46,6 @@ export class UserService {
       providerId,
       provider,
     );
-  }
-
-  async initializeUser(
-    user: UserEntity,
-    updateUserDto: UpdateUserDto,
-  ): Promise<UserEntity> {
-    return await this.userRepository.update(user.id, {
-      ...updateUserDto,
-      profileInitialized: true,
-    });
   }
 
   // --------------------- 2fa Methods ----------------------

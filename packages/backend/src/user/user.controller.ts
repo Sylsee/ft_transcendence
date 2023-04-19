@@ -99,17 +99,6 @@ export class UserController {
     // Implement the method to update user
   }
 
-  @Post('initialize')
-  @ApiOperation({
-    summary: 'Initialize user',
-    description: 'Initialize the specified user with the provided data.',
-  })
-  @ApiOkResponse({ description: 'User initialized', type: UserDto })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  async initializeUser(@Req() req: any, @Body() updateUserDto: UpdateUserDto) {
-    await this.userService.initializeUser(req.user, updateUserDto);
-  }
-
   // ------------------------------------------------------------
   // -------------------- Friend Endpoints ----------------------
   // ------------------------------------------------------------
