@@ -1,6 +1,10 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUserPayload, SelfUserState } from "../../types/user";
-import { User } from "../../types/user";
+import {
+	getUserPayload,
+	SelfUserState,
+	User,
+	UserStatus,
+} from "../../types/user";
 
 const initialState: SelfUserState = {
 	user: null,
@@ -12,14 +16,9 @@ export const selfUserSlice = createSlice({
 	reducers: {
 		getUser(state, action: PayloadAction<getUserPayload>) {},
 		setUser(state, action: PayloadAction<User>) {
-			state.user = action.payload;
-		},
-		update(state, action: PayloadAction<User>) {
-			state.user = action.payload;
+			state.user = { ...action.payload, status: UserStatus.Online };
 		},
 	},
 });
 
-const { getUser, setUser, update } = selfUserSlice.actions;
-
-export { getUser, setUser, update };
+export const { getUser, setUser } = selfUserSlice.actions;
