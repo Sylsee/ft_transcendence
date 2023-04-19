@@ -4,12 +4,9 @@ import {
 	faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation } from "@tanstack/react-query";
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateUserById } from "../../../../api/user/userRequests";
 import { ERROR_MESSAGES } from "../../../../config";
-import { setUser } from "../../../../store/selfUser-slice/selfUser-slice";
+import { useUpdateUser } from "../../../../hooks/user/useUpdateUser";
 import { Loader } from "../../../Loader/Loader";
 
 interface ProfileNameProps {
@@ -19,22 +16,14 @@ interface ProfileNameProps {
 }
 
 const ProfileName: React.FC<ProfileNameProps> = ({
-	id = "",
+	id,
 	isConnectedUser = false,
 	name,
 }) => {
 	const [isEditing, setIsEditing] = useState<boolean>(false);
 	const inputRef = useRef<HTMLInputElement>(null);
-	const dispatch = useDispatch();
 
-	const { mutate, isLoading, error } = useMutation(
-		(newName: string) => updateUserById(id, { name: newName }),
-		{
-			onSuccess: (user) => {
-				dispatch(setUser(user));
-			},
-		}
-	);
+	const mutation = useUpdateUser(id);
 
 	const editButton = () => {
 		setIsEditing(true);
@@ -52,13 +41,10 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 
 	const submitButton = (e: any) => {
 		e.preventDefault();
-
 		if (inputRef.current) {
-			// TODO NEED TO CHECK IF NAME PROPS UPDATE AUTOMATICALLY
 			if (inputRef.current.value.trim() !== name)
-				mutate(inputRef.current.value);
-
-			if (!error) setIsEditing(false);
+				mutation.mutate({ name: inputRef.current.value });
+			if (!mutation.error) setIsEditing(false);
 		}
 	};
 
@@ -77,7 +63,7 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 								}}
 								defaultValue={name}
 							/>
-							{isLoading ? (
+							{mutation.isLoading ? (
 								<Loader />
 							) : (
 								<button type="submit" className="ml-4">
@@ -96,11 +82,11 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 							/>
 						</button>
 					</div>
-					{error ? (
+					{mutation.error ? (
 						<div>
 							<p className="text-red-500">
-								{error instanceof Error
-									? error.message
+								{mutation.error instanceof Error
+									? mutation.error.message
 									: ERROR_MESSAGES.UNKNOWN_ERROR}
 							</p>
 						</div>

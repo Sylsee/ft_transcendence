@@ -1,64 +1,51 @@
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMutation } from "@tanstack/react-query";
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
-import { updateUserById } from "../../../../api/user/userRequests";
-import { setUser } from "../../../../store/selfUser-slice/selfUser-slice";
+import { useUpdateUser } from "../../../../hooks/user/useUpdateUser";
+import { UserStatus } from "../../../../types/user";
 
 interface ProfileAvatarProps {
 	id: string;
 	isConnectedUser: boolean;
 	avatarUrl: string;
+	status: string;
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 	id,
 	isConnectedUser,
 	avatarUrl,
+	status,
 }) => {
 	const [hover, setHover] = useState<boolean>(false);
-	const dispatch = useDispatch();
-
-	const mutation = useMutation(
-		(newAvatarFile: File) => updateUserById(id, { avatar: newAvatarFile }),
-		{
-			onSuccess: (user) => {
-				dispatch(setUser(user));
-			},
-			onError: (error) => {},
-		}
-	);
+	const mutation = useUpdateUser(id);
 
 	const handleUpload = (e: any) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			console.log(file);
-			mutation.mutate(file);
+			mutation.mutate({ avatar: file });
 		}
 	};
 
 	return (
-		<div
-			className="relative w-32 h-32 mx-auto"
-			onMouseEnter={() => {
-				console.log("FDP");
-				setHover(true);
-			}}
-			onMouseLeave={() => setHover(false)}
-		>
-			<img
-				src={avatarUrl}
-				alt="Avatar"
-				className="w-full h-full object-cover rounded-full border-solid border-white border-2"
-			/>
+		<div className="relative w-32 h-32 mx-auto">
+			<div className="relative">
+				<img
+					src={avatarUrl}
+					referrerPolicy="no-referrer"
+					alt="Avatar"
+					className="w-full h-full object-cover rounded-full border-solid border-white border-2"
+				/>
+				<span
+					className={`bottom-1 right-6 absolute w-3.5 h-3.5 ${
+						status === UserStatus.Online
+							? "bg-green-400"
+							: "bg-gray-500"
+					} border-2 border-white dark:border-gray-800 rounded-full`}
+				></span>
+			</div>
 			{isConnectedUser && (
 				<div
-					onMouseEnter={() => {
-						console.log("FDP");
-						setHover(true);
-					}}
-					onMouseLeave={() => setHover(false)}
 					className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity duration-300 ${
 						hover ? "bg-gray-500 bg-opacity-50" : "opacity-0"
 					}`}
@@ -72,8 +59,10 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 					<input
 						type="file"
 						id="file-upload"
-						className="opacity-0 w-full h-full absolute"
+						className="opacity-0 w-full absolute h-full rounded-full cursor-pointer"
 						onChange={handleUpload}
+						onMouseEnter={() => setHover(true)}
+						onMouseLeave={() => setHover(false)}
 						accept="image/*"
 					/>
 				</div>

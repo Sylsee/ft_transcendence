@@ -1,22 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import React from "react";
-import { useSelector } from "react-redux";
 import { fetchUserById } from "../../../api/user/userRequests";
 import { ERROR_MESSAGES } from "../../../config";
-import { RootState } from "../../../types/global";
+import { User } from "../../../types/user";
 import { Loader } from "../../Loader/Loader";
 import { Profile2faAuth } from "./Profile2faAuth/Profile2faAuth";
 import { ProfileAvatar } from "./ProfileAvatar/ProfileAvatar";
 import { ProfileName } from "./ProfileName/ProfileName";
 
 interface ProfileCardProps {
-	id: string | undefined;
+	connected_user: User;
+	isConnectedUser: boolean;
+	id: string;
 }
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ id = "" }) => {
-	const connected_user = useSelector((store: RootState) => store.USER.user);
-	const isConnectedUser = connected_user !== null && connected_user.id === id;
-
+const ProfileCard: React.FC<ProfileCardProps> = ({
+	id,
+	connected_user,
+	isConnectedUser,
+}) => {
 	const {
 		data: profileData,
 		error,
@@ -55,24 +57,45 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ id = "" }) => {
 	return (
 		<div className="p-6 flex flex-col lg:w-1/2 border-solid border-2">
 			<ProfileAvatar
-				id={id}
 				isConnectedUser={isConnectedUser}
-				avatarUrl={profileData.avatarUrl}
+				id={
+					isConnectedUser && connected_user
+						? connected_user.id
+						: profileData.id
+				}
+				avatarUrl={
+					isConnectedUser && connected_user
+						? connected_user.avatarUrl
+						: profileData.avatarUrl
+				}
+				status={
+					isConnectedUser && connected_user
+						? connected_user.status
+						: profileData.status
+				}
 			/>
 			<div className="h-1/2 flex flex-col  items-center pt-5">
 				<div>
 					<ProfileName
 						isConnectedUser={isConnectedUser}
-						name={profileData.name}
-						id={id}
+						id={
+							isConnectedUser && connected_user
+								? connected_user.id
+								: profileData.id
+						}
+						name={
+							isConnectedUser && connected_user
+								? connected_user.name
+								: profileData.name
+						}
 					/>
-					<Profile2faAuth />
-					<div>
-						{profileData && profileData.status && (
-							<p>status: {profileData.status}</p>
-						)}
-					</div>
 				</div>
+				{isConnectedUser && connected_user && (
+					<Profile2faAuth
+						id={connected_user.id}
+						twoFactorAuth={false}
+					/>
+				)}
 			</div>
 		</div>
 	);
