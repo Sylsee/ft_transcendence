@@ -1,5 +1,10 @@
-import React from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import React, { useEffect } from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { ErrorNotFound } from "./components/Error/ErrorNotFound";
+import { Callback } from "./containers/Callback/Callback";
+import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
 import { Home } from "./containers/Home/Home";
 import { Profile } from "./containers/Profile/Profile";
 import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
@@ -14,7 +19,7 @@ const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <HeaderWrapper />,
-		errorElement: <ErrorPage />,
+		errorElement: <ErrorNotFound />,
 		children: [
 			{
 				path: "/",
@@ -39,7 +44,7 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "*",
-				element: <ErrorPage />,
+				element: <ErrorNotFound />,
 			},
 		],
 	},
