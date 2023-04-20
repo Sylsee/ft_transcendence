@@ -1,6 +1,8 @@
-// Third party imports
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+
+// Third party imports
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class TwoFactorAuthDto {
   @ApiProperty({
@@ -10,5 +12,6 @@ export class TwoFactorAuthDto {
   })
   @IsNotEmpty()
   @IsString()
+  @Length(6, 6, { message: 'the code must be 6 characters long' })
   code: string;
 }
