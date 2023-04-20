@@ -28,8 +28,8 @@ export class UserRepository {
     return this.userRepository.save(newUser);
   }
 
-  async update(userId: string, data: object): Promise<any> {
-    return this.userRepository.update(userId, data);
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
   async find(): Promise<UserEntity[]> {

@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Get,
+  Logger,
   Post,
   Req,
   Res,
@@ -32,6 +33,8 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private authService: AuthService,
     private userService: UserService,
@@ -75,8 +78,9 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
-    await this.userService.turnOn2fa(req.user);
-    await this.authService.signInWith2fa(res, req.user, false);
+    const user = await this.userService.turnOn2fa(req.user);
+    await this.authService.signInWith2fa(res, user, false);
+    return res.send();
   }
 
   @Post('2fa/disable')
@@ -93,8 +97,9 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
-    await this.userService.turnOff2fa(req.user);
-    await this.authService.signIn(res, req.user, false);
+    const user = await this.userService.turnOff2fa(req.user);
+    await this.authService.signIn(res, user, false);
+    return res.send();
   }
 
   @Post('2fa/authenticate')
@@ -111,6 +116,7 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
-    await this.authService.signInWith2fa(res, req.user);
+    await this.authService.signInWith2fa(res, req.user, false);
+    return res.send(req.user);
   }
 }

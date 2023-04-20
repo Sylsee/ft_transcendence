@@ -113,9 +113,8 @@ export class AuthService {
       secret,
     );
 
-    await this.userService.update(user.id, {
-      twoFactorAuthSecret: secret,
-    });
+    user.twoFactorAuthSecret = secret;
+    await this.userService.save(user);
 
     const qrCode = await toDataURL(otpAuthUrl);
     const manualEntryKey = `${this.configService.get<string>('APP_NAME')}:${
@@ -130,6 +129,10 @@ export class AuthService {
   }
 
   verify2faCode(user: UserEntity, code: string) {
+    if (!user.twoFactorAuthSecret) {
+      throw new UnauthorizedException();
+    }
+
     return authenticator.verify({
       token: code,
       secret: user.twoFactorAuthSecret,

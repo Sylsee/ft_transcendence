@@ -21,8 +21,8 @@ export class UserService {
     return this.userRepository.create(user);
   }
 
-  async update(userId: string, data: object): Promise<UserEntity> {
-    return this.userRepository.update(userId, data);
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
   // TODO: Remove this method
@@ -50,17 +50,15 @@ export class UserService {
 
   // --------------------- 2fa Methods ----------------------
 
-  async turnOn2fa(userId: string): Promise<void> {
-    return this.userRepository.update(userId, {
-      isTwoFactorAuthEnabled: true,
-    });
+  async turnOn2fa(user: UserEntity): Promise<any> {
+    user.isTwoFactorAuthEnabled = true;
+    return this.userRepository.save(user);
   }
 
-  async turnOff2fa(userId: string): Promise<void> {
-    return this.userRepository.update(userId, {
-      isTwoFactorAuthEnabled: false,
-      twoFactorAuthSecret: null,
-    });
+  async turnOff2fa(user: UserEntity): Promise<any> {
+    user.twoFactorAuthSecret = null;
+    user.isTwoFactorAuthEnabled = false;
+    return this.userRepository.save(user);
   }
 
   // -------------------- Socket Methods --------------------
