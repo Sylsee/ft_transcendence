@@ -45,7 +45,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Authenticate using 42' })
   @ApiMovedPermanentlyResponse({ description: 'Successful login' })
   async signIn42(@Req() req: any, @Res() res: Response) {
-    await this.authService.signIn(res, req.user);
+    await this.authService.signIn(res, req.user, false);
   }
 
   @Get('google')
@@ -53,7 +53,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Authenticate using Google' })
   @ApiMovedPermanentlyResponse({ description: 'Successful login' })
   async signInGoogle(@Req() req: any, @Res() res: Response) {
-    await this.authService.signIn(res, req.user);
+    await this.authService.signIn(res, req.user, false);
   }
 
   @Post('2fa/generate')
@@ -79,7 +79,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid 2FA code');
     }
     const user = await this.userService.turnOn2fa(req.user);
-    await this.authService.signInWith2fa(res, user, false);
+    await this.authService.signIn(res, user, true, false);
     return res.send();
   }
 
@@ -98,7 +98,7 @@ export class AuthController {
       throw new UnauthorizedException('Invalid 2FA code');
     }
     const user = await this.userService.turnOff2fa(req.user);
-    await this.authService.signIn(res, user, false);
+    await this.authService.signIn(res, user, false, false);
     return res.send();
   }
 
@@ -116,7 +116,7 @@ export class AuthController {
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
-    await this.authService.signInWith2fa(res, req.user, false);
+    await this.authService.signIn(res, req.user, true, false);
     return res.send(req.user);
   }
 }

@@ -42,30 +42,18 @@ export class AuthService {
   async signIn(
     @Res() res: Response,
     user: UserEntity,
-    redirect = true,
-  ): Promise<void> {
-    const payload = { sub: user.id };
-
-    await this.setJwtCookie(res, payload);
-    if (redirect) {
-      await this.signInRedirect(res, user);
-    }
-  }
-
-  async signInWith2fa(
-    @Res() res: Response,
-    user: UserEntity,
+    isTwoFactorAuthenticated: boolean,
     redirect = true,
   ): Promise<void> {
     const payload = {
       sub: user.id,
       isTwoFactorAuthEnabled: !!user.isTwoFactorAuthEnabled,
-      isTwoFactorAuthenticated: true,
+      isTwoFactorAuthenticated: isTwoFactorAuthenticated,
     };
 
     await this.setJwtCookie(res, payload);
     if (redirect) {
-      await this.signInRedirect(res, user);
+      this.signInRedirect(res);
     }
   }
 
@@ -79,20 +67,8 @@ export class AuthService {
     });
   }
 
-  async signInRedirect(@Res() res: Response, user: any): Promise<void> {
-    if (user.isTwoFactorAuthEnabled && !user.isTwoFactorAuthenticated) {
-      res.redirect(
-        `${this.configService.get<string>(
-          'APP_DOMAIN',
-        )}/callback?requires2FA=true`,
-      );
-    } else {
-      res.redirect(
-        `${this.configService.get<string>('APP_DOMAIN')}/callback${
-          user.new ? '?new=true' : ''
-        }`,
-      );
-    }
+  signInRedirect(@Res() res: Response): void {
+    res.redirect(`${this.configService.get<string>('APP_DOMAIN')}/callback`);
   }
 
   async verify(token: string): Promise<UserEntity> {
