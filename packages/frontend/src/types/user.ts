@@ -23,10 +23,10 @@ export interface User {
 	twoFactorAuth?: boolean;
 }
 
-interface FriendsRequests {
-	id: number;
-	name: string;
-}
+// interface FriendsRequests {
+// 	id: number;
+// 	name: string;
+// }
 
 export enum UserRelationship {
 	BLOCK_REQUEST_RECEIVED,

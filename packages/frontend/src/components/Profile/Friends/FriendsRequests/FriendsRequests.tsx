@@ -1,5 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchFriendsRequests } from "../../../../api/friends/friendsRequests";
 import { FriendRow } from "../FriendRow/FriendRow";
 
 interface FriendsRequestsProps {
@@ -11,17 +9,17 @@ const FriendsRequests: React.FC<FriendsRequestsProps> = ({
 	id,
 	isConnectedUser = false,
 }) => {
-	const {
-		data: friendRequests,
-		isLoading: isLoadingFriendRequests,
-		error: friendRequestsError,
-	} = useQuery(["friendRequests", id], () => fetchFriendsRequests(id), {
-		enabled: isConnectedUser,
-		onSettled(data, error) {
-			console.log("AAAAAAAAAAAAAAAAAAAAAAAAA");
-			console.log(data, error);
-		},
-	});
+	// const {
+	// 	data: friendRequests,
+	// 	isLoading: isLoadingFriendRequests,
+	// 	error: friendRequestsError,
+	// } = useQuery(["friendRequests", id], () => fetchFriendsRequests(id), {
+	// 	enabled: isConnectedUser,
+	// 	onSettled(data, error) {
+	// 		console.log("AAAAAAAAAAAAAAAAAAAAAAAAA");
+	// 		console.log(data, error);
+	// 	},
+	// });
 
 	return (
 		<div className="border-solid border-2 mb-7 flex flex-col">

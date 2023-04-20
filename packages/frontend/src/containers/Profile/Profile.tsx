@@ -27,9 +27,9 @@ const Profile = () => {
 
 	const {
 		data: userData,
-		error,
-		isError,
-		isLoading,
+		// error,
+		// isError,
+		// isLoading,
 	} = useFetchUser(id, isConnectedUser);
 
 	if (!connected_user) return <Loader />;
