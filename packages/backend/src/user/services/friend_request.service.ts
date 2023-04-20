@@ -32,14 +32,12 @@ export class FriendRequestService {
       throw new NotFoundException(
         `Friend request with specify id doesn't exists`,
       );
-    } else if (request.status === updateFriendRequestDto.status) {
-      throw new BadRequestException(
-        `Request already have status ${updateFriendRequestDto.status}`,
-      );
     }
 
-    request.status = updateFriendRequestDto.status;
-    await this.friendRequestRepository.saveFriendRequest(request);
+    if (request.status !== updateFriendRequestDto.status) {
+      request.status = updateFriendRequestDto.status;
+      await this.friendRequestRepository.saveFriendRequest(request);
+    }
   }
 
   async deleteFriendRequestByReceiverId(
@@ -69,7 +67,7 @@ export class FriendRequestService {
         second,
       );
     if (!request) {
-      return;
+      throw new NotFoundException(`Cannot find friend request between users`);
     }
 
     this.friendRequestRepository.deleteFriendRequest(request);

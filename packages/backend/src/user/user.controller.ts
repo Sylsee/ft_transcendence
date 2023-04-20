@@ -29,7 +29,6 @@ import { UserDto } from './dto/user.dto';
 import { UserService } from './services/user.service';
 import { FriendRequestDto } from './dto/friend_request.dto';
 import { FriendRequestService } from './services/friend_request.service';
-import { UseContainerOptions } from 'class-validator';
 import { UserEntity } from './entities/user.entity';
 import { UserRelationshipDto } from './dto/user-relationship.dto';
 import { FriendRequestStatus } from './enum/friend_request-status.enum';
@@ -94,10 +93,12 @@ export class UserController {
   @ApiOkResponse({ description: 'User updated', type: UserDto })
   @ApiBadRequestResponse({ description: 'Bad Request' })
   async updateUser(
+    @Req() req,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    return await this.userService.updateOne(id, updateUserDto);
+    const user: UserEntity = req.user;
+    return await this.userService.updateOne(user, id, updateUserDto);
   }
 
   // ------------------------------------------------------------
@@ -178,8 +179,9 @@ export class UserController {
     description: 'User friend requests found',
     type: [FriendRequestDto],
   })
-  async getUserFriendRequests(@Param('id') id: string) {
-    return await this.userService.getSentFriendRequests(id);
+  async getUserFriendRequests(@Req() req, @Param('id') id: string) {
+    const user: UserEntity = req.user;
+    return await this.userService.getSentFriendRequests(user.id, id);
   }
 
   @Patch('friend-request/:id')
@@ -204,7 +206,7 @@ export class UserController {
       id,
       updateFriendRequestDto,
     );
-    
+
     if (updateFriendRequestDto.status === FriendRequestStatus.approved) {
       await this.userService.addNewFriend(user.id, id);
     }
@@ -250,8 +252,9 @@ export class UserController {
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Blocked users found', type: [UserDto] })
-  async getBlockedUsers(@Param('id') id: string) {
-    return await this.userService.getBlockedUsers(id);
+  async getBlockedUsers(@Req() req, @Param('id') id: string) {
+    const user: UserEntity = req.user;
+    return await this.userService.getBlockedUsers(req.id, id);
   }
 
   @Delete('block/:id')

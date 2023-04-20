@@ -19,12 +19,12 @@ export class UserRepository {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async save(user: UserEntity): Promise<UserEntity> {
-    return await this.userRepository.save(user);
+  save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
-  async saveArray(users: UserEntity[]): Promise<UserEntity[]> {
-    return await this.userRepository.save(users);
+  saveArray(users: UserEntity[]): Promise<UserEntity[]> {
+    return this.userRepository.save(users);
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -39,33 +39,30 @@ export class UserRepository {
     return await this.userRepository.find();
   }
 
-  findUserByProviderIDAndProvider(
+  async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
-  ): Promise<UserEntity | undefined> {
-    return this.userRepository.findOne({
-      where: { providerId, provider },
-    });
+  ): Promise<UserEntity | void> {
+    return this.userRepository
+      .findOne({
+        where: { providerId, provider },
+      })
+      .catch((error) => {
+        this.logger.error(error);
+      });
   }
 
   async findOneById(id: string): Promise<UserEntity | void> {
-    try {
-      return await this.userRepository.findOneBy({ id: id });
-    } catch (error) {
+    return this.userRepository.findOneBy({ id: id }).catch((error) => {
       this.logger.error(error);
-    }
+    });
   }
 
   async getFriendsById(userId: string): Promise<UserEntity[] | void> {
-    try {
-      const user = await this.userRepository
-        .createQueryBuilder('user')
-        .leftJoinAndSelect('user.friends', 'friend')
-        .where('user.id = :id', { id: userId })
-        .getOne();
+    const user = await this.findOneByIdWithRelations(userId, ['friends']);
+
+    if (user) {
       return user?.friends;
-    } catch (error) {
-      this.logger.error(error);
     }
   }
 
@@ -73,13 +70,13 @@ export class UserRepository {
     id: string,
     relations: string[],
   ): Promise<UserEntity | void> {
-    try {
-      return await this.userRepository.findOne({
+    return this.userRepository
+      .findOne({
         where: { id: id },
         relations: relations,
+      })
+      .catch((error) => {
+        this.logger.error(error);
       });
-    } catch (error) {
-      this.logger.error(error);
-    }
   }
 }

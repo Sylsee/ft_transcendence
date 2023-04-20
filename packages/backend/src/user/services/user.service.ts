@@ -1,6 +1,7 @@
 // Nest dependencies
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -29,37 +30,44 @@ export class UserService {
   async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
-  ): Promise<UserDto | undefined> {
-    return await this.userRepository.findUserByProviderIDAndProvider(
+  ): Promise<UserDto | void> {
+    const user = await this.userRepository.findUserByProviderIDAndProvider(
       providerId,
       provider,
     );
+
+    if (!user) {
+      throw new NotFoundException(
+        `User with providerId and provider not found`,
+      );
+    }
+
+    return user;
   }
 
   async findAll(): Promise<UserDto[]> {
-    return await this.userRepository.find();
+    const users = await this.userRepository.find();
+    return await UserEntity.transformToDtoArray(users);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<UserDto> {
     const user = await this.userRepository.findOneById(id);
 
     if (!user) {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
 
-    return user;
+    return user.transformToDto();
   }
 
-  async updateOne(userId: string, updateUserDto: UpdateUserDto): Promise<void> {
-    const user = await this.userRepository.findOneById(userId);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
+  async updateOne(currentUser: UserEntity, userId: string, updateUserDto: UpdateUserDto): Promise<void> {
+    if (currentUser.id !== userId) {
+      throw new ForbiddenException("Cannot update another user data");
     }
 
-    user.name = updateUserDto.name;
+    currentUser.name = updateUserDto.name;
 
-    await this.userRepository.save(user);
+    await this.userRepository.save(currentUser);
   }
 
   async getFriendsById(id: string): Promise<UserDto[]> {
@@ -69,10 +77,13 @@ export class UserService {
       throw new NotFoundException(`User with ID "${id}" not found`);
     }
 
-    return user.friends;
+    return await UserEntity.transformToDtoArray(user.friends);
   }
 
-  async getSentFriendRequests(userId: string): Promise<FriendRequestDto[]> {
+  async getSentFriendRequests(currentUserId: string, userId: string): Promise<FriendRequestDto[]> {
+    if (currentUserId !== userId) {
+      throw new ForbiddenException("Cannot access to another user list requests");
+    }
     const user = await this.userRepository.findOneByIdWithRelations(userId, [
       'sentFriendRequests',
     ]);
@@ -81,7 +92,7 @@ export class UserService {
       throw new NotFoundException(`User with ID "${userId}" not found`);
     }
 
-    return user.sentFriendRequests;
+    return await FriendRequest.transformToDtoArray(user.sentFriendRequests);
   }
 
   async getReceivedFriendRequests(userId: string): Promise<FriendRequestDto[]> {
@@ -106,13 +117,17 @@ export class UserService {
     );
     const sender = await this.userRepository.findOneByIdWithRelations(
       senderId,
-      ['sentFriendRequests'],
+      ['sentFriendRequests', 'sentFriendRequests.receiver'],
     );
 
     if (!receiver || !sender) {
       throw new NotFoundException(`User with ID "${futureFriendId}" not found`);
     } else if (sender.id === receiver.id) {
       throw new BadRequestException(`User ${sender.id} send request himself`);
+    } else if (
+      sender.sentFriendRequests.some((req) => req.receiver.id === receiver.id)
+    ) {
+      return;
     }
 
     const friendRequest = new FriendRequest();
@@ -140,7 +155,7 @@ export class UserService {
         'receivedFriendRequests.sender',
       ],
     );
-    let relationship = new UserRelationshipDto();
+    const relationship = new UserRelationshipDto();
 
     if (!currentUser) {
       throw new NotFoundException(`User with ID "${currentUserId}" not found`);
@@ -185,7 +200,7 @@ export class UserService {
     if (!currentUser || !friend) {
       throw new NotFoundException(`User with ID "${newFriendId}" not found`);
     } else if (currentUserId === newFriendId) {
-      throw new BadRequestException(`User cannot add to friends himself`)
+      throw new BadRequestException(`User cannot add to friends himself`);
     } else if (this.isTwoUsersFriends(currentUser, friend)) {
       throw new BadRequestException('Two users already friends');
     }
@@ -221,9 +236,11 @@ export class UserService {
     currentUser: UserEntity,
     friendToDelete: UserEntity,
   ): Promise<void> {
-    if (!currentUser.friends || !friendToDelete.friends) {
-      throw new InternalServerErrorException(
-        'Error: in deleteFriendWithByEntities: currentUser.friends or friendToDelete.friend not specified',
+    if (!currentUser.friends) {
+      throw new NotFoundException(`Cannot find current user's friend list`);
+    } else if (!friendToDelete.friends) {
+      throw new NotFoundException(
+        `Cannot find friend list of friend to delete`,
       );
     }
 
@@ -249,15 +266,23 @@ export class UserService {
     currentUserId: string,
     userToBlockId: string,
   ): Promise<void> {
-    const userToBlock = await this.userRepository.findOneById(userToBlockId);
+    const userToBlock = await this.userRepository.findOneByIdWithRelations(
+      userToBlockId,
+      ['friends'],
+    );
+    if (!userToBlock) {
+      throw new NotFoundException(`User to block not found`);
+    }
+
     const currentUser = await this.userRepository.findOneByIdWithRelations(
       currentUserId,
       ['blockedUsers', 'friends'],
     );
+    if (!currentUser) {
+      throw new InternalServerErrorException(`User not found`);
+    }
 
-    if (!userToBlock || !currentUser) {
-      throw new NotFoundException(`Users to block "${userToBlockId}" not found`);
-    } else if (currentUserId == userToBlockId) {
+    if (currentUserId == userToBlockId) {
       throw new BadRequestException(`User cannot block himself`);
     }
 
@@ -273,14 +298,21 @@ export class UserService {
       currentUser.friends &&
       this.isTwoUsersFriends(currentUser, userToBlock)
     ) {
-      this.deleteFriendByEntities(currentUser, userToBlock);
+      await this.deleteFriendByEntities(currentUser, userToBlock);
     }
 
     currentUser.blockedUsers.push(userToBlock);
     await this.userRepository.save(currentUser);
   }
 
-  async getBlockedUsers(currentUserId: string): Promise<UserDto[]> {
+  async getBlockedUsers(
+    currentUserId: string,
+    userId: string,
+  ): Promise<UserDto[]> {
+    if (currentUserId !== userId) {
+      throw new ForbiddenException('Cannot access to list blocked users of another user');
+    }
+
     const currentUser = await this.userRepository.findOneByIdWithRelations(
       currentUserId,
       ['blockedUsers'],
@@ -290,7 +322,7 @@ export class UserService {
       throw new NotFoundException(`User with ID "${currentUserId}" not found`);
     }
 
-    return currentUser.blockedUsers;
+    return await UserEntity.transformToDtoArray(currentUser.blockedUsers);
   }
 
   async unblockUserById(
@@ -329,12 +361,8 @@ export class UserService {
 
   isTwoUsersFriends(user1: UserEntity, user2: UserEntity): boolean {
     return (
-      user1.friends.some((user) => {
-        user.id === user2.id;
-      }) ||
-      user2.friends.some((user) => {
-        user.id === user1.id;
-      })
+      user1.friends.some((user) => user.id === user2.id) ||
+      user2.friends.some((user) => user.id === user1.id)
     );
   }
 }
