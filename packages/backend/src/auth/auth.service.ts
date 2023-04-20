@@ -46,9 +46,9 @@ export class AuthService {
   ): Promise<void> {
     const payload = { sub: user.id };
 
-    this.setJwtCookie(res, user, payload);
+    await this.setJwtCookie(res, payload);
     if (redirect) {
-      this.signInRedirect(res, user);
+      await this.signInRedirect(res, user);
     }
   }
 
@@ -63,17 +63,13 @@ export class AuthService {
       isTwoFactorAuthenticated: true,
     };
 
-    this.setJwtCookie(res, user, payload);
+    await this.setJwtCookie(res, payload);
     if (redirect) {
-      this.signInRedirect(res, user);
+      await this.signInRedirect(res, user);
     }
   }
 
-  async setJwtCookie(
-    @Res() res: Response,
-    user: any,
-    payload: object,
-  ): Promise<void> {
+  async setJwtCookie(@Res() res: Response, payload: object) {
     const access_token = await this.jwtService.signAsync(payload);
 
     res.cookie('access_token', access_token, {
