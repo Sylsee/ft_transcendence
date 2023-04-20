@@ -1,20 +1,14 @@
 import React from "react";
 import { useFetchFriendsList } from "../../../hooks/user/useFetchFriendsList";
 import { useFetchFriendsRequests } from "../../../hooks/user/useFetchFriendsRequests";
-import { User } from "../../../types/user";
 import { FriendsList } from "../Friends/FriendsList/FriendsList";
 
 interface FriendsCardProps {
 	id: string;
-	connected_user: User;
 	isConnectedUser: boolean;
 }
 
-const FriendsCard: React.FC<FriendsCardProps> = ({
-	id,
-	connected_user,
-	isConnectedUser,
-}) => {
+const FriendsCard: React.FC<FriendsCardProps> = ({ id, isConnectedUser }) => {
 	const {
 		data: FriendsListData,
 		status: FriendsListStatus,

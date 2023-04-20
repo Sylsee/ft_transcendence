@@ -8,7 +8,7 @@ interface ProfileAvatarProps {
 	id: string;
 	isConnectedUser: boolean;
 	avatarUrl: string;
-	status: string;
+	status: UserStatus | undefined;
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
