@@ -20,7 +20,7 @@ export interface User {
 	name: string;
 	avatarUrl: string;
 	status?: UserStatus;
-	twoFactorAuth?: boolean;
+	isTwoFactorAuthEnabled?: boolean;
 }
 
 // interface FriendsRequests {

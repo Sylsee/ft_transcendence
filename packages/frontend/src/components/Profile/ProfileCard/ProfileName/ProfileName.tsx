@@ -5,8 +5,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import { ERROR_MESSAGES } from "../../../../config";
 import { useUpdateUser } from "../../../../hooks/user/useUpdateUser";
+import { ErrorItem } from "../../../Error/ErrorItem";
 import { Loader } from "../../../Loader/Loader";
 
 interface ProfileNameProps {
@@ -17,35 +17,44 @@ interface ProfileNameProps {
 
 const ProfileName: React.FC<ProfileNameProps> = ({
 	id,
-	isConnectedUser = false,
+	isConnectedUser,
 	name,
 }) => {
-	const [isEditing, setIsEditing] = useState<boolean>(false);
+	// refs
 	const inputRef = useRef<HTMLInputElement>(null);
 
-	const mutation = useUpdateUser(id);
+	// state
+	const [isEditing, setIsEditing] = useState<boolean>(false);
+	const [inputValue, setInputValue] = useState<string>(name);
 
-	const editButton = () => {
-		setIsEditing(true);
-	};
+	// mutation
+	const { mutate, error, status } = useUpdateUser(id);
 
+	// hooks
 	useEffect(() => {
 		if (isEditing && inputRef.current) {
 			inputRef.current.focus();
 		}
 	}, [isEditing, inputRef]);
 
-	const cancelButton = () => {
+	// handlers
+	const handleEdit = () => {
+		setIsEditing(true);
+	};
+
+	const handleCancelButton = () => {
 		setIsEditing(false);
 	};
 
-	const submitButton = (e: any) => {
+	const handleSubmit = (e: any) => {
 		e.preventDefault();
-		if (inputRef.current) {
-			if (inputRef.current.value.trim() !== name)
-				mutation.mutate({ name: inputRef.current.value });
-			if (!mutation.error) setIsEditing(false);
-		}
+		if (inputValue.length > 0 && inputValue !== name)
+			mutate({ name: inputValue });
+		if (status === "success") setIsEditing(false);
+	};
+
+	const handleOnChange = (e: any) => {
+		setInputValue(e.target.value.replace(/ /g, "_"));
 	};
 
 	return (
@@ -53,7 +62,7 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 			{isConnectedUser && isEditing ? (
 				<div className="flex flex-col">
 					<div className="flex items-center h-[40px]">
-						<form onSubmit={submitButton}>
+						<form onSubmit={handleSubmit}>
 							<input
 								ref={inputRef}
 								name="name"
@@ -61,9 +70,10 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 								style={{
 									padding: "",
 								}}
-								defaultValue={name}
+								value={inputValue}
+								onChange={handleOnChange}
 							/>
-							{mutation.isLoading ? (
+							{status === "loading" ? (
 								<Loader />
 							) : (
 								<button type="submit" className="ml-4">
@@ -78,17 +88,13 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 							<FontAwesomeIcon
 								fixedWidth
 								icon={faXmark}
-								onClick={cancelButton}
+								onClick={handleCancelButton}
 							/>
 						</button>
 					</div>
-					{mutation.error ? (
+					{status === "error" ? (
 						<div>
-							<p className="text-red-500">
-								{mutation.error instanceof Error
-									? mutation.error.message
-									: ERROR_MESSAGES.UNKNOWN_ERROR}
-							</p>
+							<ErrorItem error={error} />
 						</div>
 					) : null}
 				</div>
@@ -101,7 +107,7 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 						<p>{name}</p>
 					</div>
 					{isConnectedUser && (
-						<button className="ml-4" onClick={editButton}>
+						<button className="ml-4" onClick={handleEdit}>
 							<FontAwesomeIcon fixedWidth icon={faPenToSquare} />
 						</button>
 					)}

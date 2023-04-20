@@ -26,12 +26,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
 						name={user.name}
 					/>
 				</div>
-				{isConnectedUser && user.twoFactorAuth !== undefined && (
-					<Profile2faAuth
-						id={user.id}
-						twoFactorAuth={user.twoFactorAuth}
-					/>
-				)}
+				{isConnectedUser &&
+					user.isTwoFactorAuthEnabled !== undefined && (
+						<Profile2faAuth
+							id={user.id}
+							twoFactorAuth={user.isTwoFactorAuthEnabled}
+						/>
+					)}
 			</div>
 		</div>
 	);
