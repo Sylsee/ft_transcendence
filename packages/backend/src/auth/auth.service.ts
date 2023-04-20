@@ -39,13 +39,24 @@ export class AuthService {
     return { ...user, new: false };
   }
 
-  async signIn(@Res() res: Response, user: UserEntity): Promise<void> {
+  async signIn(
+    @Res() res: Response,
+    user: UserEntity,
+    redirect = true,
+  ): Promise<void> {
     const payload = { sub: user.id };
 
     this.setJwtCookie(res, user, payload);
+    if (redirect) {
+      this.signInRedirect(res, user);
+    }
   }
 
-  async signInWith2fa(@Res() res: Response, user: UserEntity): Promise<void> {
+  async signInWith2fa(
+    @Res() res: Response,
+    user: UserEntity,
+    redirect = true,
+  ): Promise<void> {
     const payload = {
       sub: user.id,
       isTwoFactorAuthEnabled: !!user.isTwoFactorAuthEnabled,
@@ -53,6 +64,9 @@ export class AuthService {
     };
 
     this.setJwtCookie(res, user, payload);
+    if (redirect) {
+      this.signInRedirect(res, user);
+    }
   }
 
   async setJwtCookie(
@@ -60,14 +74,16 @@ export class AuthService {
     user: any,
     payload: object,
   ): Promise<void> {
-    const access_token = this.jwtService.sign(payload);
+    const access_token = await this.jwtService.signAsync(payload);
 
     res.cookie('access_token', access_token, {
       maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
       secure: this.configService.get<string>('NODE_ENV') === 'production',
       path: '/',
     });
+  }
 
+  async signInRedirect(@Res() res: Response, user: any): Promise<void> {
     if (user.isTwoFactorAuthEnabled && !user.isTwoFactorAuthenticated) {
       res.redirect(
         `${this.configService.get<string>(

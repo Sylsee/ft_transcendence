@@ -66,12 +66,17 @@ export class AuthController {
   @ApiOperation({ summary: 'Turn on 2FA' })
   @ApiOkResponse({ description: 'Successful verification' })
   @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
-  async turnOn2fa(@Req() req: any, @Body() body: TwoFactorAuthDto) {
+  async turnOn2fa(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
     const isCodeValid = this.authService.verify2faCode(req.user, body.code);
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
     await this.userService.turnOn2fa(req.user);
+    await this.authService.signInWith2fa(res, req.user, false);
   }
 
   @Post('2fa/disable')
@@ -79,12 +84,17 @@ export class AuthController {
   @ApiOperation({ summary: 'Turn off 2FA' })
   @ApiOkResponse({ description: 'Successful verification' })
   @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
-  async turnOff2fa(@Req() req: any, @Body() body: TwoFactorAuthDto) {
+  async turnOff2fa(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
     const isCodeValid = this.authService.verify2faCode(req.user, body.code);
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
     await this.userService.turnOff2fa(req.user);
+    await this.authService.signIn(res, req.user, false);
   }
 
   @Post('2fa/authenticate')
@@ -92,11 +102,15 @@ export class AuthController {
   @ApiOperation({ summary: 'Verify 2FA code' })
   @ApiOkResponse({ description: 'Successful verification' })
   @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
-  async authenticate(@Req() req: any, @Body() body: TwoFactorAuthDto) {
+  async authenticate(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
     const isCodeValid = this.authService.verify2faCode(req.user, body.code);
     if (!isCodeValid) {
       throw new UnauthorizedException('Invalid 2FA code');
     }
-    await this.authService.signInWith2fa(req.res, req.user);
+    await this.authService.signInWith2fa(res, req.user);
   }
 }
