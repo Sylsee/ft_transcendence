@@ -79,8 +79,8 @@ export class UserController {
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User found', type: UserDto })
-  async getUserById(@Param('id') id: string) {
-    return await this.userService.findOne(id);
+  async getUserById(@Param('id') id: string): Promise<UserDto> {
+    return await this.userService.findOneDto(id);
   }
 
   @Patch(':id')
@@ -96,7 +96,7 @@ export class UserController {
     @Req() req,
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<UserDto> {
     const user: UserEntity = req.user;
     return await this.userService.updateOne(user, id, updateUserDto);
   }
@@ -210,7 +210,6 @@ export class UserController {
     if (updateFriendRequestDto.status === FriendRequestStatus.approved) {
       await this.userService.addNewFriend(user.id, id);
     }
-
   }
 
   @Delete('friend-request/:id')
@@ -224,7 +223,10 @@ export class UserController {
   async deleteUserFriendRequest(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
 
-    await this.friendRequestService.deleteFriendRequestByReceiverId(user.id, id);
+    await this.friendRequestService.deleteFriendRequestByReceiverId(
+      user.id,
+      id,
+    );
   }
 
   // ------------------------------------------------------------

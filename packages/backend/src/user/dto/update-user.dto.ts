@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsString, IsBoolean, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty } from 'class-validator';
 
 export class UpdateUserDto {
   @ApiProperty({
@@ -10,16 +10,7 @@ export class UpdateUserDto {
     example: 'John Doe',
     required: false,
   })
-  @IsOptional()
+  @IsNotEmpty()
   @IsString()
-  name?: string;
-
-  @ApiProperty({
-    description: 'The user has enabled two-factor authentication',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  twoFactorAuth?: boolean;
+  name: string;
 }

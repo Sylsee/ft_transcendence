@@ -3,9 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
 import {
-  IsBoolean,
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   IsUrl,
@@ -38,25 +36,4 @@ export class UserDto {
   @IsNotEmpty()
   @IsUrl()
   avatarUrl: string;
-
-  @ApiProperty({
-    enum: UserStatus,
-    isArray: true,
-    description:
-      'The online status of the user (if they are friends with the current user)',
-    example: UserStatus.active,
-    required: false,
-  })
-  @IsOptional()
-  status?: UserStatus;
-
-  @ApiProperty({
-    description:
-      'Indicates whether the user has two-factor authentication enabled (if the user is the current user)',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  twoFactorAuth?: boolean;
 }
