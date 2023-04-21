@@ -1,19 +1,18 @@
+import { ApiErrorResponse } from "../../../../types/global";
 import { LoaderType } from "../../../../types/loader";
 import { User } from "../../../../types/user";
 import { ErrorItem } from "../../../Error/ErrorItem";
 import { Loader } from "../../../Loader/Loader";
 
 interface FriendsListProps {
-	id: string;
 	isConnectedUser: boolean;
 	title: string;
 	status: "loading" | "error" | "success";
-	error: Error | null;
+	error: ApiErrorResponse | null;
 	data: User[] | undefined;
 }
 
 const FriendsList: React.FC<FriendsListProps> = ({
-	id,
 	isConnectedUser = false,
 	title,
 	data,
@@ -21,7 +20,7 @@ const FriendsList: React.FC<FriendsListProps> = ({
 	error,
 }) => {
 	return (
-		<div className="border-solid border-2 mb-7 flex flex-col">
+		<div className="shadow-lg rounded-xl mb-7 flex flex-col">
 			<div className="flex flex-col items-center h-[3rem] justify-center">
 				<div>
 					<p>{title}</p>
