@@ -1,17 +1,16 @@
 import React from "react";
 import { ERROR_MESSAGES } from "../../config";
+import { ApiErrorResponse } from "../../types/global";
 
 interface ErrorItemProps {
-	error: Error | unknown;
+	error: ApiErrorResponse | null;
 }
 
 const ErrorItem: React.FC<ErrorItemProps> = ({ error }) => {
 	return (
 		<>
 			<p className="text-red-700">
-				{error instanceof Error
-					? error.message
-					: ERROR_MESSAGES.UNKNOWN_ERROR}
+				{error !== null ? error.message : ERROR_MESSAGES.UNKNOWN_ERROR}
 			</p>
 		</>
 	);
