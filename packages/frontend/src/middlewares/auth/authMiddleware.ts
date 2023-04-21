@@ -1,26 +1,20 @@
 import {
-	authenticate,
-	logout,
-	setToken,
-} from "../../store/auth-slice/auth-slice";
-import { RootState } from "../../types/global";
-import {
 	AnyAction,
+	Dispatch,
 	Middleware,
 	MiddlewareAPI,
-	Dispatch,
 } from "@reduxjs/toolkit";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
 import { JWT_NAME } from "../../config";
+import {
+	authenticate,
+	logout,
+	setAuthState,
+} from "../../store/auth-slice/auth-slice";
 import { getUser } from "../../store/selfUser-slice/selfUser-slice";
-
-interface DecodedToken {
-	sub: string;
-	name: string;
-	iat: number;
-	exp: number;
-}
+import { AuthStatus, DecodedToken } from "../../types/auth";
+import { RootState } from "../../types/global";
 
 const actionHandlers: Record<
 	string,
@@ -33,15 +27,33 @@ const actionHandlers: Record<
 	[authenticate.type]: (store, next, action) => {
 		try {
 			const cookie = Cookies.get(JWT_NAME);
+
 			if (!cookie) return store.dispatch(logout());
 
 			const token: DecodedToken = jwt_decode(cookie);
 
+			console.log(token);
+
 			if (new Date() >= new Date(token.exp * 1000))
 				return store.dispatch(logout());
 
-			store.dispatch(setToken({ token: cookie }));
-			store.dispatch(getUser({ id: token.sub }));
+			console.log(token);
+			const payload = {
+				isAuth:
+					!token.isTwoFactorAuthenticated &&
+					token.isTwoFactorAuthEnabled
+						? AuthStatus.PartiallyAuthenticated
+						: AuthStatus.Authenticated,
+				isTwoFactorAuthEnabled: token.isTwoFactorAuthEnabled,
+			};
+
+			console.log("payload:", payload);
+			store.dispatch(setAuthState(payload));
+			console.log(
+				store.getState().AUTH.isAuth === AuthStatus.Authenticated
+			);
+			if (payload.isAuth === AuthStatus.Authenticated)
+				store.dispatch(getUser({ id: token.sub }));
 		} catch (error) {
 			return store.dispatch(logout());
 		}

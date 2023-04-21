@@ -20,13 +20,13 @@ export interface User {
 	name: string;
 	avatarUrl: string;
 	status?: UserStatus;
-	twoFactorAuth?: boolean;
+	isTwoFactorAuthEnabled?: boolean;
 }
 
-interface FriendsRequests {
-	id: number;
-	name: string;
-}
+// interface FriendsRequests {
+// 	id: number;
+// 	name: string;
+// }
 
 export enum UserRelationship {
 	BLOCK_REQUEST_RECEIVED,

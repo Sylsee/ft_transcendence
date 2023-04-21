@@ -8,7 +8,7 @@ interface ProfileAvatarProps {
 	id: string;
 	isConnectedUser: boolean;
 	avatarUrl: string;
-	status: string;
+	status: UserStatus | undefined;
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
@@ -17,9 +17,13 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 	avatarUrl,
 	status,
 }) => {
+	// state
 	const [hover, setHover] = useState<boolean>(false);
+
+	// mutation
 	const mutation = useUpdateUser(id);
 
+	// handlers
 	const handleUpload = (e: any) => {
 		const file = e.target.files?.[0];
 		if (file) {

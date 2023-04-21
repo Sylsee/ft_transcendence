@@ -4,18 +4,19 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ErrorNotFound } from "./components/Error/ErrorNotFound";
+import { TwoFaAuthenticate } from "./components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { Callback } from "./containers/Callback/Callback";
 import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
 import { Home } from "./containers/Home/Home";
 import { Profile } from "./containers/Profile/Profile";
 import { ProtectedRoute } from "./containers/ProtectedRoute/ProtectedRoute";
-import "./index.css";
 import {
 	removeSocketChatListeners,
 	socketChatListeners,
 } from "./sockets/listeners/chatListeners";
 import { connectSocket } from "./sockets/socket";
 import { RootState } from "./types/global";
+import "./index.css";
 
 const router = createBrowserRouter([
 	{
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
 			{
 				path: "/callback",
 				element: <Callback />,
+			},
+			{
+				path: "/auth/2fa",
+				element: <TwoFaAuthenticate />,
 			},
 			{
 				element: <ProtectedRoute />,

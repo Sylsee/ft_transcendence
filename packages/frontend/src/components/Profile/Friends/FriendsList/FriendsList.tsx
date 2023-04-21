@@ -1,40 +1,41 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchFriendsList } from "../../../../api/friends/friendsRequests";
-import { ERROR_MESSAGES } from "../../../../config";
+import { ApiErrorResponse } from "../../../../types/global";
+import { LoaderType } from "../../../../types/loader";
+import { User } from "../../../../types/user";
+import { ErrorItem } from "../../../Error/ErrorItem";
 import { Loader } from "../../../Loader/Loader";
 
 interface FriendsListProps {
-	id: string;
 	isConnectedUser: boolean;
+	title: string;
+	status: "loading" | "error" | "success";
+	error: ApiErrorResponse | null;
+	data: User[] | undefined;
 }
 
 const FriendsList: React.FC<FriendsListProps> = ({
-	id,
 	isConnectedUser = false,
+	title,
+	data,
+	status,
+	error,
 }) => {
-	const query = useQuery(["friendsList", id], () => fetchFriendsList(id), {
-		onSettled(data, error) {
-			console.log("ZZZZ");
-			console.log(data, error);
-		},
-	});
-
 	return (
-		<div className="border-solid border-2 mb-7 flex flex-col">
+		<div className="shadow-lg rounded-xl mb-7 flex flex-col">
 			<div className="flex flex-col items-center h-[3rem] justify-center">
 				<div>
-					<p>Friends list</p>
+					<p>{title}</p>
 				</div>
 			</div>
 			<div className="flex flex-col max-h-32 overflow-y-auto">
-				{query.isLoading && <Loader />}
-				{query.isError && (
-					<p>
-						{query.error instanceof Error
-							? query.error.message
-							: ERROR_MESSAGES.UNKNOWN_ERROR}
-					</p>
-				)}
+				{status === "loading" && <Loader type={LoaderType.LINEWAVE} />}
+				{status === "error" && <ErrorItem error={error} />}
+				{status === "success" &&
+					Array.isArray(data) && // TODO remove this check when the backend will be fixed
+					data?.map((friend: User) => (
+						<div key={friend.id}>
+							<p>{friend.name}</p>
+						</div>
+					))}
 			</div>
 		</div>
 	);

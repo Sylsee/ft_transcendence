@@ -1,19 +1,24 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { HeaderLink } from "../../components/Header/HeaderLink/HeaderLink";
 import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../../types/global";
-import { logout } from "../../store/auth-slice/auth-slice";
+import { Link } from "react-router-dom";
 import { HeaderButton } from "../../components/Header/HeaderButton/HeaderButton";
+import { HeaderLink } from "../../components/Header/HeaderLink/HeaderLink";
+import { logout } from "../../store/auth-slice/auth-slice";
+import { AuthStatus } from "../../types/auth";
+import { RootState } from "../../types/global";
 
 const Header: React.FC = () => {
+	// state
 	const [navbarState, setNavbarState] = useState(false);
-	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-	const dispatch = useDispatch();
-	const id = useSelector((store: RootState) => store.USER.user?.id);
 
+	// redux
+	const id = useSelector((store: RootState) => store.USER.user?.id);
+	const dispatch = useDispatch();
+	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
+
+	// handlers
 	const logoutHandler = () => {
 		dispatch(logout());
 	};
@@ -28,7 +33,7 @@ const Header: React.FC = () => {
 					>
 						Ft_transcendence
 					</Link>
-					{isAuth && (
+					{isAuth === AuthStatus.Authenticated && (
 						<button
 							className="text-white cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
 							type="button"
@@ -45,9 +50,8 @@ const Header: React.FC = () => {
 					}`}
 					id="example-navbar-danger"
 				>
-					{isAuth && id && (
+					{isAuth === AuthStatus.Authenticated && id && (
 						<ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-							<HeaderLink name="Chat" link="/chat" />
 							<HeaderLink name="Profile" link={`/user/${id}`} />
 							<HeaderButton
 								onClick={logoutHandler}

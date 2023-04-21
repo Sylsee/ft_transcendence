@@ -4,15 +4,21 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { Loader } from "../../components/Loader/Loader";
+import { TwoFaAuthenticate } from "../../components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { authenticate } from "../../store/auth-slice/auth-slice";
+import { AuthStatus } from "../../types/auth";
 import { RootState } from "../../types/global";
-import { ChatWrapper } from "../ChatWrapper/ChatWrapper";
 import { Header } from "../Header/Header";
 
 const HeaderWrapper: React.FC = () => {
-	const location = useLocation();
-	const dispatch = useDispatch();
+	// state
 	const [loading, setLoading] = useState(true);
+
+	// react-router
+	const location = useLocation();
+
+	// redux
+	const dispatch = useDispatch();
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
 
 	useEffect(() => {
@@ -24,19 +30,20 @@ const HeaderWrapper: React.FC = () => {
 	const [showModal, setshowModal] = useState(false);
 
 	return (
-		<div
-			className="h-full flex flex-col items-stretch max-h-full"
-			style={{
-				backgroundColor: "#424549",
-				backgroundAttachment: "fixed",
-			}}
-		>
-			<div className="flex-shrink-0">
+		<>
+			<div
+				className="h-full flex flex-col bg-gradient-custom"
+				style={{ backgroundColor: "#d18080" }}
+			>
 				<Header />
-			</div>
-			<div className="flex  justify-between items-stretch max-h-full  overflow-auto h-full">
-				<div className="w-full">
-					{loading ? <Loader /> : <Outlet />}
+				<div className="h-[100%]">
+					{loading && <Loader />}
+					{!loading &&
+						(isAuth === AuthStatus.PartiallyAuthenticated ? (
+						) : (
+							<TwoFaAuthenticate />
+							<Outlet />
+						))}
 				</div>
 				{isAuth && (
 					<ChatWrapper

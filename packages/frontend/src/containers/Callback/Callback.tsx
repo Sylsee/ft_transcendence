@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
 import { Loader } from "../../components/Loader/Loader";
+import { AuthStatus } from "../../types/auth";
 import { RootState } from "../../types/global";
 
 // TODO twofactor
@@ -11,8 +12,13 @@ const Callback: React.FC = () => {
 	const id = useSelector((store: RootState) => store.USER.user?.id);
 
 	useEffect(() => {
-		if (isAuth === false) setLoading(false);
-		if (isAuth === true && id !== undefined) setLoading(false);
+		if (
+			isAuth === AuthStatus.NotAuthenticated ||
+			isAuth === AuthStatus.PartiallyAuthenticated
+		)
+			setLoading(false);
+		if (isAuth === AuthStatus.Authenticated && id !== undefined)
+			setLoading(false);
 	}, [isAuth, id]);
 
 	if (loading)
@@ -22,7 +28,11 @@ const Callback: React.FC = () => {
 			</>
 		);
 
-	return isAuth ? <Navigate to={`/user/${id}`} /> : <Navigate to={"/"} />;
+	return isAuth === AuthStatus.Authenticated ? (
+		<Navigate to={`/user/${id}`} />
+	) : (
+		<Navigate to={"/"} />
+	);
 };
 
 export { Callback };

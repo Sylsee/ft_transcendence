@@ -9,3 +9,9 @@ export interface RootState {
 	CHAT: ChatState;
 	SOCKET: SocketState;
 }
+
+export interface ApiErrorResponse {
+	error: number;
+	message: string[];
+	statusCode: number;
+}
