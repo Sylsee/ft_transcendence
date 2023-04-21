@@ -31,8 +31,6 @@ export class UserService {
     userDto.name = await this.getUniqueName(userDto.name);
     userDto.profilePictureUrl = this.getProfilePictureUrl(userDto);
 
-    this.logger.debug(JSON.stringify(userDto, null, 2));
-
     const user = await this.userRepository.create(userDto);
 
     await this.downloadProfilePicture(user, userDto);
