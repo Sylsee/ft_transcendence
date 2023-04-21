@@ -12,6 +12,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { ChatModule } from './chat/chat.module';
 import { TypeOrmConfigService } from './config/typeOrmConfig';
+import { StaticModule } from './static/static.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { TypeOrmConfigService } from './config/typeOrmConfig';
     AuthModule,
     UserModule,
     ChatModule,
+    StaticModule,
   ],
   providers: [TypeOrmConfigService],
 })
