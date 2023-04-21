@@ -24,7 +24,6 @@ const FriendsCard: React.FC<FriendsCardProps> = ({ id, isConnectedUser }) => {
 	return (
 		<div className="flex flex-col w-full">
 			<FriendsList
-				id={id}
 				isConnectedUser={isConnectedUser}
 				title="Friends"
 				status={FriendsListStatus}
@@ -33,7 +32,6 @@ const FriendsCard: React.FC<FriendsCardProps> = ({ id, isConnectedUser }) => {
 			/>
 			{isConnectedUser && (
 				<FriendsList
-					id={id}
 					isConnectedUser={isConnectedUser}
 					title="Friends Requests"
 					status={FriendsRequestsStatus}

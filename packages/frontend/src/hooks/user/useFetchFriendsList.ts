@@ -1,9 +1,12 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { fetchFriendsList } from "../../api/friends/friendsRequests";
+import { ApiErrorResponse } from "../../types/global";
 import { User } from "../../types/user";
 
-const useFetchFriendsList = (id: string): UseQueryResult<User[], Error> => {
-	const query = useQuery<User[], Error>(["friendList", id], () =>
+const useFetchFriendsList = (
+	id: string
+): UseQueryResult<User[], ApiErrorResponse> => {
+	const query = useQuery<User[], ApiErrorResponse>(["friendList", id], () =>
 		fetchFriendsList(id)
 	);
 

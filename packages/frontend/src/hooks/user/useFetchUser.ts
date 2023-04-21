@@ -15,11 +15,6 @@ const useFetchUser = (
 		{
 			enabled: !isConnectedUser,
 			retry: 1,
-			onSettled: (data) => {
-				if (data) {
-					console.log(data);
-				}
-			},
 		}
 	);
 
