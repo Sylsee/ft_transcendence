@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
+import { adjectives, uniqueNamesGenerator } from 'unique-names-generator';
 
 // Local imports
 import { AuthProvider } from '../auth/enum/auth-provider.enum';
@@ -26,50 +27,17 @@ export class UserService {
   ) {}
 
   async create(userDto: CreateUserDto): Promise<UserEntity> {
-    userDto.profilePictureUrl =
-      userDto.profilePictureUrl ||
-      `https://ui-avatars.com/api/?background=random&size=128&length=1&bold=true&font-size=0.6&format=png&name=${userDto.name}`;
+    userDto.name = this.formatUserName(userDto.name);
+    userDto.name = await this.getUniqueName(userDto.name);
+    userDto.profilePictureUrl = this.getProfilePictureUrl(userDto);
+
+    this.logger.debug(JSON.stringify(userDto, null, 2));
 
     const user = await this.userRepository.create(userDto);
 
-    const profilePicture = await axios.get(userDto.profilePictureUrl, {
-      responseType: 'arraybuffer',
-    });
-
-    const filePath = this.writeProfilePicture(user, profilePicture);
-
-    if (filePath) {
-      user.profilePictureUrl = `http://localhost:${this.configService.get<string>(
-        'PORT',
-      )}${filePath}`;
-      await this.save(user);
-    }
+    await this.downloadProfilePicture(user, userDto);
 
     return user;
-  }
-
-  private writeProfilePicture(
-    user: UserEntity,
-    profilePicture: any,
-  ): string | undefined {
-    const fileName = `${user.id}.png`;
-    const filePath = join(
-      __dirname,
-      '..',
-      '..',
-      'public',
-      'profile-pictures',
-      fileName,
-    );
-
-    try {
-      writeFile(filePath, profilePicture.data);
-    } catch (err) {
-      this.logger.error(err);
-      return undefined;
-    }
-
-    return `/public/profile-pictures/${fileName}`;
   }
 
   async save(user: UserEntity): Promise<UserEntity> {
@@ -152,5 +120,67 @@ export class UserService {
 
   async findBlockingBy(userId: string): Promise<UserEntity[] | void> {
     return this.userRepository.findBlockingBy(userId);
+  }
+
+  private formatUserName(name: string): string {
+    return name.replace(/ /g, '-').replace(/[^a-zA-Z0-9-_]/g, '');
+  }
+
+  private async getUniqueName(name: string): Promise<string> {
+    if (!(await this.findOneByName(name))) {
+      return name;
+    }
+
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const randomName = uniqueNamesGenerator({
+        dictionaries: [[name], adjectives],
+        style: 'capital',
+        separator: '-',
+        length: 2,
+      });
+      if (!(await this.findOneByName(randomName))) {
+        return randomName;
+      }
+    }
+  }
+
+  private getProfilePictureUrl(userDto: CreateUserDto): string {
+    return (
+      userDto.profilePictureUrl ||
+      `https://ui-avatars.com/api/?background=random&size=128&length=1&bold=true&font-size=0.6&format=png&name=${userDto.name}`
+    );
+  }
+
+  private async downloadProfilePicture(
+    user: UserEntity,
+    userDto: CreateUserDto,
+  ): Promise<void> {
+    const fileName = `${user.id}.png`;
+    const filePath = join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'profile-pictures',
+      fileName,
+    );
+
+    try {
+      const response = await axios.get(userDto.profilePictureUrl, {
+        responseType: 'arraybuffer',
+      });
+
+      writeFile(filePath, response.data);
+    } catch (err) {
+      this.logger.error(err);
+    }
+
+    if (filePath) {
+      user.profilePictureUrl = `http://localhost:${this.configService.get<string>(
+        'PORT',
+      )}/public/profile-pictures/${fileName}`;
+      await this.save(user);
+    }
   }
 }

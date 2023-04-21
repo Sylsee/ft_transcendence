@@ -35,6 +35,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     profile: any,
     done: VerifyCallback,
   ): Promise<any> {
+    // Get user profile picture
     const defaultPhotoUrl =
       profile.photos && profile.photos[0] ? profile.photos[0].value : null;
     const parsedUrl = defaultPhotoUrl?.replace(/=s\d+-c/, '=s128-c');
@@ -44,7 +45,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       provider: AuthProvider.GOOGLE,
       providerId: profile.id,
       email: profile.emails[0].value,
-      name: profile.name.givenName,
+      name: profile.name?.givenName,
       profilePictureUrl: parsedUrl,
     });
 
