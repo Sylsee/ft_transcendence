@@ -1,25 +1,25 @@
-import React from "react";
-import { logo42 } from "../../assets/icons/42_logo";
-import { RootState } from "../../types/global";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { API_BASE_URL, API_ROUTES } from "../../config";
-import { IconButton } from "../../components/IconButton/IconButton";
-import { pong_logo } from "../../assets/icons/pong_logo";
 import { Link } from "react-router-dom";
+import { logo42 } from "../../assets/icons/42_logo";
 import { logoGoogle } from "../../assets/icons/google_logo";
+import { pong_logo } from "../../assets/icons/pong_logo";
+import { IconButton } from "../../components/IconButton/IconButton";
+import { API_BASE_URL, API_ROUTES } from "../../config";
+import { AuthStatus } from "../../types/auth";
+import { RootState } from "../../types/global";
 
 const Home: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
 
 	const login = async (url: string) => {
-		if (isAuth) return;
-
+		if (isAuth !== AuthStatus.NotAuthenticated) return;
 		window.location.href = `${API_BASE_URL}${url}`;
 	};
 
 	return (
-		<div className="h-full flex flex-col   items-center justify-center">
-			{!isAuth && (
+		<div className="h-full flex flex-col items-center justify-center">
+			{isAuth === AuthStatus.NotAuthenticated && (
 				<div className="flex">
 					<IconButton
 						url={API_ROUTES.AUTH_42}
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
 					/>
 				</div>
 			)}
-			{isAuth && (
+			{isAuth === AuthStatus.Authenticated && (
 				<Link to="/game">
 					<IconButton url="" name="Play" logo={pong_logo()} />
 				</Link>

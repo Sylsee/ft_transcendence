@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import React from "react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ErrorNotFound } from "./components/Error/ErrorNotFound";
+import { TwoFaAuthenticate } from "./components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { Callback } from "./containers/Callback/Callback";
 import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
 import { Home } from "./containers/Home/Home";
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
 			{
 				path: "/callback",
 				element: <Callback />,
+			},
+			{
+				path: "/auth/2fa",
+				element: <TwoFaAuthenticate />,
 			},
 			{
 				element: <ProtectedRoute />,

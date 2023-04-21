@@ -11,11 +11,14 @@ const enableTwoFa = async (code: string) => {
 	return response.data;
 };
 
-// const verify2faLogin = async (token: string) => {
-// 	const response = await apiClient.post(API_ROUTES.VERIFY_2FA_LOGIN, {
-// 		token,
-// 	});
-// 	return response.data;
-// };
+const disableTwoFa = async (code: string) => {
+	const response = await apiClient.post(API_ROUTES.DISABLE_2FA, { code });
+	return response.data;
+};
 
-export { fetchGenerateTwoFa, enableTwoFa };
+const authTwoFa = async (code: string) => {
+	const response = await apiClient.post(API_ROUTES.VERIFY_2FA, { code });
+	return response.data;
+};
+
+export { fetchGenerateTwoFa, enableTwoFa, disableTwoFa, authTwoFa };

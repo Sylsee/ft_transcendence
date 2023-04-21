@@ -1,4 +1,6 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../types/global";
 import { User } from "../../../types/user";
 import { Profile2faAuth } from "./Profile2faAuth/Profile2faAuth";
 import { ProfileAvatar } from "./ProfileAvatar/ProfileAvatar";
@@ -10,8 +12,12 @@ interface ProfileCardProps {
 }
 
 const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
+	const isTwoFactorAuthEnabled = useSelector(
+		(store: RootState) => store.AUTH.isTwoFactorAuthEnabled
+	);
+
 	return (
-		<div className="p-6 flex flex-col lg:w-1/2 border-solid border-2">
+		<div className="p-6 flex flex-col lg:w-1/2 shadow-lg rounded-xl">
 			<ProfileAvatar
 				isConnectedUser={isConnectedUser}
 				id={user.id}
@@ -26,13 +32,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
 						name={user.name}
 					/>
 				</div>
-				{isConnectedUser &&
-					user.isTwoFactorAuthEnabled !== undefined && (
-						<Profile2faAuth
-							id={user.id}
-							twoFactorAuth={user.isTwoFactorAuthEnabled}
-						/>
-					)}
+				{isConnectedUser && (
+					<Profile2faAuth
+						id={user.id}
+						isTwoFactorAuthEnabled={isTwoFactorAuthEnabled}
+					/>
+				)}
 			</div>
 		</div>
 	);
