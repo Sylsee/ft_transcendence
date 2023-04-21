@@ -1,6 +1,11 @@
 // NestJS imports
 import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 
@@ -15,7 +20,6 @@ import { lastValueFrom } from 'rxjs';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserDto } from 'src/user/dto/user.dto';
 import { AuthService } from '../auth.service';
-import { ProfileDto } from '../dto/profile.dto';
 import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
@@ -55,25 +59,22 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
         },
       }),
     );
-    if (!response) {
+    if (!response || !response.data) {
       this.logger.warn("Failed to fetch user data via 42's API");
-      throw new UnauthorizedException();
+      throw new InternalServerErrorException();
     }
 
     // Validate user data using class-validator
-    const profileDto = plainToInstance(ProfileDto, {
+    const userDto: CreateUserDto = plainToInstance(CreateUserDto, {
       provider: AuthProvider.FORTYTWO,
-      id: response.data.id.toString(),
-      displayName: response.data.usual_first_name || response.data.first_name,
+      providerId: response.data.id.toString(),
       email: response.data.email,
-      photoUrl: response.data.image.link,
+      name: response.data.usual_first_name || response.data.first_name,
+      profilePictureUrl: response.data.image?.versions?.medium,
     });
 
     // Create user if not exists
     try {
-      await validateOrReject(profileDto);
-
-      const userDto = CreateUserDto.transform(profileDto);
       await validateOrReject(userDto);
 
       const user = await this.authService.findOrCreateUser(userDto);

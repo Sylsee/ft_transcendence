@@ -2,6 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
+import { Transform } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -10,9 +11,11 @@ import {
   Length,
   ValidateIf,
 } from 'class-validator';
+import * as sanitizeHtml from 'sanitize-html';
 
 // Local imports
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { IsAlphanumericWithHyphenUnderscore } from 'src/validator/isAlphanumericWithHyphenUnderscore.validator';
 
 export class UpdateChannelDto {
   @ApiProperty({
@@ -22,7 +25,8 @@ export class UpdateChannelDto {
   })
   @IsOptional()
   @Length(3, 20)
-  @IsString()
+  @IsAlphanumericWithHyphenUnderscore()
+  @Transform(({ value }) => sanitizeHtml(value))
   name: string;
 
   @ApiProperty({

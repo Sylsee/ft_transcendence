@@ -2,31 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import {
-  IsBoolean,
-  IsEnum,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-} from 'class-validator';
-
-// Local imports
-import { UserRelationship } from '../enum/user-relationship.enum';
-import { UserStatus } from '../enum/user-status.enum';
-
-export class UserRelationshipDto {
-  @ApiProperty({
-    enum: UserRelationship,
-    isArray: true,
-    description: 'The relationship status between two users',
-    example: UserRelationship.friends,
-    required: true,
-  })
-  @IsNotEmpty()
-  @IsEnum(UserRelationship)
-  status: UserRelationship;
-}
+import { IsNotEmpty, IsString, IsUUID, IsUrl } from 'class-validator';
 
 export class UserDto {
   @ApiProperty({
@@ -35,11 +11,11 @@ export class UserDto {
     required: true,
   })
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 
   @ApiProperty({
-    description: 'The display name of the user',
+    description: 'User name',
     example: 'John',
     required: true,
   })
@@ -48,32 +24,11 @@ export class UserDto {
   name: string;
 
   @ApiProperty({
-    description: 'The URL to the user avatar image',
-    example: 'https://example.com/avatar.png',
+    description: 'User profile picture url',
+    example: 'http://localhost:3000/public/profile-pictures/avatar.png',
     required: true,
   })
   @IsNotEmpty()
   @IsUrl()
-  avatarUrl: string;
-
-  @ApiProperty({
-    enum: UserStatus,
-    isArray: true,
-    description:
-      'The online status of the user (if they are friends with the current user)',
-    example: UserStatus.active,
-    required: false,
-  })
-  @IsOptional()
-  status?: UserStatus;
-
-  @ApiProperty({
-    description:
-      'Indicates whether the user has two-factor authentication enabled (if the user is the current user)',
-    example: true,
-    required: false,
-  })
-  @IsOptional()
-  @IsBoolean()
-  twoFactorAuth?: boolean;
+  profilePictureUrl: string;
 }

@@ -29,7 +29,7 @@ import { Request } from 'express';
 import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserDto, UserRelationshipDto } from './dto/user.dto';
+import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
 const ApiUserIdParam = ApiParam({
@@ -124,7 +124,6 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({
     description: 'User friend status found',
-    type: UserRelationshipDto,
   })
   async getUserFriendStatus(@Param('id') id: string) {
     // Implement the method to fetch user friend status

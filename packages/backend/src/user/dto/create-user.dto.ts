@@ -7,7 +7,6 @@ import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
 
 // Local imports
-import { ProfileDto } from 'src/auth/dto/profile.dto';
 import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 
 export class CreateUserDto {
@@ -51,21 +50,12 @@ export class CreateUserDto {
   name: string;
 
   @ApiProperty({
-    description: 'User avatar URL',
-    example: 'https://example.com/avatar.png',
+    description: 'User profile picture url',
+    example:
+      'http://localhost:3000/public/profile-pictures/profile-picture.png',
     required: true,
   })
   @IsNotEmpty()
   @IsUrl()
-  avatarUrl: string;
-
-  static transform(profile: ProfileDto): CreateUserDto {
-    return {
-      provider: profile.provider,
-      providerId: profile.id,
-      email: profile.email,
-      name: profile.displayName,
-      avatarUrl: profile.photoUrl,
-    };
-  }
+  profilePictureUrl: string;
 }

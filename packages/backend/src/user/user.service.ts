@@ -1,10 +1,15 @@
 // Nest dependencies
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+
+// Third-party imports
+import axios from 'axios';
+import { writeFile } from 'fs/promises';
+import { join } from 'path';
 
 // Local imports
 import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserStatus } from './enum/user-status.enum';
 import { UserRepository } from './user.repository';
@@ -15,10 +20,60 @@ export class UserService {
 
   private socketUserMap = new Map<string, string>(); // socketId -> userId
 
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private configService: ConfigService,
+  ) {}
 
-  async create(user: CreateUserDto): Promise<UserDto> {
-    return this.userRepository.create(user);
+  async create(userDto: CreateUserDto): Promise<UserEntity> {
+    userDto.profilePictureUrl =
+      userDto.profilePictureUrl ||
+      `https://ui-avatars.com/api/?background=random&size=128&length=1&bold=true&font-size=0.6&format=png&name=${userDto.name}`;
+
+    const user = await this.userRepository.create(userDto);
+
+    const profilePicture = await axios.get(userDto.profilePictureUrl, {
+      responseType: 'arraybuffer',
+    });
+
+    const filePath = this.writeProfilePicture(user, profilePicture);
+
+    if (filePath) {
+      user.profilePictureUrl = `http://localhost:${this.configService.get<string>(
+        'PORT',
+      )}${filePath}`;
+      await this.save(user);
+    }
+
+    return user;
+  }
+
+  private writeProfilePicture(
+    user: UserEntity,
+    profilePicture: any,
+  ): string | undefined {
+    const fileName = `${user.id}.png`;
+    const filePath = join(
+      __dirname,
+      '..',
+      '..',
+      'public',
+      'profile-pictures',
+      fileName,
+    );
+
+    try {
+      writeFile(filePath, profilePicture.data);
+    } catch (err) {
+      this.logger.error(err);
+      return undefined;
+    }
+
+    return `/public/profile-pictures/${fileName}`;
+  }
+
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
   // TODO: Remove this method
@@ -37,7 +92,7 @@ export class UserService {
   async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
-  ): Promise<UserDto | void> {
+  ): Promise<UserEntity | void> {
     return this.userRepository.findUserByProviderIDAndProvider(
       providerId,
       provider,

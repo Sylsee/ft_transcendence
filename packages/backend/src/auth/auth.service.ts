@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 
 // Third-party imports
 import { Response } from 'express';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 // Local imports
 import { UserService } from 'src/user/user.service';
@@ -19,7 +20,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async findOrCreateUser(profile: any): Promise<any | undefined> {
+  async findOrCreateUser(profile: CreateUserDto): Promise<any | undefined> {
     const userExists = await this.userService.findUserByProviderIDAndProvider(
       profile.providerId,
       profile.provider,

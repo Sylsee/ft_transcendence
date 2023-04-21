@@ -20,12 +20,19 @@ export class UserRepository {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create({
-      ...createUserDto,
-    });
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const newUser = new UserEntity();
+    newUser.provider = createUserDto.provider;
+    newUser.providerId = createUserDto.providerId;
+    newUser.email = createUserDto.email;
+    newUser.name = createUserDto.name;
+    newUser.profilePictureUrl = createUserDto.profilePictureUrl;
 
     return this.userRepository.save(newUser);
+  }
+
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
   async find(): Promise<UserEntity[]> {
