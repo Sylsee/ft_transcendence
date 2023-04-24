@@ -199,8 +199,8 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         socketsIds,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channel.id },
+        ChatEvent.CHANNEL_UNAVAILABLE,
+        { channelId: channel.id },
       );
     }
 
@@ -213,8 +213,8 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         users,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channel.id },
+        ChatEvent.CHANNEL_UNAVAILABLE,
+        { channelId: channel.id },
       );
     }
   }

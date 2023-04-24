@@ -96,7 +96,7 @@ export default class UnBanCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `${unbanUser.name} has been unbanned`,
       },
     );

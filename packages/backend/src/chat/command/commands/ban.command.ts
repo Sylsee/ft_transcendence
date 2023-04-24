@@ -94,9 +94,9 @@ export default class BanCommand implements Command {
       this.chatService.sendEvent(
         server,
         socketID,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
+        ChatEvent.CHANNEL_UNAVAILABLE,
         {
-          channelID: channel.id,
+          channelId: channel.id,
         },
       );
       this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
@@ -109,7 +109,7 @@ export default class BanCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `User ${banUser.name} has been banned`,
       },
     );

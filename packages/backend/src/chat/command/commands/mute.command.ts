@@ -101,7 +101,7 @@ export default class MuteCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `User ${muteUser.name} has been muted for ${time} minutes`,
       },
     );

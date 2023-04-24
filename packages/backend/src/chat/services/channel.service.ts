@@ -213,11 +213,11 @@ export class ChannelService {
 
   async joinChannel(
     user: UserEntity,
-    channelID: string,
+    channelId: string,
     password?: string,
   ): Promise<ChannelDto> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
-      channelID,
+      channelId,
       ['users', 'banUsers', 'invitedUsers', 'admins', 'owner'],
     );
     if (!channel) {
@@ -262,7 +262,7 @@ export class ChannelService {
       channel.users,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `${user.name} joined the channel`,
       },
     );
@@ -270,9 +270,9 @@ export class ChannelService {
     return ChannelDto.transform(channel, user.id);
   }
 
-  async leaveChannel(user: UserEntity, channelID: string): Promise<void> {
+  async leaveChannel(user: UserEntity, channelId: string): Promise<void> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
-      channelID,
+      channelId,
       ['users', 'owner', 'admins', 'banUsers'],
     );
     if (!channel) {
@@ -315,7 +315,7 @@ export class ChannelService {
         channel.users,
         ChatEvent.CHANNEL_SERVER_MESSAGE,
         {
-          channelID: channel.id,
+          channelId: channel.id,
           message: `${user.name} left the channel`,
         },
       );
