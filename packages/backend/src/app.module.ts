@@ -28,6 +28,7 @@ import { TypeOrmConfigService } from './config/typeOrmConfig';
         DB_PORT: Joi.number().default(5432),
         FRONTEND_PORT: Joi.number().required(),
         APP_DOMAIN: Joi.string().required(),
+        APP_NAME: Joi.string().required(),
 
         DB_HOST: Joi.string().required(),
         DB_NAME: Joi.string().required(),

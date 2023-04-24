@@ -64,31 +64,39 @@ export class ChatGateway
     const [, token] = authHeader.split(' '); // [Bearer, token]
 
     try {
-      const userId = this.authService.verify(token);
-      client.data = { userId };
+      const user = await this.authService.verify(token);
+      client.data = { userId: user.id };
 
-      this.userService.setSocketUser(client.id, userId);
-      this.userService.setUserStatus(userId, UserStatus.active);
+      this.userService.setSocketUser(client.id, user.id);
+      this.userService.setUserStatus(user.id, UserStatus.active);
 
-      this.logger.verbose(`User ${userId} connected with socket ${client.id}`);
+      this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
     } catch (error) {
-      client.disconnect();
+      client.emit('exception', {
+        status: 'error',
+        message: error.message,
+      });
 
       this.logger.warn(`Unable to verify token: ${token}`);
-      this.logger.error(error);
 
-      throw new WsException('Invalid token' + error.message);
+      client.disconnect();
     }
   }
 
   // TODO: send to friends user status
   handleDisconnect(client: Socket): void {
-    const { userId } = client.data;
+    try {
+      this.userService.removeSocketUser(client.id);
 
-    this.userService.removeSocketUser(client.id);
-    this.userService.setUserStatus(userId, UserStatus.inactive);
+      const { userId } = client.data;
+      this.userService.setUserStatus(userId, UserStatus.inactive);
 
-    this.logger.verbose(`User ${userId} disconnected with socket ${client.id}`);
+      this.logger.verbose(
+        `User ${userId} disconnected with socket ${client.id}`,
+      );
+    } catch (error) {
+      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+    }
   }
 
   // ---------------------------- Events ----------------------------
