@@ -14,11 +14,12 @@ import {
 } from '@nestjs/websockets';
 
 // Third-party imports
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
+import * as cookie from 'cookie';
 import { Server, Socket } from 'socket.io';
 
 // Local imports
-import { plainToInstance } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
 import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
@@ -32,7 +33,10 @@ import { ChatService } from './services/chat.service';
 
 @WebSocketGateway({
   namespace: '/chat',
-  cors: true,
+  cors: {
+    origin: 'http://localhost:4000',
+    credentials: true,
+  },
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -56,12 +60,22 @@ export class ChatGateway
 
   // TODO: send to friends user status
   async handleConnection(client: Socket): Promise<void> {
-    const authHeader = client.handshake.headers.authorization as string;
-    if (!authHeader) {
-      throw new WsException('JWT not provided');
+    let token: string;
+    if (client.handshake.headers.cookie) {
+      const cookies = cookie.parse(client.handshake.headers.cookie);
+      token = cookies['access_token'];
+    } else {
+      token = client.handshake.headers.authorization?.split(' ')[1];
     }
 
-    const [, token] = authHeader.split(' '); // [Bearer, token]
+    if (!token) {
+      client.emit('exception', {
+        status: 'error',
+        message: 'JWT not provided',
+      });
+      client.disconnect();
+      return;
+    }
 
     try {
       const user = await this.authService.verify(token);
