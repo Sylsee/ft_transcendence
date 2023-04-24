@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   Length,
@@ -14,6 +15,7 @@ import {
 // Local imports
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
+import { UserDto } from 'src/user/dto/user.dto';
 
 class PermissionsDto {
   @ApiProperty({
@@ -84,6 +86,14 @@ export class ChannelDto {
   @IsNotEmpty()
   permissions: PermissionsDto;
 
+  @ApiProperty({
+    description:
+      'The user in the channel if the channel type is direct message',
+    required: false,
+  })
+  @IsOptional()
+  user?: UserDto;
+
   static transform(channel: ChannelEntity, userId: string): ChannelDto {
     const isMember =
       channel.users &&
@@ -97,6 +107,10 @@ export class ChannelDto {
     const isAdmin =
       channel.admins && channel.admins.some((admin) => admin.id === userId);
     const isOwner = channel.owner && channel.owner.id === userId;
+    const user =
+      channel.type === ChannelType.DIRECT_MESSAGE
+        ? channel.users.find((user) => user.id !== userId)
+        : undefined;
 
     if (
       isBanned ||
@@ -120,6 +134,8 @@ export class ChannelDto {
           isOwner ||
           (!channel.owner && isAdmin),
       },
+      // TODO: transform to dto
+      ...(user && { user: user }),
     };
   }
 }
