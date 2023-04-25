@@ -46,6 +46,10 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
+  }
+
   // TODO: Remove this method
   findAll() {
     return this.userRepository.find();
@@ -69,7 +73,20 @@ export class UserService {
     );
   }
 
-  // -------------------- Socket Methods ------------------------
+  // --------------------- 2fa Methods ----------------------
+
+  async turnOn2fa(user: UserEntity): Promise<any> {
+    user.isTwoFactorAuthEnabled = true;
+    return this.userRepository.save(user);
+  }
+
+  async turnOff2fa(user: UserEntity): Promise<any> {
+    user.twoFactorAuthSecret = null;
+    user.isTwoFactorAuthEnabled = false;
+    return this.userRepository.save(user);
+  }
+
+  // -------------------- Socket Methods --------------------
 
   getSockets(): string[] {
     return Array.from(this.socketUserMap.keys());

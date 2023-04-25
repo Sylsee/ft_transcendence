@@ -45,6 +45,12 @@ export class UserEntity {
   })
   status: UserStatus;
 
+  @Column({ nullable: true })
+  twoFactorAuthSecret: string;
+
+  @Column({ default: false })
+  isTwoFactorAuthEnabled: boolean;
+
   // Relationships
   @OneToMany(() => UserEntity, (user) => user.friends)
   friends: UserEntity[];

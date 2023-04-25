@@ -14,11 +14,12 @@ import {
 } from '@nestjs/websockets';
 
 // Third-party imports
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
+import * as cookie from 'cookie';
 import { Server, Socket } from 'socket.io';
 
 // Local imports
-import { plainToInstance } from 'class-transformer';
-import { validateOrReject } from 'class-validator';
 import { AuthService } from 'src/auth/auth.service';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
@@ -32,7 +33,10 @@ import { ChatService } from './services/chat.service';
 
 @WebSocketGateway({
   namespace: '/chat',
-  cors: true,
+  cors: {
+    origin: 'http://localhost:4000',
+    credentials: true,
+  },
 })
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -56,39 +60,57 @@ export class ChatGateway
 
   // TODO: send to friends user status
   async handleConnection(client: Socket): Promise<void> {
-    const authHeader = client.handshake.headers.authorization as string;
-    if (!authHeader) {
-      throw new WsException('JWT not provided');
+    let token: string;
+    if (client.handshake.headers.cookie) {
+      const cookies = cookie.parse(client.handshake.headers.cookie);
+      token = cookies['access_token'];
+    } else {
+      token = client.handshake.headers.authorization?.split(' ')[1];
     }
 
-    const [, token] = authHeader.split(' '); // [Bearer, token]
+    if (!token) {
+      client.emit('exception', {
+        status: 'error',
+        message: 'JWT not provided',
+      });
+      client.disconnect();
+      return;
+    }
 
     try {
-      const userId = this.authService.verify(token);
-      client.data = { userId };
+      const user = await this.authService.verify(token);
+      client.data = { userId: user.id };
 
-      this.userService.setSocketUser(client.id, userId);
-      this.userService.setUserStatus(userId, UserStatus.active);
+      this.userService.setSocketUser(client.id, user.id);
+      this.userService.setUserStatus(user.id, UserStatus.active);
 
-      this.logger.verbose(`User ${userId} connected with socket ${client.id}`);
+      this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
     } catch (error) {
-      client.disconnect();
+      client.emit('exception', {
+        status: 'error',
+        message: error.message,
+      });
 
       this.logger.warn(`Unable to verify token: ${token}`);
-      this.logger.error(error);
 
-      throw new WsException('Invalid token' + error.message);
+      client.disconnect();
     }
   }
 
   // TODO: send to friends user status
   handleDisconnect(client: Socket): void {
-    const { userId } = client.data;
+    try {
+      this.userService.removeSocketUser(client.id);
 
-    this.userService.removeSocketUser(client.id);
-    this.userService.setUserStatus(userId, UserStatus.inactive);
+      const { userId } = client.data;
+      this.userService.setUserStatus(userId, UserStatus.inactive);
 
-    this.logger.verbose(`User ${userId} disconnected with socket ${client.id}`);
+      this.logger.verbose(
+        `User ${userId} disconnected with socket ${client.id}`,
+      );
+    } catch (error) {
+      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+    }
   }
 
   // ---------------------------- Events ----------------------------
@@ -191,8 +213,8 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         socketsIds,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channel.id },
+        ChatEvent.CHANNEL_UNAVAILABLE,
+        { channelId: channel.id },
       );
     }
 
@@ -205,8 +227,8 @@ export class ChatGateway
       this.chatService.sendEvent(
         this.server,
         users,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
-        { channelID: channel.id },
+        ChatEvent.CHANNEL_UNAVAILABLE,
+        { channelId: channel.id },
       );
     }
   }

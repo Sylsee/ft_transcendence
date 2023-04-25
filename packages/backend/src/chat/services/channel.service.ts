@@ -213,11 +213,11 @@ export class ChannelService {
 
   async joinChannel(
     user: UserEntity,
-    channelID: string,
+    channelId: string,
     password?: string,
   ): Promise<ChannelDto> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
-      channelID,
+      channelId,
       ['users', 'banUsers', 'invitedUsers', 'admins', 'owner'],
     );
     if (!channel) {
@@ -262,7 +262,7 @@ export class ChannelService {
       channel.users,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `${user.name} joined the channel`,
       },
     );
@@ -270,10 +270,10 @@ export class ChannelService {
     return ChannelDto.transform(channel, user.id);
   }
 
-  async leaveChannel(user: UserEntity, channelID: string): Promise<void> {
+  async leaveChannel(user: UserEntity, channelId: string): Promise<void> {
     const channel = await this.channelRepository.findOneByIdWithRelations(
-      channelID,
-      ['users', 'owner', 'admins', 'banUsers'],
+      channelId,
+      ['users', 'owner', 'admins', 'banUsers', 'invitedUsers'],
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
@@ -283,42 +283,56 @@ export class ChannelService {
       throw new ForbiddenException('Not in this channel');
     }
 
-    if (channel.owner && channel.owner.id === user.id) {
-      channel.owner = null;
-
-      const users = [...(channel.admins ?? [])];
-
-      const eventPromises = users.map((user) => {
-        this.chatGateway.sendChannelAvailableEvent(channel, user.id, user);
-      });
-
-      await Promise.all(eventPromises);
-    }
-
-    this.removeUserFromList(channel.users, user.id);
-    if (channel.users.length === 0) {
-      this.channelRepository.delete(channel);
-    } else {
-      this.removeUserFromList(channel.admins, user.id);
-
-      this.channelRepository.save(channel);
-    }
-
     this.chatGateway.sendEvent(user.id, ChatEvent.NOTIFICATION, {
       message: `You left the channel ${channel.name}`,
     });
 
-    if (channel.users.length === 0) {
-      this.chatGateway.sendChannelUnavailability(channel);
+    // Delete channel if no users left
+    if (channel.users.length === 1) {
+      await this.chatGateway.sendChannelUnavailability(channel);
+
+      this.channelRepository.delete(channel);
     } else {
+      this.removeUserFromList(channel.users, user.id);
+      this.removeUserFromList(channel.admins, user.id);
+
+      if (channel.owner && channel.owner.id === user.id) {
+        channel.owner = null;
+
+        // Send channel available event to all admins for the new permissions
+        const users = [...(channel.admins ?? [])];
+
+        const eventPromises = users.map((u) => {
+          this.chatGateway.sendChannelAvailableEvent(channel, u.id, u);
+        });
+
+        await Promise.all(eventPromises);
+      }
+
+      this.channelRepository.save(channel);
+
       this.chatGateway.sendEvent(
         channel.users,
         ChatEvent.CHANNEL_SERVER_MESSAGE,
         {
-          channelID: channel.id,
+          channelId: channel.id,
           message: `${user.name} left the channel`,
         },
       );
+
+      // Send channel avaibility event to the user
+      const channelDto = ChannelDto.transform(channel, user.id);
+      if (channelDto === null) {
+        this.chatGateway.sendEvent(user, ChatEvent.CHANNEL_UNAVAILABLE, {
+          channelId: channel.id,
+        });
+      } else {
+        this.chatGateway.sendEvent(
+          user,
+          ChatEvent.CHANNEL_AVAILABLE,
+          channelDto,
+        );
+      }
     }
   }
 

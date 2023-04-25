@@ -5,7 +5,7 @@ export enum ChatEvent {
   */
   CHANNEL_SERVER_MESSAGE = 'channel:server_message',
   /*
-    channelID
+    channelId
     message
   */
   CHANNEL_MESSAGE = 'channel:message',
@@ -20,7 +20,7 @@ export enum ChatEvent {
   /*
       {
         sender: sender.name,
-        channelID: {
+        channelId: {
           id: channel.id,
           name: channel.name,
         },
@@ -31,8 +31,8 @@ export enum ChatEvent {
   /*
     channelDto
   */
-  CHANNEL_UNAVAILABILITY = 'channel:unavailable',
+  CHANNEL_UNAVAILABLE = 'channel:unavailable',
   /*
-    channelID
+    channelId
   */
 }

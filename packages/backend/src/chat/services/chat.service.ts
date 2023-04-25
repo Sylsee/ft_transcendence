@@ -77,7 +77,7 @@ export class ChatService {
         await this.muteUserService.delete(userMute);
       } else {
         this.sendEvent(server, sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
-          channelID: channel.id,
+          channelId: channel.id,
           message: `You are muted for ${this.formatTime(leftTime)}`,
         });
         return;
@@ -168,9 +168,9 @@ export class ChatService {
       this.sendEvent(
         server,
         unavailableSocketsIds,
-        ChatEvent.CHANNEL_UNAVAILABILITY,
+        ChatEvent.CHANNEL_UNAVAILABLE,
         {
-          channelID: channel.id,
+          channelId: channel.id,
         },
       );
     }

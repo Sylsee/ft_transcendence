@@ -97,7 +97,7 @@ export default class OpCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `${opUser.name} has been opped`,
       },
     );

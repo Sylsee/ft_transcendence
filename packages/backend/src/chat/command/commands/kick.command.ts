@@ -96,9 +96,9 @@ export default class KickCommand implements Command {
         this.chatService.sendEvent(
           server,
           socketId,
-          ChatEvent.CHANNEL_UNAVAILABILITY,
+          ChatEvent.CHANNEL_UNAVAILABLE,
           {
-            channelID: channel.id,
+            channelId: channel.id,
           },
         );
       } else {
@@ -119,7 +119,7 @@ export default class KickCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `You have kicked ${kickUser.name} from ${channel.name}`,
       },
     );

@@ -97,7 +97,7 @@ export default class DeOpCommand implements Command {
       sender,
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
-        channelID: channel.id,
+        channelId: channel.id,
         message: `${deOpUser.name} has been deopped`,
       },
     );
