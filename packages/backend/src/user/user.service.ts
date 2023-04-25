@@ -173,10 +173,27 @@ export class UserService {
         responseType: 'arraybuffer',
       });
 
+      // Check if the response is a valid profile picture type
+      if (!this.isValidProfilePictureType(response.headers['content-type'])) {
+        // Get the new profile picture url with the ui-avatars api
+        const oldProfilePictureUrl = user.profilePictureUrl;
+        userDto.profilePictureUrl = null;
+        userDto.profilePictureUrl = this.getProfilePictureUrlByDto(userDto);
+
+        if (oldProfilePictureUrl === userDto.profilePictureUrl) {
+          throw new InternalServerErrorException(
+            'The profile picture url is not valid',
+          );
+        }
+
+        await this.downloadProfilePicture(user, userDto);
+        return;
+      }
+
       const fileName = user.id;
       const filePath = this.getProfilePicturePath(fileName);
 
-      writeFile(filePath, response.data);
+      await writeFile(filePath, response.data);
 
       if (filePath) {
         user.profilePictureUrl = this.getProfilePictureUrl(fileName);
@@ -188,5 +205,12 @@ export class UserService {
         'Error downloading profile picture',
       );
     }
+  }
+
+  private isValidProfilePictureType(contentType: string): boolean {
+    const validContentTypes = new Set(['jpg', 'jpeg', 'png', 'gif']);
+    return Array.from(validContentTypes).some((type) =>
+      contentType.includes(type),
+    );
   }
 }
