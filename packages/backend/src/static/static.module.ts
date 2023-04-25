@@ -8,8 +8,8 @@ import { join } from 'path';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', '..', 'public'),
-      serveRoot: '/public',
+      rootPath: join(__dirname, '..', '..', 'uploads'),
+      serveRoot: '/uploads',
     }),
   ],
 })

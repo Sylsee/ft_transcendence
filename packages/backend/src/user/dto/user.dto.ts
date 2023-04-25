@@ -25,7 +25,7 @@ export class UserDto {
 
   @ApiProperty({
     description: 'User profile picture url',
-    example: 'http://localhost:3000/public/profile-pictures/avatar.png',
+    example: 'http://localhost:3000/uploads/profile-pictures/avatar.png',
     required: true,
   })
   @IsNotEmpty()

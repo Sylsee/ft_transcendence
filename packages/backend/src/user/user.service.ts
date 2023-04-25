@@ -1,5 +1,9 @@
 // Nest dependencies
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 // Third-party imports
@@ -29,7 +33,7 @@ export class UserService {
   async create(userDto: CreateUserDto): Promise<UserEntity> {
     userDto.name = this.formatUserName(userDto.name);
     userDto.name = await this.getUniqueName(userDto.name);
-    userDto.profilePictureUrl = this.getProfilePictureUrl(userDto);
+    userDto.profilePictureUrl = this.getProfilePictureUrlByDto(userDto);
 
     const user = await this.userRepository.create(userDto);
 
@@ -120,6 +124,16 @@ export class UserService {
     return this.userRepository.findBlockingBy(userId);
   }
 
+  getProfilePictureUrl(filename: string): string {
+    return `${this.configService.get(
+      'APP_DOMAIN',
+    )}/uploads/profile-pictures/${filename}`;
+  }
+
+  getProfilePicturePath(filename: string): string {
+    return join(__dirname, '..', '..', 'uploads', 'profile-pictures', filename);
+  }
+
   private formatUserName(name: string): string {
     return name.replace(/ /g, '-').replace(/[^a-zA-Z0-9-_]/g, '');
   }
@@ -143,7 +157,7 @@ export class UserService {
     }
   }
 
-  private getProfilePictureUrl(userDto: CreateUserDto): string {
+  private getProfilePictureUrlByDto(userDto: CreateUserDto): string {
     return (
       userDto.profilePictureUrl ||
       `https://ui-avatars.com/api/?background=random&size=128&length=1&bold=true&font-size=0.6&format=png&name=${userDto.name}`
@@ -154,31 +168,25 @@ export class UserService {
     user: UserEntity,
     userDto: CreateUserDto,
   ): Promise<void> {
-    const fileName = `${user.id}.png`;
-    const filePath = join(
-      __dirname,
-      '..',
-      '..',
-      'public',
-      'profile-pictures',
-      fileName,
-    );
-
     try {
       const response = await axios.get(userDto.profilePictureUrl, {
         responseType: 'arraybuffer',
       });
 
+      const fileName = user.id;
+      const filePath = this.getProfilePicturePath(fileName);
+
       writeFile(filePath, response.data);
+
+      if (filePath) {
+        user.profilePictureUrl = this.getProfilePictureUrl(fileName);
+        await this.save(user);
+      }
     } catch (err) {
       this.logger.error(err);
-    }
-
-    if (filePath) {
-      user.profilePictureUrl = `http://localhost:${this.configService.get<string>(
-        'PORT',
-      )}/public/profile-pictures/${fileName}`;
-      await this.save(user);
+      throw new InternalServerErrorException(
+        'Error downloading profile picture',
+      );
     }
   }
 }
