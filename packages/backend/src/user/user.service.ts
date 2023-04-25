@@ -46,10 +46,6 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
-  async save(user: UserEntity): Promise<UserEntity> {
-    return this.userRepository.save(user);
-  }
-
   // TODO: Remove this method
   findAll() {
     return this.userRepository.find();
