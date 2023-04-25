@@ -138,8 +138,8 @@ export class UserService {
   }
 
   getProfilePictureUrl(filename: string): string {
-    return `${this.configService.get(
-      'APP_DOMAIN',
+    return `http://localhost:${this.configService.get(
+      'PORT',
     )}/uploads/profile-pictures/${filename}`;
   }
 
