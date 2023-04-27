@@ -19,6 +19,7 @@ const actionHandlers: Record<
 	) => void
 > = {
 	[getUser.type]: async (store, next, action) => {
+		if (store.getState().USER.user) return next(action);
 		try {
 			const user: User = await fetchUserById(action.payload.id);
 			store.dispatch(setUser(user));

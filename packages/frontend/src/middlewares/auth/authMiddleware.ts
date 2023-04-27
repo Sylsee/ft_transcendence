@@ -32,12 +32,9 @@ const actionHandlers: Record<
 
 			const token: DecodedToken = jwt_decode(cookie);
 
-			console.log(token);
-
 			if (new Date() >= new Date(token.exp * 1000))
 				return store.dispatch(logout());
 
-			console.log(token);
 			const payload = {
 				isAuth:
 					!token.isTwoFactorAuthenticated &&
@@ -47,11 +44,7 @@ const actionHandlers: Record<
 				isTwoFactorAuthEnabled: token.isTwoFactorAuthEnabled,
 			};
 
-			console.log("payload:", payload);
 			store.dispatch(setAuthState(payload));
-			console.log(
-				store.getState().AUTH.isAuth === AuthStatus.Authenticated
-			);
 			if (payload.isAuth === AuthStatus.Authenticated)
 				store.dispatch(getUser({ id: token.sub }));
 		} catch (error) {
