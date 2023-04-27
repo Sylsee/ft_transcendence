@@ -1,29 +1,33 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { joinChannel } from "../../api/chat/chatRequests";
-import { ERROR_MESSAGES } from "../../config";
-import { updateChannel } from "../../store/chat-slice/chat-slice";
+import {
+	addChannel,
+	setActiveChannel,
+} from "../../store/chat-slice/chat-slice";
 import { JoinChannelRequest } from "../../types/chat";
+import { ApiErrorResponse } from "../../types/global";
+import { ChannelPayload } from "../../types/socket";
 
-const useJoinChannel = (id: string | undefined) => {
+const useJoinChannel = (): UseMutationResult<
+	ChannelPayload,
+	ApiErrorResponse,
+	JoinChannelRequest
+> => {
 	const dispatch = useDispatch();
 
-	const mutation = useMutation(
-		(data: JoinChannelRequest) => {
-			if (!id) {
-				return Promise.reject(
-					new Error(ERROR_MESSAGES.INVALID_CHANNEL_ID)
-				);
-			}
+	const mutation = useMutation<
+		ChannelPayload,
+		ApiErrorResponse,
+		JoinChannelRequest
+	>(
+		({ id, data }) => {
 			return joinChannel(id, data);
 		},
 		{
 			onSuccess: (channel) => {
-				console.log("JOIN CHANNEL YO:", channel);
-				dispatch(updateChannel(channel));
-			},
-			onError: (error) => {
-				console.error("BIG FAIL", error);
+				dispatch(addChannel(channel));
+				dispatch(setActiveChannel(channel.id));
 			},
 			retry: 1,
 		}

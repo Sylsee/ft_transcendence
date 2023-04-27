@@ -1,29 +1,31 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { fetchChannelMessages } from "../../api/chat/chatRequests";
-import { updateChannel } from "../../store/chat-slice/chat-slice";
+import { setMessages } from "../../store/chat-slice/chat-slice";
+import { Message } from "../../types/chat";
+import { ApiErrorResponse } from "../../types/global";
 
-const useMessageQuery = (channelId: string | undefined) => {
+const useMessageQuery = (
+	channelId: string | undefined
+): UseQueryResult<Message[], ApiErrorResponse> => {
 	const dispatch = useDispatch();
-	const { refetch: refetchMessage } = useQuery(
+	const query = useQuery<Message[], ApiErrorResponse>(
 		["messages", channelId],
-		() => (channelId ? fetchChannelMessages(channelId) : null),
+		() => (channelId ? fetchChannelMessages(channelId) : []),
 		{
 			enabled: false,
 			onSuccess: (messages) => {
 				if (!channelId) return;
-				console.log("messages", messages);
 				dispatch(
-					updateChannel({
-						id: channelId,
-						hasBeenFetched: true,
+					setMessages({
+						channelId: channelId,
 						messages,
 					})
 				);
 			},
 		}
 	);
-	return { refetchMessage };
+	return query;
 };
 
 export { useMessageQuery };

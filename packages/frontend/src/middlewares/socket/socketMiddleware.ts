@@ -36,6 +36,7 @@ const actionHandlers: Record<
 		return next(action);
 	},
 	[handleNotificationInvite.type]: async (store, next, action) => {
+		// toast(<InvitationToast {...action.payload} />);
 		return next(action);
 	},
 	[handleNewChannel.type]: async (store, next, action) => {

@@ -4,11 +4,13 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { Loader } from "../../components/Loader/Loader";
-import { TwoFaAuthenticate } from "../../components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { authenticate } from "../../store/auth-slice/auth-slice";
+import { setShowChatModal } from "../../store/chat-slice/chat-slice";
 import { AuthStatus } from "../../types/auth";
 import { RootState } from "../../types/global";
+import { ChatWrapper } from "../ChatWrapper/ChatWrapper";
 import { Header } from "../Header/Header";
+import { ToastManager } from "../ToastManager/ToastManager";
 
 const HeaderWrapper: React.FC = () => {
 	// state
@@ -27,40 +29,37 @@ const HeaderWrapper: React.FC = () => {
 	}, [location, dispatch]);
 
 	// Etat pour afficher le chat en mode modal
-	const [showModal, setshowModal] = useState(false);
+	const showModal = useSelector((store: RootState) => store.CHAT.showModal);
+	const setShowModal = (value: boolean) => {
+		dispatch(setShowChatModal(value));
+	};
 
 	return (
-		<>
-			<div
-				className="h-full flex flex-col bg-gradient-custom"
-				style={{ backgroundColor: "#d18080" }}
-			>
+		<div className="h-full flex flex-col items-stretch max-h-full bg-gradient-custom">
+			<div className="flex-shrink-0">
 				<Header />
-				<div className="h-[100%]">
-					{loading && <Loader />}
-					{!loading &&
-						(isAuth === AuthStatus.PartiallyAuthenticated ? (
-						) : (
-							<TwoFaAuthenticate />
-							<Outlet />
-						))}
+			</div>
+			<div className="flex justify-between items-stretch max-h-full  overflow-auto h-full">
+				<div className="flex-grow">
+					{loading ? <Loader /> : <Outlet />}
 				</div>
-				{isAuth && (
+				{isAuth === AuthStatus.Authenticated && (
 					<ChatWrapper
 						showModal={showModal}
-						setShowModal={setshowModal}
+						setShowModal={setShowModal}
 					/>
 				)}
 			</div>
 			{!showModal && (
 				<button
 					type="button"
-					className="text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden bg-blue-500 rounded-full p-4 shadow-lg"
-					onClick={() => setshowModal(true)}
+					className="text-white hover:text-blue-500 bg-gradient-color font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden rounded-full p-4 shadow-lg"
+					onClick={() => setShowModal(true)}
 				>
 					<FontAwesomeIcon icon={faMessage} />
 				</button>
 			)}
+			<ToastManager />
 		</div>
 	);
 };
