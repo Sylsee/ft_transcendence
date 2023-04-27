@@ -8,16 +8,25 @@ const fetchUserById = async (userId: string) => {
 };
 
 const updateUserById = async (userId: string, data: UpdateUserRequest) => {
-	const formData = new FormData();
-	if (data.name) {
-		formData.append("name", data.name);
-	}
-	if (data.avatar) {
-		formData.append("avatar", data.avatar);
-	}
-
-	const response = await apiClient.patch(API_ROUTES.USER(userId), formData);
+	const response = await apiClient.patch(API_ROUTES.USER(userId), data);
 	return response.data;
 };
 
-export { fetchUserById, updateUserById };
+const uploadProfilePicture = async (file: File) => {
+	const formData = new FormData();
+
+	formData.append("profile-picture", file);
+
+	const response = await apiClient.post(
+		API_ROUTES.USER_PROFILE_PICTURE,
+		formData,
+		{
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		}
+	);
+	return response.data;
+};
+
+export { fetchUserById, updateUserById, uploadProfilePicture };

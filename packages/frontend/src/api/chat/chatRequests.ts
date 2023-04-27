@@ -1,5 +1,9 @@
 import { API_ROUTES } from "../../config";
-import { JoinChannelRequest } from "../../types/chat";
+import {
+	Channel,
+	CreateChannelRequest,
+	JoinChannelData,
+} from "../../types/chat";
 import { apiClient } from "../api";
 
 const fetchChannels = async () => {
@@ -14,9 +18,7 @@ const fetchChannelMessages = async (channelId: string) => {
 	return response.data;
 };
 
-const joinChannel = async (channelId: string, data: JoinChannelRequest) => {
-	console.log(data);
-
+const joinChannel = async (channelId: string, data: JoinChannelData) => {
 	const response = await apiClient.post(
 		API_ROUTES.JOIN_CHANNEL(channelId),
 		data
@@ -24,4 +26,40 @@ const joinChannel = async (channelId: string, data: JoinChannelRequest) => {
 	return response.data;
 };
 
-export { fetchChannels, fetchChannelMessages, joinChannel };
+const createChannel = async (channel: CreateChannelRequest) => {
+	const response = await apiClient.post(API_ROUTES.CREATE_CHANNEL, channel);
+	return response.data;
+};
+
+const updateChannel = async (
+	channelId: string,
+	channel: Partial<CreateChannelRequest>
+) => {
+	const response = await apiClient.patch(
+		API_ROUTES.UPDATE_CHANNEL(channelId),
+		channel
+	);
+	return response.data;
+};
+
+const leaveChannel = async (channelId: string): Promise<Channel> => {
+	const response = await apiClient.post(API_ROUTES.LEAVE_CHANNEL(channelId));
+	return response.data;
+};
+
+const deleteChannel = async (channelId: string) => {
+	const response = await apiClient.delete(
+		API_ROUTES.DELETE_CHANNEL(channelId)
+	);
+	return response.data;
+};
+
+export {
+	fetchChannels,
+	fetchChannelMessages,
+	joinChannel,
+	createChannel,
+	updateChannel,
+	leaveChannel,
+	deleteChannel,
+};
