@@ -5,7 +5,7 @@ import { Loader } from "../../../../../Loader/Loader";
 
 interface TwoFaQrCodeProps {}
 
-const TwoFaQrCode: React.FC<TwoFaQrCodeProps> = ({}) => {
+const TwoFaQrCode: React.FC<TwoFaQrCodeProps> = () => {
 	const { data, mutate, status, error } = useGenerateTwoFa();
 
 	useEffect(() => {

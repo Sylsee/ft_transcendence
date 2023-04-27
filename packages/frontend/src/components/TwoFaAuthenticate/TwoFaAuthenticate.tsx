@@ -6,7 +6,7 @@ import { TwoFactorAuthenticationModal } from "../Profile/ProfileCard/Profile2faA
 
 interface TwoFaAuthenticateProps {}
 
-const TwoFaAuthenticate: React.FC<TwoFaAuthenticateProps> = ({}) => {
+const TwoFaAuthenticate: React.FC<TwoFaAuthenticateProps> = () => {
 	// redux
 	const dispatch = useDispatch();
 
