@@ -18,7 +18,7 @@ export enum UserStatus {
 export interface User {
 	id: string;
 	name: string;
-	avatarUrl: string;
+	profilePictureUrl: string;
 	status?: UserStatus;
 	isTwoFactorAuthEnabled?: boolean;
 }
@@ -29,12 +29,12 @@ export interface User {
 // }
 
 export enum UserRelationship {
-	BLOCK_REQUEST_RECEIVED,
-	BLOCK_REQUEST_SENT,
-	NOT_FRIENDS,
-	FRIEND_REQUEST_RECEIVED,
-	FRIEND_REQUEST_SENT,
-	FRIENDS,
+	BlockRequestReceived,
+	BlockRequestSent,
+	NotFriends,
+	FriendRequestReceived,
+	FriendRequestSent,
+	Friends,
 }
 
 export interface SelfUserState {
@@ -47,7 +47,9 @@ export interface getUserPayload {
 
 // API Routes
 export interface UpdateUserRequest {
-	name?: string;
-	twoFactorAuth?: boolean;
-	avatar?: File;
+	name: string;
+}
+
+export interface UploadProfilePictureRequest {
+	profilePicture: File;
 }

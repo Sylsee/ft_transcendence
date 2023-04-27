@@ -1,4 +1,4 @@
-import { ChannelType } from "./chat";
+import { ChannelPermissions, ChannelType } from "./chat";
 
 export interface SocketState {}
 
@@ -6,11 +6,11 @@ export interface ChannelPayload {
 	id: string;
 	name: string;
 	type: ChannelType;
-	isJoined?: boolean;
+	permissions: ChannelPermissions;
 }
 
 export interface ChannelIdPayload {
-	id: string;
+	channelId: string;
 }
 
 export interface MessagePayload {

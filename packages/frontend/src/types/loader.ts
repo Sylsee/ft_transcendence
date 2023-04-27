@@ -1,6 +1,6 @@
 enum LoaderType {
-	TAILSPIN = "TAILSPIN",
-	LINEWAVE = "LINEWAVE",
+	TailSpine = "TAILSPIN",
+	LineWave = "LINEWAVE",
 }
 
 export { LoaderType };

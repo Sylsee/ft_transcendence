@@ -1,8 +1,10 @@
+import { User } from "./user";
+
 export enum ChannelType {
-	public = "public",
-	private = "private",
-	password_protected = "password-protected",
-	direct_message = "direct-message",
+	Public = "public",
+	Private = "private",
+	Password_protected = "password-protected",
+	Direct_message = "direct-message",
 }
 
 export interface ChannelPermissions {
@@ -17,21 +19,30 @@ export interface Channel {
 	permissions: ChannelPermissions;
 	type: ChannelType;
 	hasBeenFetched: boolean;
-	messages: Message[];
+	messages: ChatMessage[];
+	user?: User;
 }
 
 export interface ChatState {
 	channels: Channel[];
 	activeChannelId: string | null;
+	selectedChannelId: string | null;
+	showModal: boolean;
 }
 
 export interface MessageSender {
 	id: string;
 	name: string;
-	avatarUrl: string;
+	profilePictureUrl: string;
+}
+
+export enum MessageType {
+	Normal,
+	Special,
 }
 
 export interface Message {
+	type: MessageType.Normal;
 	id: string;
 	channelId: string;
 	content: string;
@@ -39,8 +50,46 @@ export interface Message {
 	timestamp: Date;
 }
 
+export interface ServerMessage {
+	type: MessageType.Special;
+	channelId: string;
+	content: string;
+}
+
+export type ChatMessage = Message | ServerMessage;
+
+export enum ChatModalType {
+	Join,
+	Create,
+	Update,
+}
+
 // API
 
-export interface JoinChannelRequest {
+export interface CreateChannelRequest {
+	name?: string;
+	type: ChannelType;
 	password?: string;
+	otherUserId?: string;
+}
+
+export interface JoinChannelData {
+	password?: string;
+}
+
+export interface JoinChannelRequest {
+	id: string;
+	data: JoinChannelData;
+}
+
+export enum ChannelModalType {
+	None,
+	Create,
+	Join,
+	Update,
+}
+
+export interface SetMessagesPayload {
+	channelId: string;
+	messages: Message[];
 }
