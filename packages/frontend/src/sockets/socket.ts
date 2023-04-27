@@ -1,14 +1,11 @@
 import { io, Socket } from "socket.io-client";
-import { SOCKET_BASE_URL } from "../config";
 
 let socket: Socket | undefined;
 
-export const connectSocket = (token: string): Socket => {
+export const connectSocket = (): Socket => {
 	if (!socket) {
-		socket = io(SOCKET_BASE_URL, {
-			extraHeaders: {
-				Authorization: `Bearer ${token}`,
-			},
+		socket = io("http://localhost:3000/chat", {
+			withCredentials: true,
 		});
 	}
 	return socket;
