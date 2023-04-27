@@ -14,9 +14,14 @@ const API_ROUTES = {
 	USER_FRIENDS: (id: string) => `/users/friends/${id}`,
 	USER_FRIENDS_REQUESTS: (id: string) => `/users/friend-request/${id}`,
 	USER_FRIEND_STATUS: (id: string) => `/users/friend-status/${id}`,
+	USER_PROFILE_PICTURE: `/users/profile-picture`,
 	CHANNELS: "/channels/available",
 	CHANNEL_MESSAGES: (id: string) => `/channels/${id}/messages`,
 	JOIN_CHANNEL: (id: string) => `/channels/${id}/join`,
+	LEAVE_CHANNEL: (id: string) => `/channels/${id}/leave`,
+	CREATE_CHANNEL: "/channels/create",
+	UPDATE_CHANNEL: (id: string) => `/channels/update/${id}`,
+	DELETE_CHANNEL: (id: string) => `/channels/delete/${id}`,
 };
 
 const ERROR_MESSAGES = {
@@ -25,12 +30,14 @@ const ERROR_MESSAGES = {
 };
 
 enum ChatEvent {
-	MESSAGE = "message",
-	CHANNEL_MESSAGE = "channel:message",
-	NOTIFICATION = "notification",
-	NOTIFICATION_INVITE = "notification:invite",
-	CHANNEL_VISIBLE = "channel:visible",
-	CHANNEL_INVISIBLE = "channel:invisible",
+	Message = "message",
+	ChannelMessage = "channel:message",
+	ChannelServerMessage = "channel:server_message",
+	Notification = "notification",
+	NotificationInvite = "notification:invite",
+	ChannelAvailable = "channel:available",
+	ChannelUnavailability = "channel:unavailable",
+	Exception = "exception",
 }
 
 const JWT_NAME = "access_token";

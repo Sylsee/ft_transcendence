@@ -8,12 +8,12 @@ interface LoaderProps {
 
 const Loader: React.FC<LoaderProps> = ({
 	color = "white",
-	type = LoaderType.TAILSPIN,
+	type = LoaderType.TailSpine,
 }) => {
 	return (
 		<div className="h-full flex flex-col  items-center justify-center">
 			<div className="flex justify-center items-center">
-				{type === LoaderType.TAILSPIN ? (
+				{type === LoaderType.TailSpine ? (
 					<TailSpin
 						height="80"
 						width="80"
