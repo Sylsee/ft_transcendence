@@ -88,7 +88,7 @@ export default class OpCommand implements Command {
         socketID,
       );
       this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-        message: `You have been opped in ${channel.name}`,
+        content: `You have been opped in ${channel.name}`,
       });
     }
 
@@ -98,7 +98,7 @@ export default class OpCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${opUser.name} has been opped`,
+        content: `${opUser.name} has been opped`,
       },
     );
   }

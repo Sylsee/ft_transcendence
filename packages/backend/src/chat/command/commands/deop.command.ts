@@ -88,7 +88,7 @@ export default class DeOpCommand implements Command {
         socketID,
       );
       this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-        message: `You have been deopped from ${channel.name}`,
+        content: `You have been deopped from ${channel.name}`,
       });
     }
 
@@ -98,7 +98,7 @@ export default class DeOpCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${deOpUser.name} has been deopped`,
+        content: `${deOpUser.name} has been deopped`,
       },
     );
   }

@@ -95,7 +95,7 @@ export default class UnInviteCommand implements Command {
         );
       }
       this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-        message: `You are uninvited to join ${channel.name}`,
+        content: `You are uninvited to join ${channel.name}`,
       });
     }
 
@@ -105,7 +105,7 @@ export default class UnInviteCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${uninvitedUser.name} has been uninvited to join ${channel.name}`,
+        content: `${uninvitedUser.name} has been uninvited to join ${channel.name}`,
       },
     );
   }

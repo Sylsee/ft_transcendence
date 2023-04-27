@@ -106,12 +106,8 @@ export default class InviteCommand implements Command {
         socketID,
         ChatEvent.NOTIFICATION_INVITE,
         {
-          sender: sender.name,
-          channelId: {
-            id: channel.id,
-            name: channel.name,
-          },
-          message: `${sender.name} invited you to ${channel.name}`,
+          channelId: channel.id,
+          content: `${sender.name} invited you to ${channel.name}`,
         },
       );
     }
@@ -122,7 +118,7 @@ export default class InviteCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `Invited ${invitedUser.name} to ${channel.name}`,
+        content: `Invited ${invitedUser.name} to ${channel.name}`,
       },
     );
   }

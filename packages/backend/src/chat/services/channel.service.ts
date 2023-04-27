@@ -255,7 +255,7 @@ export class ChannelService {
     await this.channelRepository.save(channel);
 
     this.chatGateway.sendEvent(user, ChatEvent.NOTIFICATION, {
-      message: `You joined the channel ${channel.name}`,
+      content: `You joined the channel ${channel.name}`,
     });
 
     this.chatGateway.sendEvent(
@@ -263,7 +263,7 @@ export class ChannelService {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${user.name} joined the channel`,
+        content: `${user.name} joined the channel`,
       },
     );
 
@@ -284,7 +284,7 @@ export class ChannelService {
     }
 
     this.chatGateway.sendEvent(user.id, ChatEvent.NOTIFICATION, {
-      message: `You left the channel ${channel.name}`,
+      content: `You left the channel ${channel.name}`,
     });
 
     // Delete channel if no users left
@@ -316,7 +316,7 @@ export class ChannelService {
         ChatEvent.CHANNEL_SERVER_MESSAGE,
         {
           channelId: channel.id,
-          message: `${user.name} left the channel`,
+          content: `${user.name} left the channel`,
         },
       );
 
