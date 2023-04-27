@@ -25,6 +25,7 @@ export class ChannelRepository {
     admins: UserEntity[],
     users: UserEntity[],
     type?: ChannelType,
+    password?: string,
   ): Promise<ChannelEntity> {
     const newChannel = new ChannelEntity();
     newChannel.name = name;
@@ -32,6 +33,7 @@ export class ChannelRepository {
     newChannel.admins = admins;
     newChannel.users = users;
     newChannel.type = type;
+    newChannel.password = password;
 
     return this.channelRepository.save(newChannel);
   }

@@ -122,6 +122,10 @@ export class ChannelService {
       users.push(dmUser);
     }
 
+    const hashedPassword = createChannelDto.password
+      ? await this.hashPassword(createChannelDto.password)
+      : null;
+
     const type = createChannelDto.type || ChannelType.PRIVATE;
 
     const createdChannel = await this.channelRepository.create(
@@ -130,11 +134,18 @@ export class ChannelService {
       admins,
       users,
       type,
+      hashedPassword,
     );
 
     await this.chatGateway.sendChannelAvailablity(createdChannel, false);
 
     return ChannelDto.transform(createdChannel, user.id);
+  }
+
+  // TODO: put this in a util file
+  private async hashPassword(password: string): Promise<string> {
+    const salt = await bcrypt.genSalt();
+    return await bcrypt.hash(password, salt);
   }
 
   async save(channel: ChannelEntity): Promise<ChannelEntity> {
@@ -171,8 +182,7 @@ export class ChannelService {
     channel.type = updateChannelDto.type ?? channel.type;
 
     if (updateChannelDto.password) {
-      const salt = await bcrypt.genSalt();
-      channel.password = await bcrypt.hash(updateChannelDto.password, salt);
+      channel.password = await this.hashPassword(updateChannelDto.password);
     }
 
     await this.channelRepository.save(channel);
@@ -188,6 +198,10 @@ export class ChannelService {
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
+    }
+
+    if (channel.type === ChannelType.DIRECT_MESSAGE) {
+      throw new ForbiddenException('Cannot delete a Direct Message channel');
     }
 
     if (channel.owner && channel.owner.id !== userId) {
@@ -222,6 +236,10 @@ export class ChannelService {
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
+    }
+
+    if (channel.type === ChannelType.DIRECT_MESSAGE) {
+      throw new ForbiddenException('Cannot join a Direct Message channel');
     }
 
     if (this.userIdInList(channel.users, user.id)) {
@@ -277,6 +295,10 @@ export class ChannelService {
     );
     if (!channel) {
       throw new NotFoundException('Channel not found');
+    }
+
+    if (channel.type == ChannelType.DIRECT_MESSAGE) {
+      throw new ForbiddenException('Cannot leave a Direct Message channel');
     }
 
     if (!this.userIdInList(channel.users, user.id)) {

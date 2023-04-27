@@ -7,6 +7,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsOptional,
+  IsString,
   IsUUID,
   Length,
   ValidateIf,
@@ -35,10 +36,21 @@ export class CreateChannelDto {
     example: ChannelType.DIRECT_MESSAGE,
     enum: ChannelType,
     required: false,
+    default: ChannelType.PRIVATE,
   })
   @IsOptional()
   @IsEnum(ChannelType)
   type?: ChannelType;
+
+  @ApiProperty({
+    description: 'The channel password',
+    required: false,
+  })
+  @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED && !o.password)
+  @IsNotEmpty()
+  @Length(5, 40)
+  @IsString()
+  password?: string;
 
   @ApiProperty({
     description: 'The other user id if the channel is a direct message',
