@@ -1,14 +1,12 @@
 // NestJS imports
 import { Injectable } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
-import { ChatService } from 'src/chat/services/chat.service';
+import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { ChannelService } from '../../services/channel.service';
@@ -19,11 +17,10 @@ export default class BanCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -32,7 +29,7 @@ export default class BanCommand implements Command {
       throw new Error('You cannot ban users from a direct message channel');
     }
 
-    if (!this.channelService.userIdInList(channel.admins, sender.id)) {
+    if (!userIdInList(channel.admins, sender.id)) {
       throw new Error('Not an admin of this channel');
     }
 
@@ -47,7 +44,7 @@ export default class BanCommand implements Command {
       usernames.map(async (username) => {
         const user = await this.userService.findOneByName(username);
         if (user) {
-          const error = await this.banUser(server, sender, channel, user);
+          const error = await this.banUser(sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -63,7 +60,6 @@ export default class BanCommand implements Command {
   }
 
   private async banUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     banUser: UserEntity,
@@ -76,42 +72,32 @@ export default class BanCommand implements Command {
       return 'You cannot ban yourself';
     }
 
-    if (this.channelService.userIdInList(channel.banUsers, banUser.id)) {
+    if (userIdInList(channel.banUsers, banUser.id)) {
       return `User ${banUser.name} is already banned`;
     }
 
     // Update channel data
     channel.banUsers.push(banUser);
 
-    this.channelService.removeUserFromList(channel.users, banUser.id);
-    this.channelService.removeUserFromList(channel.invitedUsers, banUser.id);
+    removeUserFromList(channel.users, banUser.id);
+    removeUserFromList(channel.invitedUsers, banUser.id);
 
     await this.channelService.save(channel);
 
     // Send events to the banned user
     const socketID = await this.userService.getSocketID(banUser.id);
     if (socketID) {
-      this.chatService.sendEvent(
-        server,
-        socketID,
-        ChatEvent.CHANNEL_UNAVAILABLE,
-        {
-          channelId: channel.id,
-        },
-      );
-      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.CHANNEL_UNAVAILABLE, {
+        channelId: channel.id,
+      });
+      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
         content: `You have been banned from ${channel.name}`,
       });
     }
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `User ${banUser.name} has been banned`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `User ${banUser.name} has been banned`,
+    });
   }
 }

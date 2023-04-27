@@ -3,8 +3,8 @@ import { Provider } from '@nestjs/common';
 
 // Local imports
 import { UserService } from 'src/user/user.service';
+import { ChatGateway } from '../chat.gateway';
 import { ChannelService } from '../services/channel.service';
-import { ChatService } from '../services/chat.service';
 import { MuteUserService } from '../services/mute-user.service';
 import { Command } from './command.interface';
 import BanCommand from './commands/ban.command';
@@ -21,7 +21,7 @@ const commandMapFactory = (
   channelService: ChannelService,
   userService: UserService,
   muteUserService: MuteUserService,
-  chatService: ChatService,
+  chatGateway: ChatGateway,
   kickCommand: KickCommand,
   inviteCommand: InviteCommand,
   unInviteCommand: UnInviteCommand,
@@ -55,7 +55,7 @@ export const CommandMapProvider: Provider = {
     ChannelService,
     UserService,
     MuteUserService,
-    ChatService,
+    ChatGateway,
     /* Commands */
     KickCommand,
     InviteCommand,

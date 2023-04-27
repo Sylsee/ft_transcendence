@@ -1,16 +1,14 @@
 // NestJS imports
 import { Injectable, Logger } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
-import { ChatService } from 'src/chat/services/chat.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
+import { userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Command } from '../command.interface';
 
@@ -21,11 +19,10 @@ export default class UnMuteCommand implements Command {
   constructor(
     private channelService: ChannelService,
     private muteUserService: MuteUserService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -34,7 +31,7 @@ export default class UnMuteCommand implements Command {
       throw new Error('You cannot unmute users from a direct message channel');
     }
 
-    if (!this.channelService.userIdInList(channel.admins, sender.id)) {
+    if (!userIdInList(channel.admins, sender.id)) {
       throw new Error('Not an admin of this channel');
     }
 
@@ -52,7 +49,7 @@ export default class UnMuteCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.unMuteUser(server, sender, channel, user);
+          const error = await this.unMuteUser(sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -68,7 +65,6 @@ export default class UnMuteCommand implements Command {
   }
 
   private async unMuteUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     unMuteUser: UserEntity,
@@ -87,24 +83,14 @@ export default class UnMuteCommand implements Command {
 
     await this.muteUserService.delete(user);
 
-    this.chatService.sendEvent(
-      server,
-      unMuteUser,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `You have been unmuted from ${channel.name}`,
-      },
-    );
+    this.chatGateway.sendEvent(unMuteUser, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `You have been unmuted from ${channel.name}`,
+    });
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `${unMuteUser.name} has been unmuted`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `${unMuteUser.name} has been unmuted`,
+    });
   }
 }

@@ -9,7 +9,6 @@ import { Repository } from 'typeorm';
 import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
-import { UserStatus } from './enum/user-status.enum';
 
 @Injectable()
 export class UserRepository {
@@ -29,6 +28,10 @@ export class UserRepository {
     newUser.profilePictureUrl = createUserDto.profilePictureUrl;
 
     return this.userRepository.save(newUser);
+  }
+
+  async update(userId: string, content: object): Promise<void> {
+    this.userRepository.update({ id: userId }, content);
   }
 
   async save(user: UserEntity): Promise<UserEntity> {
@@ -79,9 +82,5 @@ export class UserRepository {
           err,
         );
       });
-  }
-
-  async setUserStatus(userId: string, status: UserStatus): Promise<void> {
-    this.userRepository.update({ id: userId }, { status: status });
   }
 }

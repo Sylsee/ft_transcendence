@@ -1,13 +1,12 @@
 // NestJS imports
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
 import { WsException } from '@nestjs/websockets';
+import { formatTime } from 'src/shared/time';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
+import { ChatGateway } from '../chat.gateway';
 import { Command } from '../command/command.interface';
 import { ChannelDto } from '../dto/channel/channel.dto';
 import { CommandArgsDto } from '../dto/command/command-args.dto';
@@ -26,22 +25,11 @@ export class ChatService {
     @Inject(forwardRef(() => 'COMMAND_MAP'))
     private readonly commandMap: Map<string, Command>,
     private muteUserService: MuteUserService,
+    @Inject(forwardRef(() => ChatGateway))
+    private chatGateway: ChatGateway,
   ) {}
 
-  parseCommand(content: string): CommandArgsDto | null {
-    const commandRegex = /^\/(\w*)\s*(.*)/;
-    const commandMatch = content.match(commandRegex);
-
-    if (commandMatch) {
-      const commandName = commandMatch[1];
-      const arg = commandMatch[2]?.trim() || '';
-      return { commandName, arg };
-    }
-    return null;
-  }
-
   async executeCommand(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     args: CommandArgsDto,
@@ -50,7 +38,7 @@ export class ChatService {
 
     if (command) {
       try {
-        await command.execute(server, sender, channel, args.arg);
+        await command.execute(sender, channel, args.arg);
       } catch (error) {
         error.message.split('\n').forEach((line) => this.logger.warn(line));
         throw new WsException(error.message);
@@ -61,7 +49,6 @@ export class ChatService {
   }
 
   async handleRegularMessage(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     content: string,
@@ -76,9 +63,9 @@ export class ChatService {
       if (leftTime <= 0) {
         await this.muteUserService.delete(userMute);
       } else {
-        this.sendEvent(server, sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+        this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
           channelId: channel.id,
-          content: `You are muted for ${this.formatTime(leftTime)}`,
+          content: `You are muted for ${formatTime(leftTime)}`,
         });
         return;
       }
@@ -89,7 +76,6 @@ export class ChatService {
 
     try {
       await this.handleNewMessage(
-        server,
         sender,
         channel,
         content,
@@ -101,56 +87,54 @@ export class ChatService {
   }
 
   async handleNewMessage(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     content: string,
     receivers: UserEntity[],
   ): Promise<void> {
     // Create the message
-    const message = await this.messageService.getFormattedMessage(
+    const message = await this.messageService.getMessageDto(
       sender,
       channel,
       content,
     );
 
     // Send the message to the channel
-    await this.sendEvent(server, receivers, ChatEvent.CHANNEL_MESSAGE, message);
+    await this.chatGateway.sendEvent(
+      receivers,
+      ChatEvent.CHANNEL_MESSAGE,
+      message,
+    );
   }
 
-  async handleDirectMessageChannel(
-    server: Server,
-    channel: ChannelEntity,
-  ): Promise<void> {
+  async handleDirectMessageChannel(channel: ChannelEntity): Promise<void> {
     Promise.all(
       channel.users.map((user) => {
-        this.sendChannelAvailableEvent(server, channel, user.id, user);
+        this.chatGateway.sendChannelAvailableEvent(channel, user.id, user);
       }),
     );
   }
 
   async handlePublicOrPasswordProtectedChannel(
-    server: Server,
     channel: ChannelEntity,
   ): Promise<void> {
     const socketMap = this.userService.getSocketMap();
 
     const eventPromises = Array.from(socketMap.entries()).map(([key, value]) =>
-      this.sendChannelAvailableEvent(server, channel, value, key),
+      this.chatGateway.sendChannelAvailableEvent(channel, value, key),
     );
 
     await Promise.all(eventPromises);
   }
 
   async handlePrivateChannel(
-    server: Server,
     channel: ChannelEntity,
     wasPrivate: boolean,
   ): Promise<void> {
     const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
 
     const eventPromises = users.map((user) => {
-      this.sendChannelAvailableEvent(server, channel, user.id, user);
+      this.chatGateway.sendChannelAvailableEvent(channel, user.id, user);
     });
 
     await Promise.all(eventPromises);
@@ -165,8 +149,7 @@ export class ChatService {
         }
       });
 
-      this.sendEvent(
-        server,
+      this.chatGateway.sendEvent(
         unavailableSocketsIds,
         ChatEvent.CHANNEL_UNAVAILABLE,
         {
@@ -176,48 +159,7 @@ export class ChatService {
     }
   }
 
-  async sendEvent(
-    server: Server,
-    user: string | UserEntity | Array<string | UserEntity>,
-    event: ChatEvent,
-    data: object | string,
-  ): Promise<void> {
-    const socketIds: string[] = [];
-
-    const getSocketId = async (
-      user: string | UserEntity,
-    ): Promise<string | null> => {
-      if (typeof user === 'string') {
-        return user;
-      } else {
-        return await this.userService.getSocketID(user.id);
-      }
-    };
-
-    if (Array.isArray(user)) {
-      const promises = user.map(getSocketId);
-      const ids = await Promise.all(promises);
-      for (const id of ids) {
-        if (id) {
-          socketIds.push(id);
-        }
-      }
-    } else {
-      const socketId = await getSocketId(user);
-      if (socketId) {
-        socketIds.push(socketId);
-      }
-    }
-
-    Promise.all(
-      socketIds.map((socketId) => {
-        server.to(socketId).emit(event, data);
-      }),
-    );
-  }
-
   async sendChannelAvailableEvent(
-    server: Server,
     channel: ChannelEntity,
     userId: string,
     socket: string | UserEntity,
@@ -229,28 +171,24 @@ export class ChatService {
         return;
       }
 
-      this.sendEvent(server, socket, ChatEvent.CHANNEL_AVAILABLE, channelDto);
+      this.chatGateway.sendEvent(
+        socket,
+        ChatEvent.CHANNEL_AVAILABLE,
+        channelDto,
+      );
       resolve();
     });
   }
 
-  private formatTime(timeInMilliseconds: number): string {
-    const seconds = Math.floor((timeInMilliseconds / 1000) % 60);
-    const minutes = Math.floor((timeInMilliseconds / (1000 * 60)) % 60);
-    const hours = Math.floor((timeInMilliseconds / (1000 * 60 * 60)) % 24);
+  parseCommand(content: string): CommandArgsDto | null {
+    const commandRegex = /^\/(\w*)\s*(.*)/;
+    const commandMatch = content.match(commandRegex);
 
-    let formattedTime = '';
-
-    if (hours > 0) {
-      formattedTime += `${hours} hours, `;
+    if (commandMatch) {
+      const commandName = commandMatch[1];
+      const arg = commandMatch[2]?.trim() || '';
+      return { commandName, arg };
     }
-
-    if (hours > 0 || minutes > 0) {
-      formattedTime += `${minutes} minutes and `;
-    }
-
-    formattedTime += `${seconds} seconds`;
-
-    return formattedTime.trim();
+    return null;
   }
 }

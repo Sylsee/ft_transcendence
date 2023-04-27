@@ -21,6 +21,8 @@ import { Server, Socket } from 'socket.io';
 
 // Local imports
 import { AuthService } from 'src/auth/auth.service';
+import { userIdInList } from 'src/shared/list';
+import { sendEvent } from 'src/shared/websocket';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
 import { UserService } from 'src/user/user.service';
@@ -79,10 +81,10 @@ export class ChatGateway
 
     try {
       const user = await this.authService.verify(token);
-      client.data = { userId: user.id };
+      client.data.id = user.id;
 
       this.userService.setSocketUser(client.id, user.id);
-      this.userService.setUserStatus(user.id, UserStatus.active);
+      this.userService.update(user.id, { status: UserStatus.active });
 
       this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
     } catch (error) {
@@ -102,8 +104,8 @@ export class ChatGateway
     try {
       this.userService.removeSocketUser(client.id);
 
-      const { userId } = client.data;
-      this.userService.setUserStatus(userId, UserStatus.inactive);
+      const userId = client.data.id;
+      this.userService.update(userId, { status: UserStatus.inactive });
 
       this.logger.verbose(
         `User ${userId} disconnected with socket ${client.id}`,
@@ -138,10 +140,7 @@ export class ChatGateway
       throw new WsException('Channel not found');
     }
 
-    const isSenderInChannel = this.channelService.userIdInList(
-      channel.users,
-      sender.id,
-    );
+    const isSenderInChannel = userIdInList(channel.users, sender.id);
     if (!isSenderInChannel) {
       throw new WsException('Sender not in channel');
     }
@@ -149,15 +148,9 @@ export class ChatGateway
     const commandArgs = this.chatService.parseCommand(messageDto.content);
 
     if (commandArgs) {
-      await this.chatService.executeCommand(
-        this.server,
-        sender,
-        channel,
-        commandArgs,
-      );
+      await this.chatService.executeCommand(sender, channel, commandArgs);
     } else {
       await this.chatService.handleRegularMessage(
-        this.server,
         sender,
         channel,
         messageDto.content,
@@ -175,22 +168,18 @@ export class ChatGateway
   ): Promise<void> {
     switch (channel.type) {
       case ChannelType.DIRECT_MESSAGE:
-        await this.chatService.handleDirectMessageChannel(this.server, channel);
+        await this.chatService.handleDirectMessageChannel(channel);
         break;
       case ChannelType.PUBLIC:
       case ChannelType.PASSWORD_PROTECTED:
-        await this.chatService.handlePublicOrPasswordProtectedChannel(
-          this.server,
-          channel,
-        );
+        await this.chatService.handlePublicOrPasswordProtectedChannel(channel);
         break;
       case ChannelType.PRIVATE:
-        await this.chatService.handlePrivateChannel(
-          this.server,
-          channel,
-          wasPrivate,
-        );
+        await this.chatService.handlePrivateChannel(channel, wasPrivate);
         break;
+      default:
+        this.logger.warn(`Unknown channel type: ${channel.type}`);
+        throw new WsException('Unknown channel type');
     }
   }
 
@@ -210,12 +199,9 @@ export class ChatGateway
         }
       });
 
-      this.chatService.sendEvent(
-        this.server,
-        socketsIds,
-        ChatEvent.CHANNEL_UNAVAILABLE,
-        { channelId: channel.id },
-      );
+      this.sendEvent(socketsIds, ChatEvent.CHANNEL_UNAVAILABLE, {
+        channelId: channel.id,
+      });
     }
 
     // Private channels are available only for users who are in the channel or invited
@@ -224,12 +210,9 @@ export class ChatGateway
       channel.type === ChannelType.DIRECT_MESSAGE
     ) {
       const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
-      this.chatService.sendEvent(
-        this.server,
-        users,
-        ChatEvent.CHANNEL_UNAVAILABLE,
-        { channelId: channel.id },
-      );
+      this.sendEvent(users, ChatEvent.CHANNEL_UNAVAILABLE, {
+        channelId: channel.id,
+      });
     }
   }
 
@@ -238,7 +221,7 @@ export class ChatGateway
     event: ChatEvent,
     data: object | string,
   ): Promise<void> {
-    return this.chatService.sendEvent(this.server, user, event, data);
+    return sendEvent(this.server, user, event, data, this.userService);
   }
 
   async sendChannelAvailableEvent(
@@ -246,11 +229,6 @@ export class ChatGateway
     userId: string,
     socket: string | UserEntity,
   ): Promise<void> {
-    this.chatService.sendChannelAvailableEvent(
-      this.server,
-      channel,
-      userId,
-      socket,
-    );
+    this.chatService.sendChannelAvailableEvent(channel, userId, socket);
   }
 }

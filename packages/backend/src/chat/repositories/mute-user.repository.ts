@@ -36,12 +36,6 @@ export class MuteUserRepository {
     this.muteUserRepository.remove(user);
   }
 
-  async findOneById(id: string): Promise<MuteUserEntity | void> {
-    return this.muteUserRepository.findOneBy({ id: id }).catch((error) => {
-      this.logger.error(error);
-    });
-  }
-
   async findOneByUserIdAndChannelId(
     userId: string,
     channelId: string,
