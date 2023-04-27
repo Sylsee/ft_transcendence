@@ -78,7 +78,7 @@ export class ChatService {
       } else {
         this.sendEvent(server, sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
           channelId: channel.id,
-          message: `You are muted for ${this.formatTime(leftTime)}`,
+          content: `You are muted for ${this.formatTime(leftTime)}`,
         });
         return;
       }

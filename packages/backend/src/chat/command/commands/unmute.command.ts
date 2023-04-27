@@ -93,7 +93,7 @@ export default class UnMuteCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `You have been unmuted from ${channel.name}`,
+        content: `You have been unmuted from ${channel.name}`,
       },
     );
 
@@ -103,7 +103,7 @@ export default class UnMuteCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${unMuteUser.name} has been unmuted`,
+        content: `${unMuteUser.name} has been unmuted`,
       },
     );
   }

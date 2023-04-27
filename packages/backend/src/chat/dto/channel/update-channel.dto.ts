@@ -38,7 +38,6 @@ export class UpdateChannelDto {
 
   @ApiProperty({
     description: 'The password of the channel',
-    example: 'password',
     required: false,
   })
   @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED && !o.password)

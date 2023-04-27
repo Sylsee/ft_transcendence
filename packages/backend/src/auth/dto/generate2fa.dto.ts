@@ -21,4 +21,3 @@ export class GeneratedTwoFactorAuth {
   @IsString()
   manualEntryKey: string;
 }
-

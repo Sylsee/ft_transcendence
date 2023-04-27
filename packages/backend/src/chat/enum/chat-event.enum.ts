@@ -5,8 +5,8 @@ export enum ChatEvent {
   */
   CHANNEL_SERVER_MESSAGE = 'channel:server_message',
   /*
-    channelId
-    message
+    channelId: string
+    content: string
   */
   CHANNEL_MESSAGE = 'channel:message',
   /*
@@ -14,25 +14,19 @@ export enum ChatEvent {
   */
   NOTIFICATION = 'notification',
   /*
-    message
+    content: string
   */
   NOTIFICATION_INVITE = 'notification:invite',
   /*
-      {
-        sender: sender.name,
-        channelId: {
-          id: channel.id,
-          name: channel.name,
-        },
-        message: `${sender.name} invited you to ${channel.name}`,
-      },
+      channelId:  string,
+      content: `${sender.name} invited you to ${channel.name}`,
   */
   CHANNEL_AVAILABLE = 'channel:available',
   /*
-    channelDto
+    ChannelDto
   */
   CHANNEL_UNAVAILABLE = 'channel:unavailable',
   /*
-    channelId
+    channelId: string
   */
 }

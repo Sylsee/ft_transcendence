@@ -25,6 +25,7 @@ export class ChannelRepository {
     admins: UserEntity[],
     users: UserEntity[],
     type?: ChannelType,
+    password?: string,
   ): Promise<ChannelEntity> {
     const newChannel = new ChannelEntity();
     newChannel.name = name;
@@ -32,6 +33,7 @@ export class ChannelRepository {
     newChannel.admins = admins;
     newChannel.users = users;
     newChannel.type = type;
+    newChannel.password = password;
 
     return this.channelRepository.save(newChannel);
   }
@@ -100,31 +102,44 @@ export class ChannelRepository {
   }
 
   async findAvailableChannels(userId: string): Promise<ChannelEntity[] | void> {
-    return this.channelRepository
-      .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.users', 'user')
-      .leftJoinAndSelect('channel.admins', 'admin')
-      .leftJoinAndSelect('channel.invitedUsers', 'invitedUser')
-      .leftJoinAndSelect('channel.banUsers', 'banUser')
-      .leftJoinAndSelect('channel.owner', 'owner')
-      .where('channel.type NOT IN (:...channelTypes)', {
-        channelTypes: [ChannelType.PRIVATE, ChannelType.DIRECT_MESSAGE],
-      })
-      .andWhere('banUser.id IS NULL OR banUser.id != :userId', {
-        userId: userId,
-      })
-      .orWhere(
-        '(channel.type = :privateType AND (user.id = :userId OR invitedUser.id = :userId)) OR (channel.type = :dmType AND user.id = :userId)',
+    try {
+      // Query builder for selecting channels
+      const channelQueryBuilder = this.channelRepository
+        .createQueryBuilder('channel')
+        .leftJoinAndSelect('channel.users', 'user')
+        .leftJoinAndSelect('channel.admins', 'admin')
+        .leftJoinAndSelect('channel.invitedUsers', 'invitedUser')
+        .leftJoinAndSelect('channel.banUsers', 'banUser')
+        .leftJoinAndSelect('channel.owner', 'owner')
+        .where('channel.type NOT IN (:...channelTypes)', {
+          channelTypes: [ChannelType.PRIVATE, ChannelType.DIRECT_MESSAGE],
+        })
+        .andWhere('banUser.id IS NULL OR banUser.id != :userId', { userId });
+
+      // Query builder for selecting channels with direct messages
+      const dmChannelsQueryBuilder = this.channelRepository
+        .createQueryBuilder()
+        .select('channel_users."channelId"')
+        .from('channel_users', 'channel_users')
+        .where('channel_users."userId" = :userId', { userId });
+
+      // Add the private and direct message channels condition
+      channelQueryBuilder.orWhere(
+        '(channel.type = :privateType AND (user.id = :userId OR invitedUser.id = :userId)) OR (channel.type = :dmType AND channel.id IN (' +
+          dmChannelsQueryBuilder.getQuery() +
+          '))',
         {
           privateType: ChannelType.PRIVATE,
           dmType: ChannelType.DIRECT_MESSAGE,
-          userId: userId,
+          userId,
         },
-      )
-      .getMany()
-      .catch((error) => {
-        this.logger.error(error);
-      });
+      );
+
+      // Execute the final query
+      return await channelQueryBuilder.getMany();
+    } catch (error) {
+      this.logger.error(error);
+    }
   }
 
   async findOneByIdWithRelations(

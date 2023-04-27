@@ -87,7 +87,7 @@ export default class UnBanCommand implements Command {
         );
       }
       this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
-        message: `You have been unbanned from ${channel.name}`,
+        content: `You have been unbanned from ${channel.name}`,
       });
     }
 
@@ -97,7 +97,7 @@ export default class UnBanCommand implements Command {
       ChatEvent.CHANNEL_SERVER_MESSAGE,
       {
         channelId: channel.id,
-        message: `${unbanUser.name} has been unbanned`,
+        content: `${unbanUser.name} has been unbanned`,
       },
     );
   }
