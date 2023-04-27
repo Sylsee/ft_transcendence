@@ -9,6 +9,7 @@ import { authenticator } from 'otplib';
 import { toDataURL } from 'qrcode';
 
 // Local imports
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { GeneratedTwoFactorAuth } from './dto/generate2fa.dto';
@@ -25,7 +26,7 @@ export class AuthService {
     private jwt2faStrategy: Jwt2faStrategy,
   ) {}
 
-  async findOrCreateUser(profile: any): Promise<any | undefined> {
+  async findOrCreateUser(profile: CreateUserDto): Promise<any | undefined> {
     const user = await this.userService.findUserByProviderIDAndProvider(
       profile.providerId,
       profile.provider,

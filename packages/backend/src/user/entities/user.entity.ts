@@ -36,7 +36,7 @@ export class UserEntity {
   name: string;
 
   @Column()
-  avatarUrl: string;
+  profilePictureUrl: string;
 
   @Column({
     type: 'enum',

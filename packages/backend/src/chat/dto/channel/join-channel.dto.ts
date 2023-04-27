@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, Length } from 'class-validator';
 
 export class JoinChannelDto {
   @ApiProperty({
@@ -10,6 +10,7 @@ export class JoinChannelDto {
     required: false,
   })
   @IsOptional()
+  @Length(5, 40)
   @IsString()
   password?: string;
 }

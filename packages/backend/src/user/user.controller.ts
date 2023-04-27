@@ -11,9 +11,12 @@ import {
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiOkResponse,
@@ -27,9 +30,11 @@ import { Request } from 'express';
 
 // Local imports
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
+import { multerConfig } from 'src/config/multer.config';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserDto, UserRelationshipDto } from './dto/user.dto';
+import { UserDto } from './dto/user.dto';
+import { UserEntity } from './entities/user.entity';
 import { UserService } from './user.service';
 
 const ApiUserIdParam = ApiParam({
@@ -99,6 +104,29 @@ export class UserController {
     // Implement the method to update user
   }
 
+  @Post('profile-picture')
+  @UseGuards(Jwt2faAuthGuard)
+  @UseInterceptors(FileInterceptor('profile-picture', multerConfig))
+  @ApiOperation({
+    summary: 'Upload profile picture',
+    description: 'Upload a profile picture for the current user.',
+  })
+  @ApiOkResponse({ description: 'Profile picture uploaded', type: UserDto })
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  async uploadProfilePicture(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const user: UserEntity = req.user;
+    const profilePictureUrl = this.userService.getProfilePictureUrl(
+      file.filename,
+    );
+    if (user.profilePictureUrl !== profilePictureUrl) {
+      user.profilePictureUrl = profilePictureUrl;
+      this.userService.save(user);
+    }
+  }
+
   // ------------------------------------------------------------
   // -------------------- Friend Endpoints ----------------------
   // ------------------------------------------------------------
@@ -124,7 +152,6 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({
     description: 'User friend status found',
-    type: UserRelationshipDto,
   })
   async getUserFriendStatus(@Param('id') id: string) {
     // Implement the method to fetch user friend status
