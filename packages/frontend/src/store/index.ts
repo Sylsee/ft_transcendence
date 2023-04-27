@@ -4,14 +4,18 @@ import { socketMiddleware } from "../middlewares/socket/socketMiddleware";
 import { selfUserMiddleware } from "../middlewares/user/selfUserMiddleware";
 import { authSlice } from "./auth-slice/auth-slice";
 import { chatSlice } from "./chat-slice/chat-slice";
+import { customNotificationSlice } from "./customNotification-slice/customNotification-slice";
 import { selfUserSlice } from "./selfUser-slice/selfUser-slice";
 import { socketSlice } from "./socket-slice/socket-slice";
+import { tooltipSlice } from "./toolTip-slice/toolTip-slice";
 
 const rootReducer = {
 	AUTH: authSlice.reducer,
 	USER: selfUserSlice.reducer,
 	CHAT: chatSlice.reducer,
 	SOCKET: socketSlice.reducer,
+	CUSTOM_NOTIFICATION: customNotificationSlice.reducer,
+	TOOLTIP: tooltipSlice.reducer,
 };
 
 const store = configureStore({
