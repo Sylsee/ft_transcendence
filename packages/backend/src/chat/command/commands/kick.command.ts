@@ -1,15 +1,13 @@
 // NestJS imports
 import { Injectable } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
-import { ChatService } from 'src/chat/services/chat.service';
+import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -19,11 +17,10 @@ export default class KickCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -32,7 +29,7 @@ export default class KickCommand implements Command {
       throw new Error('You cannot kick users from a direct message channel');
     }
 
-    if (!this.channelService.userIdInList(channel.admins, sender.id)) {
+    if (!userIdInList(channel.admins, sender.id)) {
       throw new Error('Not an admin of this channel');
     }
 
@@ -50,7 +47,7 @@ export default class KickCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.kickUser(server, sender, channel, user);
+          const error = await this.kickUser(sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -66,7 +63,6 @@ export default class KickCommand implements Command {
   }
 
   private async kickUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     kickUser: UserEntity,
@@ -79,13 +75,13 @@ export default class KickCommand implements Command {
       return 'You cannot kick yourself';
     }
 
-    if (!this.channelService.userIdInList(channel.users, kickUser.id)) {
+    if (!userIdInList(channel.users, kickUser.id)) {
       return 'User is not in this channel';
     }
 
-    this.channelService.removeUserFromList(channel.users, kickUser.id);
-    this.channelService.removeUserFromList(channel.admins, kickUser.id);
-    this.channelService.removeUserFromList(channel.invitedUsers, kickUser.id);
+    removeUserFromList(channel.users, kickUser.id);
+    removeUserFromList(channel.admins, kickUser.id);
+    removeUserFromList(channel.invitedUsers, kickUser.id);
 
     await this.channelService.save(channel);
 
@@ -93,35 +89,24 @@ export default class KickCommand implements Command {
     const socketId = await this.userService.getSocketID(kickUser.id);
     if (socketId) {
       if (channel.type === ChannelType.PRIVATE) {
-        this.chatService.sendEvent(
-          server,
-          socketId,
-          ChatEvent.CHANNEL_UNAVAILABLE,
-          {
-            channelId: channel.id,
-          },
-        );
+        this.chatGateway.sendEvent(socketId, ChatEvent.CHANNEL_UNAVAILABLE, {
+          channelId: channel.id,
+        });
       } else {
-        this.chatService.sendChannelAvailableEvent(
-          server,
+        this.chatGateway.sendChannelAvailableEvent(
           channel,
           kickUser.id,
           socketId,
         );
       }
-      this.chatService.sendEvent(server, socketId, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketId, ChatEvent.NOTIFICATION, {
         content: `You have been kicked from ${channel.name}`,
       });
     }
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `You have kicked ${kickUser.name} from ${channel.name}`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `You have kicked ${kickUser.name} from ${channel.name}`,
+    });
   }
 }

@@ -13,6 +13,8 @@ import {
 import * as bcrypt from 'bcrypt';
 
 // Local imports
+import { removeUserFromList, userIdInList } from 'src/shared/list';
+import { hashPassword } from 'src/shared/password';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { ChatGateway } from '../chat.gateway';
@@ -36,8 +38,6 @@ export class ChannelService {
     private userService: UserService,
   ) {}
 
-  // ------------------------- Debug ----------------------------
-
   // TODO: Remove this method
   async findAllChannels(): Promise<ChannelEntity[] | void> {
     return this.channelRepository.findWithRelations([
@@ -49,42 +49,6 @@ export class ChannelService {
       'banUsers',
       'muteUsers',
     ]);
-  }
-
-  async findAvailableChannels(userID: string): Promise<ChannelDto[]> {
-    const channels = await this.channelRepository.findAvailableChannels(userID);
-    if (!channels) {
-      return [];
-    }
-
-    return Promise.all(
-      channels.map((channel) => {
-        return ChannelDto.transform(channel, userID);
-      }),
-    );
-  }
-
-  async findMessagesInChannel(
-    userId: string,
-    channelId: string,
-  ): Promise<MessageDto[]> {
-    const channel = await this.channelRepository.findOneByIdWithRelations(
-      channelId,
-      ['users', 'messages', 'messages.sender', 'messages.channel'],
-    );
-    if (!channel) {
-      throw new NotFoundException('Channel not found');
-    }
-
-    if (!this.userIdInList(channel.users, userId)) {
-      throw new ForbiddenException('User is not in channel');
-    }
-
-    return await Promise.all(
-      channel.messages?.map((message) => {
-        return MessageDto.transform(message);
-      }),
-    );
   }
 
   // -------------------- Database Management -------------------
@@ -123,7 +87,7 @@ export class ChannelService {
     }
 
     const hashedPassword = createChannelDto.password
-      ? await this.hashPassword(createChannelDto.password)
+      ? await hashPassword(createChannelDto.password)
       : null;
 
     const type = createChannelDto.type || ChannelType.PRIVATE;
@@ -137,15 +101,9 @@ export class ChannelService {
       hashedPassword,
     );
 
-    await this.chatGateway.sendChannelAvailablity(createdChannel, false);
+    await this.chatGateway.sendChannelAvailablity(createdChannel, true);
 
     return ChannelDto.transform(createdChannel, user.id);
-  }
-
-  // TODO: put this in a util file
-  private async hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt();
-    return await bcrypt.hash(password, salt);
   }
 
   async save(channel: ChannelEntity): Promise<ChannelEntity> {
@@ -172,7 +130,7 @@ export class ChannelService {
     if (channel.type === ChannelType.DIRECT_MESSAGE) {
       throw new ForbiddenException('Cannot update a Direct Message channel');
     }
-    if (!this.userIdInList(channel.admins, userId)) {
+    if (!userIdInList(channel.admins, userId)) {
       throw new ForbiddenException('Not an admin of this channel');
     }
 
@@ -182,7 +140,7 @@ export class ChannelService {
     channel.type = updateChannelDto.type ?? channel.type;
 
     if (updateChannelDto.password) {
-      channel.password = await this.hashPassword(updateChannelDto.password);
+      channel.password = await hashPassword(updateChannelDto.password);
     }
 
     await this.channelRepository.save(channel);
@@ -207,7 +165,7 @@ export class ChannelService {
     if (channel.owner && channel.owner.id !== userId) {
       throw new ForbiddenException('Not the owner of this channel');
     }
-    if (!channel.owner && !this.userIdInList(channel.admins, userId)) {
+    if (!channel.owner && !userIdInList(channel.admins, userId)) {
       throw new ForbiddenException('Not an admin of this channel');
     }
 
@@ -221,6 +179,49 @@ export class ChannelService {
     username: string,
   ): Promise<UserEntity | void> {
     return this.channelRepository.findUserInChannelByName(channelId, username);
+  }
+
+  async findOneByIdWithRelations(
+    id: string,
+    relations: string[],
+  ): Promise<ChannelEntity | void> {
+    return this.channelRepository.findOneByIdWithRelations(id, relations);
+  }
+
+  async findAvailableChannels(userID: string): Promise<ChannelDto[]> {
+    const channels = await this.channelRepository.findAvailableChannels(userID);
+    if (!channels) {
+      return [];
+    }
+
+    return Promise.all(
+      channels.map((channel) => {
+        return ChannelDto.transform(channel, userID);
+      }),
+    );
+  }
+
+  async findMessagesInChannel(
+    userId: string,
+    channelId: string,
+  ): Promise<MessageDto[]> {
+    const channel = await this.channelRepository.findOneByIdWithRelations(
+      channelId,
+      ['users', 'messages', 'messages.sender', 'messages.channel'],
+    );
+    if (!channel) {
+      throw new NotFoundException('Channel not found');
+    }
+
+    if (!userIdInList(channel.users, userId)) {
+      throw new ForbiddenException('User is not in channel');
+    }
+
+    return await Promise.all(
+      channel.messages?.map((message) => {
+        return MessageDto.transform(message);
+      }),
+    );
   }
 
   // ---------------------- User Management ----------------------
@@ -242,11 +243,11 @@ export class ChannelService {
       throw new ForbiddenException('Cannot join a Direct Message channel');
     }
 
-    if (this.userIdInList(channel.users, user.id)) {
+    if (userIdInList(channel.users, user.id)) {
       throw new ForbiddenException('Already in this channel');
     }
 
-    if (this.userIdInList(channel.banUsers, user.id)) {
+    if (userIdInList(channel.banUsers, user.id)) {
       throw new ForbiddenException('Banned from this channel');
     }
 
@@ -262,12 +263,12 @@ export class ChannelService {
     }
 
     if (channel.type === ChannelType.PRIVATE) {
-      if (!this.userIdInList(channel.invitedUsers, user.id)) {
+      if (!userIdInList(channel.invitedUsers, user.id)) {
         throw new ForbiddenException('Not invited to this channel');
       }
     }
 
-    this.removeUserFromList(channel.invitedUsers, user.id);
+    removeUserFromList(channel.invitedUsers, user.id);
     channel.users.push(user);
 
     await this.channelRepository.save(channel);
@@ -301,7 +302,7 @@ export class ChannelService {
       throw new ForbiddenException('Cannot leave a Direct Message channel');
     }
 
-    if (!this.userIdInList(channel.users, user.id)) {
+    if (!userIdInList(channel.users, user.id)) {
       throw new ForbiddenException('Not in this channel');
     }
 
@@ -315,8 +316,8 @@ export class ChannelService {
 
       this.channelRepository.delete(channel);
     } else {
-      this.removeUserFromList(channel.users, user.id);
-      this.removeUserFromList(channel.admins, user.id);
+      removeUserFromList(channel.users, user.id);
+      removeUserFromList(channel.admins, user.id);
 
       if (channel.owner && channel.owner.id === user.id) {
         channel.owner = null;
@@ -356,25 +357,5 @@ export class ChannelService {
         );
       }
     }
-  }
-
-  // ------------------------- Utils ----------------------------
-
-  async findOneByIdWithRelations(
-    id: string,
-    relations: string[],
-  ): Promise<ChannelEntity | void> {
-    return this.channelRepository.findOneByIdWithRelations(id, relations);
-  }
-
-  removeUserFromList(userList: UserEntity[], userId: string): void {
-    const index = userList.findIndex((user) => user.id === userId);
-    if (index !== -1) {
-      userList.splice(index, 1);
-    }
-  }
-
-  userIdInList(list: UserEntity[], userId: string): boolean {
-    return list && list.findIndex((user) => user.id === userId) !== -1;
   }
 }

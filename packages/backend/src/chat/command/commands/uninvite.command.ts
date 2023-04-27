@@ -1,15 +1,13 @@
 // NestJS imports
 import { Injectable } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
-import { ChatService } from 'src/chat/services/chat.service';
+import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -19,11 +17,10 @@ export default class UnInviteCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -32,7 +29,7 @@ export default class UnInviteCommand implements Command {
       throw new Error('You cannot uninvite users to a direct message channel');
     }
 
-    if (!this.channelService.userIdInList(channel.admins, sender.id)) {
+    if (!userIdInList(channel.admins, sender.id)) {
       throw new Error('Not an admin of this channel');
     }
 
@@ -47,7 +44,7 @@ export default class UnInviteCommand implements Command {
       usernames.map(async (username) => {
         const user = await this.userService.findOneByName(username);
         if (user) {
-          const error = await this.unInviteUser(server, sender, channel, user);
+          const error = await this.unInviteUser(sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -63,21 +60,15 @@ export default class UnInviteCommand implements Command {
   }
 
   private async unInviteUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     uninvitedUser: UserEntity,
   ): Promise<string | void> {
-    if (
-      !this.channelService.userIdInList(channel.invitedUsers, uninvitedUser.id)
-    ) {
+    if (!userIdInList(channel.invitedUsers, uninvitedUser.id)) {
       return 'User is not invited';
     }
 
-    this.channelService.removeUserFromList(
-      channel.invitedUsers,
-      uninvitedUser.id,
-    );
+    removeUserFromList(channel.invitedUsers, uninvitedUser.id);
 
     await this.channelService.save(channel);
 
@@ -85,28 +76,18 @@ export default class UnInviteCommand implements Command {
     const socketID = await this.userService.getSocketID(uninvitedUser.id);
     if (socketID) {
       if (channel.type === ChannelType.PRIVATE) {
-        this.chatService.sendEvent(
-          server,
-          socketID,
-          ChatEvent.CHANNEL_UNAVAILABLE,
-          {
-            channelId: channel.id,
-          },
-        );
+        this.chatGateway.sendEvent(socketID, ChatEvent.CHANNEL_UNAVAILABLE, {
+          channelId: channel.id,
+        });
       }
-      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
         content: `You are uninvited to join ${channel.name}`,
       });
     }
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `${uninvitedUser.name} has been uninvited to join ${channel.name}`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `${uninvitedUser.name} has been uninvited to join ${channel.name}`,
+    });
   }
 }

@@ -1,16 +1,14 @@
 // NestJS imports
 import { Injectable } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
-import { ChatService } from 'src/chat/services/chat.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
+import { userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { Command } from '../command.interface';
 
@@ -19,11 +17,10 @@ export default class MuteCommand implements Command {
   constructor(
     private channelService: ChannelService,
     private muteUserService: MuteUserService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -32,7 +29,7 @@ export default class MuteCommand implements Command {
       throw new Error('You cannot mute users in a direct message channel');
     }
 
-    if (!this.channelService.userIdInList(channel.admins, sender.id)) {
+    if (!userIdInList(channel.admins, sender.id)) {
       throw new Error('Not an admin of this channel');
     }
 
@@ -64,14 +61,13 @@ export default class MuteCommand implements Command {
       throw new Error('Invalid duration');
     }
 
-    const error = await this.muteUser(server, sender, channel, user, duration);
+    const error = await this.muteUser(sender, channel, user, duration);
     if (error) {
       throw new Error(error);
     }
   }
 
   private async muteUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     muteUser: UserEntity,
@@ -96,14 +92,9 @@ export default class MuteCommand implements Command {
 
     await this.muteUserService.create(muteUser, channel, muteEndTime);
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `User ${muteUser.name} has been muted for ${time} minutes`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `User ${muteUser.name} has been muted for ${time} minutes`,
+    });
   }
 }

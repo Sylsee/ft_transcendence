@@ -1,6 +1,3 @@
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
 import { UserEntity } from 'src/user/entities/user.entity';
 import { ChannelEntity } from '../entities/channel.entity';
@@ -17,7 +14,6 @@ export interface Command {
    * @returns A string if an error occurred, void otherwise
    */
   execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,

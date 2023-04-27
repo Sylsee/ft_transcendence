@@ -22,16 +22,20 @@ export class MessageService {
     return this.messageRepository.create(content, sender, channel);
   }
 
-  async getFormattedMessage(
+  async getMessageDto(
     sender: UserEntity,
     channel: ChannelEntity,
     content: string,
   ): Promise<MessageDto> {
-    const messageEntity = await this.createMessage(sender, channel, content);
+    const messageEntity: MessageEntity = await this.createMessage(
+      sender,
+      channel,
+      content,
+    );
     if (!messageEntity) {
       throw new Error('Failed to create message');
     }
-    const transformedMessage = MessageDto.transform(messageEntity);
+    const transformedMessage: MessageDto = MessageDto.transform(messageEntity);
     if (!transformedMessage) {
       throw new Error('Failed to transform message');
     }

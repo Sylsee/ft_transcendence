@@ -31,6 +31,7 @@ import { Request } from 'express';
 // Local imports
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
 import { multerConfig } from 'src/config/multer.config';
+import { getProfilePictureUrl } from 'src/shared/profile-picture';
 import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
@@ -118,9 +119,7 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const user: UserEntity = req.user;
-    const profilePictureUrl = this.userService.getProfilePictureUrl(
-      file.filename,
-    );
+    const profilePictureUrl = getProfilePictureUrl(file.filename);
     if (user.profilePictureUrl !== profilePictureUrl) {
       user.profilePictureUrl = profilePictureUrl;
       this.userService.save(user);

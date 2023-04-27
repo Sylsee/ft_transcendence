@@ -1,15 +1,13 @@
 // NestJS imports
 import { Injectable } from '@nestjs/common';
 
-// Third-party imports
-import { Server } from 'socket.io';
-
 // Local imports
+import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
-import { ChatService } from 'src/chat/services/chat.service';
+import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { Command } from '../command.interface';
@@ -19,11 +17,10 @@ export default class DeOpCommand implements Command {
   constructor(
     private userService: UserService,
     private channelService: ChannelService,
-    private chatService: ChatService,
+    private chatGateway: ChatGateway,
   ) {}
 
   async execute(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     arg: string,
@@ -50,7 +47,7 @@ export default class DeOpCommand implements Command {
           username,
         );
         if (user) {
-          const error = await this.deOpUser(server, sender, channel, user);
+          const error = await this.deOpUser(sender, channel, user);
           if (error) {
             errors.push(error);
           }
@@ -66,40 +63,33 @@ export default class DeOpCommand implements Command {
   }
 
   private async deOpUser(
-    server: Server,
     sender: UserEntity,
     channel: ChannelEntity,
     deOpUser: UserEntity,
   ): Promise<string | void> {
-    if (!this.channelService.userIdInList(channel.admins, deOpUser.id)) {
+    if (!userIdInList(channel.admins, deOpUser.id)) {
       return 'User is not an admin';
     }
 
-    this.channelService.removeUserFromList(channel.admins, deOpUser.id);
+    removeUserFromList(channel.admins, deOpUser.id);
 
     await this.channelService.save(channel);
 
     const socketID = await this.userService.getSocketID(deOpUser.id);
     if (socketID) {
-      this.chatService.sendChannelAvailableEvent(
-        server,
+      this.chatGateway.sendChannelAvailableEvent(
         channel,
         deOpUser.id,
         socketID,
       );
-      this.chatService.sendEvent(server, socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
         content: `You have been deopped from ${channel.name}`,
       });
     }
 
-    this.chatService.sendEvent(
-      server,
-      sender,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `${deOpUser.name} has been deopped`,
-      },
-    );
+    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+      channelId: channel.id,
+      content: `${deOpUser.name} has been deopped`,
+    });
   }
 }
