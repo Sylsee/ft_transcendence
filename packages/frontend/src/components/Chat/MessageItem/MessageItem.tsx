@@ -1,18 +1,18 @@
 import { faMessage, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { useCreateChannel } from "hooks/chat/useCreateChannel";
+import { useEffect, useState } from "react";
 import { usePopper } from "react-popper";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useCreateChannel } from "../../../hooks/chat/useCreateChannel";
 import {
 	selectDirectMessageChannel,
 	setActiveChannel,
-} from "../../../store/chat-slice/chat-slice";
-import { setActiveTooltip } from "../../../store/toolTip-slice/toolTip-slice";
-import { ChannelType, Message } from "../../../types/chat";
-import { RootState } from "../../../types/global";
+} from "store/chat-slice/chat-slice";
+import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
+import { ChannelType, Message } from "types/chat";
+import { RootState } from "types/global";
 
 interface MessageItemProps {
 	message: Message;

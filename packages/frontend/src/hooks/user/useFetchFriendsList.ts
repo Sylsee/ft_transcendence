@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { fetchFriendsList } from "../../api/friends/friendsRequests";
-import { ApiErrorResponse } from "../../types/global";
-import { User } from "../../types/user";
+import { fetchFriendsList } from "api/friends/friendsRequests";
+import { ApiErrorResponse } from "types/global";
+import { User } from "types/user";
 
 const useFetchFriendsList = (
 	id: string

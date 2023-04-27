@@ -1,21 +1,21 @@
-import { Dispatch } from "@reduxjs/toolkit";
+import { ChatEvent } from "config";
 import { toast } from "react-toastify";
+import { Dispatch } from "redux";
 import { Socket } from "socket.io-client";
-import { ChatEvent } from "../../config";
-import { addServerMessage } from "../../store/chat-slice/chat-slice";
-import { addCustomNotification } from "../../store/customNotification-slice/customNotification-slice";
+import { getSocket } from "sockets/socket";
+import { addServerMessage } from "store/chat-slice/chat-slice";
+import { addCustomNotification } from "store/customNotification-slice/customNotification-slice";
 import {
 	handleChannelMessage,
 	handleNewChannel,
 	handleRemovedChannel,
-} from "../../store/socket-slice/socket-slice";
-import { Message, ServerMessage } from "../../types/chat";
+} from "store/socket-slice/socket-slice";
+import { Message, ServerMessage } from "types/chat";
 import {
 	ChannelNotifications,
 	CustomNotificationType,
-} from "../../types/customNotification";
-import { ChannelIdPayload, ChannelPayload } from "../../types/socket";
-import { getSocket } from "../socket";
+} from "types/customNotification";
+import { ChannelIdPayload, ChannelPayload } from "types/socket";
 
 export const socketChatListeners = (dispatch: Dispatch) => {
 	const socket = getSocket();

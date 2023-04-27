@@ -1,5 +1,5 @@
-import { API_ROUTES } from "../../config";
-import { apiClient } from "../api";
+import { apiClient } from "api/api";
+import { API_ROUTES } from "config";
 
 const fetchFriendsList = async (userId: string) => {
 	const response = await apiClient.get(API_ROUTES.USER_FRIENDS(userId));

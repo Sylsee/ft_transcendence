@@ -1,9 +1,9 @@
+import { Loader } from "components/Loader/Loader";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { Loader } from "../../components/Loader/Loader";
-import { AuthStatus } from "../../types/auth";
-import { RootState } from "../../types/global";
+import { AuthStatus } from "types/auth";
+import { RootState } from "types/global";
 
 // TODO twofactor
 const Callback: React.FC = () => {

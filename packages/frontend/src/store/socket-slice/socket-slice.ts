@@ -1,10 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Message } from "../../types/chat";
-import {
-	ChannelIdPayload,
-	ChannelPayload,
-	SocketState,
-} from "../../types/socket";
+import { Message } from "types/chat";
+import { ChannelIdPayload, ChannelPayload, SocketState } from "types/socket";
 
 const initialState: SocketState = {};
 

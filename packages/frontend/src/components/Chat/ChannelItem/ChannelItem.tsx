@@ -1,9 +1,9 @@
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
-import { useDeleteChannel } from "../../../hooks/chat/useDeleteChannel";
-import { useLeaveChannel } from "../../../hooks/chat/useLeaveChannel";
-import { Channel, ChannelType } from "../../../types/chat";
+import { useDeleteChannel } from "hooks/chat/useDeleteChannel";
+import { useLeaveChannel } from "hooks/chat/useLeaveChannel";
+import { useEffect, useState } from "react";
+import { Channel, ChannelType } from "types/chat";
 
 interface ChannelItemProps {
 	channel: Channel;

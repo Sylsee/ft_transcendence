@@ -1,9 +1,9 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
+import { fetchChannels } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
-import { fetchChannels } from "../../api/chat/chatRequests";
-import { setChannels } from "../../store/chat-slice/chat-slice";
-import { Channel } from "../../types/chat";
-import { ApiErrorResponse } from "../../types/global";
+import { setChannels } from "store/chat-slice/chat-slice";
+import { Channel } from "types/chat";
+import { ApiErrorResponse } from "types/global";
 
 const useFetchChannels = (): UseQueryResult<Channel[], ApiErrorResponse> => {
 	const dispatch = useDispatch();

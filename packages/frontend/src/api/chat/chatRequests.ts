@@ -1,10 +1,6 @@
-import { API_ROUTES } from "../../config";
-import {
-	Channel,
-	CreateChannelRequest,
-	JoinChannelData,
-} from "../../types/chat";
-import { apiClient } from "../api";
+import { apiClient } from "api/api";
+import { API_ROUTES } from "config";
+import { Channel, CreateChannelRequest, JoinChannelData } from "types/chat";
 
 const fetchChannels = async () => {
 	const response = await apiClient.get(API_ROUTES.CHANNELS);

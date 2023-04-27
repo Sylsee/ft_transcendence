@@ -1,16 +1,16 @@
 import { faMessage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { Loader } from "components/Loader/Loader";
+import { ChatWrapper } from "containers/ChatWrapper/ChatWrapper";
+import { Header } from "containers/Header/Header";
+import { ToastManager } from "containers/ToastManager/ToastManager";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
-import { Loader } from "../../components/Loader/Loader";
-import { authenticate } from "../../store/auth-slice/auth-slice";
-import { setShowChatModal } from "../../store/chat-slice/chat-slice";
-import { AuthStatus } from "../../types/auth";
-import { RootState } from "../../types/global";
-import { ChatWrapper } from "../ChatWrapper/ChatWrapper";
-import { Header } from "../Header/Header";
-import { ToastManager } from "../ToastManager/ToastManager";
+import { authenticate } from "store/auth-slice/auth-slice";
+import { setShowChatModal } from "store/chat-slice/chat-slice";
+import { AuthStatus } from "types/auth";
+import { RootState } from "types/global";
 
 const HeaderWrapper: React.FC = () => {
 	// state

@@ -1,14 +1,11 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { createChannel } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { createChannel } from "../../api/chat/chatRequests";
-import {
-	addChannel,
-	setActiveChannel,
-} from "../../store/chat-slice/chat-slice";
-import { CreateChannelRequest } from "../../types/chat";
-import { ApiErrorResponse } from "../../types/global";
-import { ChannelPayload } from "../../types/socket";
+import { addChannel, setActiveChannel } from "store/chat-slice/chat-slice";
+import { CreateChannelRequest } from "types/chat";
+import { ApiErrorResponse } from "types/global";
+import { ChannelPayload } from "types/socket";
 
 const useCreateChannel = (): UseMutationResult<
 	ChannelPayload,

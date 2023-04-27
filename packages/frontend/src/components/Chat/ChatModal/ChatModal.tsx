@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ChatModalProps {
 	children: React.ReactNode;
 	setShowModal: (value: boolean) => void;

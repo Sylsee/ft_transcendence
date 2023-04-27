@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Channel } from "../../../types/chat";
-import { ChannelItem } from "../ChannelItem/ChannelItem";
+import { ChannelItem } from "components/Chat/ChannelItem/ChannelItem";
+import { useState } from "react";
+import { Channel } from "types/chat";
 
 interface ChannelListProps {
 	title: string;

@@ -4,17 +4,17 @@ import {
 	Middleware,
 	MiddlewareAPI,
 } from "@reduxjs/toolkit";
+import { JWT_NAME } from "config";
 import Cookies from "js-cookie";
 import jwt_decode from "jwt-decode";
-import { JWT_NAME } from "../../config";
 import {
 	authenticate,
 	logout,
 	setAuthState,
-} from "../../store/auth-slice/auth-slice";
-import { getUser } from "../../store/selfUser-slice/selfUser-slice";
-import { AuthStatus, DecodedToken } from "../../types/auth";
-import { RootState } from "../../types/global";
+} from "store/auth-slice/auth-slice";
+import { getUser } from "store/selfUser-slice/selfUser-slice";
+import { AuthStatus, DecodedToken } from "types/auth";
+import { RootState } from "types/global";
 
 const actionHandlers: Record<
 	string,

@@ -1,6 +1,6 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
-import { uploadProfilePicture } from "../../api/user/userRequests";
-import { ApiErrorResponse } from "../../types/global";
+import { uploadProfilePicture } from "api/user/userRequests";
+import { ApiErrorResponse } from "types/global";
 
 const useUploadProfilePicture = (): UseMutationResult<
 	void,

@@ -1,27 +1,27 @@
 import { faBars, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ChannelList } from "components/Chat/ChannelList/ChannelList";
+import { ChannelModal } from "components/Chat/ChannelModal/ChannelModal";
+import { ChatInput } from "components/Chat/ChatInput/ChatInput";
+import { MessageItem } from "components/Chat/MessageItem/MessageItem";
+import { useJoinChannel } from "hooks/chat/useJoinChannel";
+import { useMessageQuery } from "hooks/chat/useMessageQuery";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useJoinChannel } from "../../hooks/chat/useJoinChannel";
-import { useMessageQuery } from "../../hooks/chat/useMessageQuery";
 import {
 	selectActiveChannel,
 	selectSelectedChannel,
 	setActiveChannel,
 	setSelectedChannel,
 	setShowChatModal,
-} from "../../store/chat-slice/chat-slice";
+} from "store/chat-slice/chat-slice";
 import {
 	Channel,
 	ChannelModalType,
 	ChannelType,
 	MessageType,
-} from "../../types/chat";
-import { RootState } from "../../types/global";
-import { ChannelList } from "./ChannelList/ChannelList";
-import { ChannelModal } from "./ChannelModal/ChannelModal";
-import { ChatInput } from "./ChatInput/ChatInput";
-import { MessageItem } from "./MessageItem/MessageItem";
+} from "types/chat";
+import { RootState } from "types/global";
 
 interface ChatProps {
 	channels: Channel[];

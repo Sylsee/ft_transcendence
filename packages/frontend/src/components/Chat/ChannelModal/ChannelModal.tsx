@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { Channel, ChannelModalType } from "../../../types/chat";
-import { Modal } from "../../Modal/Modal";
-import { ModalHeader } from "../../Modal/ModalHeader/ModalHeader";
-import { CreateChannelForm } from "./ChannelForm/CreateChannelForm/CreateChannelForm";
-import { JoinChannelForm } from "./ChannelForm/JoinChannelForm/JoinChannelForm";
+import { CreateChannelForm } from "components/Chat/ChannelModal/ChannelForm/CreateChannelForm/CreateChannelForm";
+import { JoinChannelForm } from "components/Chat/ChannelModal/ChannelForm/JoinChannelForm/JoinChannelForm";
+import { Modal } from "components/Modal/Modal";
+import { ModalHeader } from "components/Modal/ModalHeader/ModalHeader";
+import { useEffect } from "react";
+import { Channel, ChannelModalType } from "types/chat";
 
 interface ChannelModalProps {
 	modalType: ChannelModalType;

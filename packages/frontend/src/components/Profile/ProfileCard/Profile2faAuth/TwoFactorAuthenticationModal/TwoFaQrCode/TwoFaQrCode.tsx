@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
-import { useGenerateTwoFa } from "../../../../../../hooks/auth/useGenerateTwoFa";
-import { ErrorItem } from "../../../../../Error/ErrorItem";
-import { Loader } from "../../../../../Loader/Loader";
+import { ErrorItem } from "components/Error/ErrorItem";
+import { Loader } from "components/Loader/Loader";
+import { useGenerateTwoFa } from "hooks/auth/useGenerateTwoFa";
+import { useEffect } from "react";
 
 interface TwoFaQrCodeProps {}
 

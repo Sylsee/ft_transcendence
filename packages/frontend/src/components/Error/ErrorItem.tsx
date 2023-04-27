@@ -1,5 +1,4 @@
-import React from "react";
-import { ApiErrorResponse } from "../../types/global";
+import { ApiErrorResponse } from "types/global";
 
 interface ErrorItemProps {
 	error: ApiErrorResponse | null;

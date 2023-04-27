@@ -1,9 +1,9 @@
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { useUploadProfilePicture } from "hooks/user/useUploadProfilePicture";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useUploadProfilePicture } from "../../../../hooks/user/useUploadProfilePicture";
-import { UserStatus } from "../../../../types/user";
+import { UserStatus } from "types/user";
 
 interface ProfileAvatarProps {
 	id: string;

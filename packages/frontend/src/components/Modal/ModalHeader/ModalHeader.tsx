@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ModalHeaderProps {
 	title: string;
 	displayCancelIcon?: boolean;

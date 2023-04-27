@@ -1,10 +1,10 @@
-import React, { useEffect } from "react";
+import { InvitationToast } from "components/InvitationToast/InvitationToast";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { InvitationToast } from "../../components/InvitationToast/InvitationToast";
-import { removeCustomNotification } from "../../store/customNotification-slice/customNotification-slice";
-import { CustomNotificationType } from "../../types/customNotification";
-import { RootState } from "../../types/global";
+import { removeCustomNotification } from "store/customNotification-slice/customNotification-slice";
+import { CustomNotificationType } from "types/customNotification";
+import { RootState } from "types/global";
 
 interface ToastManagerProps {}
 

@@ -1,7 +1,6 @@
-import React from "react";
-import { useFetchFriendsList } from "../../../hooks/user/useFetchFriendsList";
-import { useFetchFriendsRequests } from "../../../hooks/user/useFetchFriendsRequests";
-import { FriendsList } from "../Friends/FriendsList/FriendsList";
+import { FriendsList } from "components/Profile/Friends/FriendsList/FriendsList";
+import { useFetchFriendsList } from "hooks/user/useFetchFriendsList";
+import { useFetchFriendsRequests } from "hooks/user/useFetchFriendsRequests";
 
 interface FriendsCardProps {
 	id: string;

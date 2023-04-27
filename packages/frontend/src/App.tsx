@@ -1,24 +1,23 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import React, { useEffect } from "react";
+import { ErrorNotFound } from "components/Error/ErrorNotFound";
+import { TwoFaAuthenticate } from "components/TwoFaAuthenticate/TwoFaAuthenticate";
+import { Callback } from "containers/Callback/Callback";
+import { HeaderWrapper } from "containers/HeaderWrapper/HeaderWrapper";
+import { Home } from "containers/Home/Home";
+import { Profile } from "containers/Profile/Profile";
+import { ProtectedRoute } from "containers/ProtectedRoute/ProtectedRoute";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import { ErrorNotFound } from "./components/Error/ErrorNotFound";
-import { TwoFaAuthenticate } from "./components/TwoFaAuthenticate/TwoFaAuthenticate";
-import { Callback } from "./containers/Callback/Callback";
-import { HeaderWrapper } from "./containers/HeaderWrapper/HeaderWrapper";
-import { Home } from "./containers/Home/Home";
-import { Profile } from "./containers/Profile/Profile";
-import { ProtectedRoute } from "./containers/ProtectedRoute/ProtectedRoute";
-import "./index.css";
 import {
 	removeSocketChatListeners,
 	socketChatListeners,
-} from "./sockets/listeners/chatListeners";
-import { connectSocket } from "./sockets/socket";
-import { AuthStatus } from "./types/auth";
-import { RootState } from "./types/global";
+} from "sockets/listeners/chatListeners";
+import { connectSocket } from "sockets/socket";
+import { AuthStatus } from "types/auth";
+import { RootState } from "types/global";
 
 const router = createBrowserRouter([
 	{

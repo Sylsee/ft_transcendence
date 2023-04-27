@@ -1,8 +1,8 @@
-import { ApiErrorResponse } from "../../../../types/global";
-import { LoaderType } from "../../../../types/loader";
-import { User } from "../../../../types/user";
-import { ErrorItem } from "../../../Error/ErrorItem";
-import { Loader } from "../../../Loader/Loader";
+import { ErrorItem } from "components/Error/ErrorItem";
+import { Loader } from "components/Loader/Loader";
+import { ApiErrorResponse } from "types/global";
+import { LoaderType } from "types/loader";
+import { User } from "types/user";
 
 interface FriendsListProps {
 	isConnectedUser: boolean;

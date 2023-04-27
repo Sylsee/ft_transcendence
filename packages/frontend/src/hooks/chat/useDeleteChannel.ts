@@ -1,9 +1,9 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import { deleteChannel } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { deleteChannel } from "../../api/chat/chatRequests";
-import { removeChannelById } from "../../store/chat-slice/chat-slice";
-import { ApiErrorResponse } from "../../types/global";
+import { removeChannelById } from "store/chat-slice/chat-slice";
+import { ApiErrorResponse } from "types/global";
 
 const useDeleteChannel = (
 	id: string

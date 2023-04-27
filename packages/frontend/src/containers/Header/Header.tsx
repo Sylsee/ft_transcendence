@@ -1,13 +1,13 @@
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { HeaderButton } from "components/Header/HeaderButton/HeaderButton";
+import { HeaderLink } from "components/Header/HeaderLink/HeaderLink";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { HeaderButton } from "../../components/Header/HeaderButton/HeaderButton";
-import { HeaderLink } from "../../components/Header/HeaderLink/HeaderLink";
-import { logout } from "../../store/auth-slice/auth-slice";
-import { AuthStatus } from "../../types/auth";
-import { RootState } from "../../types/global";
+import { logout } from "store/auth-slice/auth-slice";
+import { AuthStatus } from "types/auth";
+import { RootState } from "types/global";
 
 const Header: React.FC = () => {
 	// state

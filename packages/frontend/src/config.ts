@@ -1,7 +1,7 @@
-const API_BASE_URL: string = `http://localhost:3000`;
-const SOCKET_BASE_URL: string = `http://localhost:3000/chat`;
+export const API_BASE_URL: string = `http://localhost:3000`;
+export const SOCKET_BASE_URL: string = `http://localhost:3000/chat`;
 
-const API_ROUTES = {
+export const API_ROUTES = {
 	AUTH_42: "/auth/42",
 	AUTH_GOOGLE: "/auth/google",
 	GENERATE_2FA: "/auth/2fa/generate",
@@ -24,12 +24,12 @@ const API_ROUTES = {
 	DELETE_CHANNEL: (id: string) => `/channels/delete/${id}`,
 };
 
-const ERROR_MESSAGES = {
+export const ERROR_MESSAGES = {
 	UNKNOWN_ERROR: "An unknown error occured.",
 	INVALID_CHANNEL_ID: "The channel ID is invalid.",
 };
 
-enum ChatEvent {
+export enum ChatEvent {
 	Message = "message",
 	ChannelMessage = "channel:message",
 	ChannelServerMessage = "channel:server_message",
@@ -40,13 +40,4 @@ enum ChatEvent {
 	Exception = "exception",
 }
 
-const JWT_NAME = "access_token";
-
-export {
-	API_BASE_URL,
-	SOCKET_BASE_URL,
-	API_ROUTES,
-	ERROR_MESSAGES,
-	ChatEvent,
-	JWT_NAME,
-};
+export const JWT_NAME = "access_token";

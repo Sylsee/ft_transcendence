@@ -1,8 +1,8 @@
 import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useRef, useState } from "react";
-import { ChatEvent } from "../../../config";
-import { emitSocketEvent } from "../../../sockets/socket";
+import { ChatEvent } from "config";
+import { useEffect, useRef, useState } from "react";
+import { emitSocketEvent } from "sockets/socket";
 
 interface ChatInputProps {
 	channelId: string;

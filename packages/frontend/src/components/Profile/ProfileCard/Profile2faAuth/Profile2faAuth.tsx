@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { useToggleTwoFa } from "../../../../hooks/auth/useToggleTwoFa";
-import { TwoFactorAuthenticationModal } from "./TwoFactorAuthenticationModal/TwoFactorAuthenticationModal";
-import { TwoFaQrCode } from "./TwoFactorAuthenticationModal/TwoFaQrCode/TwoFaQrCode";
+import { TwoFactorAuthenticationModal } from "components/Profile/ProfileCard/Profile2faAuth/TwoFactorAuthenticationModal/TwoFactorAuthenticationModal";
+import { TwoFaQrCode } from "components/Profile/ProfileCard/Profile2faAuth/TwoFactorAuthenticationModal/TwoFaQrCode/TwoFaQrCode";
+import { useToggleTwoFa } from "hooks/auth/useToggleTwoFa";
+import { useEffect, useState } from "react";
 
 interface Profile2faAuthProps {
 	id: string;

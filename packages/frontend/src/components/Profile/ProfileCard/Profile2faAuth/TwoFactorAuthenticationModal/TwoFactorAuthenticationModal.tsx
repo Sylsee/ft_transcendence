@@ -1,9 +1,9 @@
+import { ErrorItem } from "components/Error/ErrorItem";
+import { Modal } from "components/Modal/Modal";
+import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
+import { ModalHeader } from "components/Modal/ModalHeader/ModalHeader";
 import { useEffect, useRef, useState } from "react";
-import { ApiErrorResponse } from "../../../../../types/global";
-import { ErrorItem } from "../../../../Error/ErrorItem";
-import { Modal } from "../../../../Modal/Modal";
-import { ModalFooter } from "../../../../Modal/ModalFooter/ModalFooter";
-import { ModalHeader } from "../../../../Modal/ModalHeader/ModalHeader";
+import { ApiErrorResponse } from "types/global";
 
 interface TwoFactorAuthenticationModalProps {
 	title: string;

@@ -1,9 +1,9 @@
-import { AuthState } from "./auth";
-import { ChatState } from "./chat";
-import { CustomNotificationState } from "./customNotification";
-import { SocketState } from "./socket";
-import { TooltipState } from "./toolTip";
-import { SelfUserState } from "./user";
+import { AuthState } from "types/auth";
+import { ChatState } from "types/chat";
+import { CustomNotificationState } from "types/customNotification";
+import { SocketState } from "types/socket";
+import { TooltipState } from "types/toolTip";
+import { SelfUserState } from "types/user";
 
 export interface RootState {
 	AUTH: AuthState;

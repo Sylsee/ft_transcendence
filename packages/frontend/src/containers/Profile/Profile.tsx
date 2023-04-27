@@ -1,12 +1,12 @@
+import { ErrorNotFound } from "components/Error/ErrorNotFound";
+import { Loader } from "components/Loader/Loader";
+import { FriendsCard } from "components/Profile/FriendsCard/FriendsCard";
+import { ProfileCard } from "components/Profile/ProfileCard/ProfileCard";
+import { useFetchUser } from "hooks/user/useFetchUser";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
-import { ErrorNotFound } from "../../components/Error/ErrorNotFound";
-import { Loader } from "../../components/Loader/Loader";
-import { FriendsCard } from "../../components/Profile/FriendsCard/FriendsCard";
-import { ProfileCard } from "../../components/Profile/ProfileCard/ProfileCard";
-import { useFetchUser } from "../../hooks/user/useFetchUser";
-import { RootState } from "../../types/global";
+import { RootState } from "types/global";
 
 const Profile = () => {
 	// react-router

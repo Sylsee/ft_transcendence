@@ -1,5 +1,4 @@
-import React from "react";
-import { useJoinChannel } from "../../hooks/chat/useJoinChannel";
+import { useJoinChannel } from "hooks/chat/useJoinChannel";
 
 interface InvitationToastProps {
 	content: string;

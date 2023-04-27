@@ -4,10 +4,10 @@ import {
 	faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useRef, useState } from "react";
-import { useUpdateUser } from "../../../../hooks/user/useUpdateUser";
-import { ErrorItem } from "../../../Error/ErrorItem";
-import { Loader } from "../../../Loader/Loader";
+import { ErrorItem } from "components/Error/ErrorItem";
+import { Loader } from "components/Loader/Loader";
+import { useUpdateUser } from "hooks/user/useUpdateUser";
+import { useEffect, useRef, useState } from "react";
 
 interface ProfileNameProps {
 	id: string;

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL } from "config";
 
 const apiClient = axios.create({
 	baseURL: `${API_BASE_URL}`,
@@ -8,12 +8,6 @@ const apiClient = axios.create({
 		"Content-Type": "application/json",
 	},
 });
-
-// apiClient.interceptors.request.use((config) => {
-// 	const cookie = Cookies.get(JWT_NAME);
-// 	if (cookie) config.headers.Authorization = `Bearer ${cookie}`;
-// 	return config;
-// });
 
 apiClient.interceptors.response.use(
 	(response) => {

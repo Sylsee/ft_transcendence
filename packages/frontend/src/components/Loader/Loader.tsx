@@ -1,5 +1,5 @@
 import { LineWave, TailSpin } from "react-loader-spinner";
-import { LoaderType } from "../../types/loader";
+import { LoaderType } from "types/loader";
 
 interface LoaderProps {
 	color?: string;

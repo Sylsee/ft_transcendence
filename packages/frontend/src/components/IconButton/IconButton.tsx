@@ -7,15 +7,13 @@ interface IconButtonProps {
 
 const IconButton: React.FC<IconButtonProps> = ({
 	name,
-	onClick,
+	onClick = () => {},
 	url,
 	logo,
 }) => {
 	return (
 		<button
-			onClick={() => {
-				onClick && onClick(url);
-			}}
+			onClick={(e) => onClick(url)}
 			className="mx-3 p-2 rounded-lg border-2 border-white flex items-center gap-3 opacity-70 hover:opacity-100"
 		>
 			<div className="h-7 w-7">{logo}</div>

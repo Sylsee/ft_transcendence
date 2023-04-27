@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { TooltipState } from "../../types/toolTip";
+import { TooltipState } from "types/toolTip";
 
 const initialState: TooltipState = {
 	activeTooltip: null,

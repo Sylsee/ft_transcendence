@@ -1,5 +1,5 @@
-import { API_ROUTES } from "../../../config";
-import { apiClient } from "../../api";
+import { apiClient } from "api/api";
+import { API_ROUTES } from "config";
 
 const fetchGenerateTwoFa = async () => {
 	const response = await apiClient.post(API_ROUTES.GENERATE_2FA);

@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import { authenticateMiddleware } from "../middlewares/auth/authMiddleware";
-import { socketMiddleware } from "../middlewares/socket/socketMiddleware";
-import { selfUserMiddleware } from "../middlewares/user/selfUserMiddleware";
-import { authSlice } from "./auth-slice/auth-slice";
-import { chatSlice } from "./chat-slice/chat-slice";
-import { customNotificationSlice } from "./customNotification-slice/customNotification-slice";
-import { selfUserSlice } from "./selfUser-slice/selfUser-slice";
-import { socketSlice } from "./socket-slice/socket-slice";
-import { tooltipSlice } from "./toolTip-slice/toolTip-slice";
+import { authenticateMiddleware } from "middlewares/auth/authMiddleware";
+import { socketMiddleware } from "middlewares/socket/socketMiddleware";
+import { selfUserMiddleware } from "middlewares/user/selfUserMiddleware";
+import { authSlice } from "store/auth-slice/auth-slice";
+import { chatSlice } from "store/chat-slice/chat-slice";
+import { customNotificationSlice } from "store/customNotification-slice/customNotification-slice";
+import { selfUserSlice } from "store/selfUser-slice/selfUser-slice";
+import { socketSlice } from "store/socket-slice/socket-slice";
+import { tooltipSlice } from "store/toolTip-slice/toolTip-slice";
 
 const rootReducer = {
 	AUTH: authSlice.reducer,

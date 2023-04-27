@@ -1,14 +1,10 @@
-import React, { useEffect } from "react";
+import { ErrorItem } from "components/Error/ErrorItem";
+import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
+import { useCreateChannel } from "hooks/chat/useCreateChannel";
+import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useCreateChannel } from "../../../../../hooks/chat/useCreateChannel";
-import { useUpdateChannel } from "../../../../../hooks/chat/useUpdateChannel";
-import {
-	Channel,
-	ChannelModalType,
-	ChannelType,
-} from "../../../../../types/chat";
-import { ErrorItem } from "../../../../Error/ErrorItem";
-import { ModalFooter } from "../../../../Modal/ModalFooter/ModalFooter";
+import { Channel, ChannelModalType, ChannelType } from "types/chat";
 
 interface CreateChannelFormProps {
 	handleCloseModal: () => void;

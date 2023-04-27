@@ -1,4 +1,4 @@
-import { ChannelPermissions, ChannelType } from "./chat";
+import { ChannelPermissions, ChannelType } from "types/chat";
 
 export interface SocketState {}
 

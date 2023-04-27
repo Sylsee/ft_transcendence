@@ -9,15 +9,15 @@ import {
 	addChannel,
 	addMessage,
 	removeChannel,
-} from "../../store/chat-slice/chat-slice";
+} from "store/chat-slice/chat-slice";
 import {
 	handleChannelMessage,
 	handleNewChannel,
 	handleNotification,
 	handleNotificationInvite,
 	handleRemovedChannel,
-} from "../../store/socket-slice/socket-slice";
-import { RootState } from "../../types/global";
+} from "store/socket-slice/socket-slice";
+import { RootState } from "types/global";
 
 const actionHandlers: Record<
 	string,

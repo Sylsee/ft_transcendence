@@ -1,8 +1,8 @@
-import React, { useEffect } from "react";
+import { TwoFactorAuthenticationModal } from "components/Profile/ProfileCard/Profile2faAuth/TwoFactorAuthenticationModal/TwoFactorAuthenticationModal";
+import { useAuthTwoFa } from "hooks/auth/useAuthTwoFa";
+import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useAuthTwoFa } from "../../hooks/auth/useAuthTwoFa";
-import { authenticate, logout } from "../../store/auth-slice/auth-slice";
-import { TwoFactorAuthenticationModal } from "../Profile/ProfileCard/Profile2faAuth/TwoFactorAuthenticationModal/TwoFactorAuthenticationModal";
+import { authenticate, logout } from "store/auth-slice/auth-slice";
 
 interface TwoFaAuthenticateProps {}
 
