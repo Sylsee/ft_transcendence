@@ -1,44 +1,58 @@
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
-import { useUpdateUser } from "../../../../hooks/user/useUpdateUser";
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useUploadProfilePicture } from "../../../../hooks/user/useUploadProfilePicture";
 import { UserStatus } from "../../../../types/user";
 
 interface ProfileAvatarProps {
 	id: string;
 	isConnectedUser: boolean;
-	avatarUrl: string;
+	profilePictureUrl: string;
 	status: UserStatus | undefined;
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 	id,
 	isConnectedUser,
-	avatarUrl,
+	profilePictureUrl,
 	status,
 }) => {
 	// state
 	const [hover, setHover] = useState<boolean>(false);
+	const [cacheBusterCounter, setCacheBusterCounter] = useState<number>(0);
 
 	// mutation
-	const mutation = useUpdateUser(id);
+	const {
+		mutate: uploadMutation,
+		status: uploadStatus,
+		error: uploadError,
+	} = useUploadProfilePicture();
 
 	// handlers
 	const handleUpload = (e: any) => {
 		const file = e.target.files?.[0];
 		if (file) {
-			mutation.mutate({ avatar: file });
+			uploadMutation(file);
 		}
 	};
 
+	useEffect(() => {
+		if (uploadStatus === "success") {
+			setCacheBusterCounter((prev) => prev + 1);
+		} else if (uploadStatus === "error") {
+			toast.error(uploadError.message);
+		}
+	}, [uploadStatus, uploadError]);
+
 	return (
-		<div className="relative w-32 h-32 mx-auto">
+		<div className="relative mx-auto">
 			<div className="relative">
 				<img
-					src={avatarUrl}
+					src={`${profilePictureUrl}?cb${cacheBusterCounter}`}
 					referrerPolicy="no-referrer"
 					alt="Avatar"
-					className="w-full h-full object-cover rounded-full border-solid border-white border-2"
+					className=" object-cover rounded-full border-solid border-white border-2 w-32 h-32"
 				/>
 				<span
 					className={`bottom-1 right-6 absolute w-3.5 h-3.5 ${
@@ -50,7 +64,7 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 			</div>
 			{isConnectedUser && (
 				<div
-					className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity duration-300 ${
+					className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity duration-300 w-32 h-32 ${
 						hover ? "bg-gray-500 bg-opacity-50" : "opacity-0"
 					}`}
 				>

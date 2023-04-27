@@ -25,7 +25,6 @@ const Profile2faAuth: React.FC<Profile2faAuthProps> = ({
 
 	const handleSubmit = (code: string): void => {
 		mutate(code);
-		console.log("code", code);
 	};
 
 	useEffect(() => {

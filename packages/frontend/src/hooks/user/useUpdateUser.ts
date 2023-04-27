@@ -13,10 +13,7 @@ const useUpdateUser = (
 		{
 			onSuccess: (user) => {
 				console.log("USER", user, "updated");
-				// dispatch(setUser(user)); TODO: wait for API to be fixed
-			},
-			onError: (error) => {
-				console.error(error);
+				//dispatch(setUser(user)); // TODO: wait for API to be fixed
 			},
 		}
 	);

@@ -27,7 +27,7 @@ const FriendsList: React.FC<FriendsListProps> = ({
 				</div>
 			</div>
 			<div className="flex flex-col max-h-32 overflow-y-auto">
-				{status === "loading" && <Loader type={LoaderType.LINEWAVE} />}
+				{status === "loading" && <Loader type={LoaderType.LineWave} />}
 				{status === "error" && <ErrorItem error={error} />}
 				{status === "success" &&
 					Array.isArray(data) && // TODO remove this check when the backend will be fixed

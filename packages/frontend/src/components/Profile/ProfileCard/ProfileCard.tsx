@@ -21,7 +21,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
 			<ProfileAvatar
 				isConnectedUser={isConnectedUser}
 				id={user.id}
-				avatarUrl={user.avatarUrl}
+				profilePictureUrl={user.profilePictureUrl}
 				status={user.status}
 			/>
 			<div className="h-1/2 flex flex-col  items-center pt-5">
