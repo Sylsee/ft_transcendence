@@ -1,37 +1,86 @@
-import { Injectable } from '@nestjs/common';
+// NestJS imports
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
+// Third-party imports
 import { Repository } from 'typeorm';
+
+// Local imports
+import { AuthProvider } from '../auth/enum/auth-provider.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserRepository {
+  private readonly logger = new Logger(UserRepository.name);
+
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create({
-      ...createUserDto,
-    });
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const newUser = new UserEntity();
+    newUser.provider = createUserDto.provider;
+    newUser.providerId = createUserDto.providerId;
+    newUser.email = createUserDto.email;
+    newUser.name = createUserDto.name;
+    newUser.profilePictureUrl = createUserDto.profilePictureUrl;
 
-    return await this.userRepository.save(newUser);
+    return this.userRepository.save(newUser);
+  }
+
+  async update(userId: string, content: object): Promise<void> {
+    this.userRepository.update({ id: userId }, content);
+  }
+
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
   }
 
   async find(): Promise<UserEntity[]> {
-    return await this.userRepository.find();
+    return this.userRepository.find();
   }
 
-  findOneBy42Id(id42: number): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ id42: id42 });
+  async findUserByProviderIDAndProvider(
+    providerId: string,
+    provider: AuthProvider,
+  ): Promise<UserEntity | void> {
+    return this.userRepository
+      .findOne({
+        where: { providerId, provider },
+      })
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding user with providerId: ${providerId} and provider: ${provider}`,
+          err,
+        );
+      });
   }
 
-  findOneById(id: string): Promise<UserEntity> {
-    return this.userRepository.findOneBy({ id: id });
+  async findOneById(id: string): Promise<UserEntity | void> {
+    return this.userRepository.findOneBy({ id: id }).catch((err) => {
+      this.logger.error(`Error when finding user with id: ${id}`, err);
+    });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.userRepository.delete(id);
+  async findOneByName(username: string): Promise<UserEntity | void> {
+    return this.userRepository.findOneBy({ name: username }).catch((err) => {
+      this.logger.error(`Error when finding user with name: ${username}`, err);
+    });
+  }
+
+  async findBlockingBy(userId: string): Promise<UserEntity[] | void> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.blockedBy', 'blockingUser')
+      .where('user.id = :userId', { userId })
+      .getMany()
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding users blocking user with id: ${userId}`,
+          err,
+        );
+      });
   }
 }

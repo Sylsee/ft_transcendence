@@ -7,3 +7,6 @@ node_modules
 dist
 packages/**/node_modules
 packages/**/dist
+
+**/todo.md
+todo.md

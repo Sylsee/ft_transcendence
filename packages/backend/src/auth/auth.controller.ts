@@ -1,20 +1,34 @@
+// NestJS imports
 import {
+  Body,
   Controller,
   Get,
-  Req,
-  UseGuards,
   Logger,
+  Post,
+  Req,
   Res,
-  HttpStatus,
+  UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiMovedPermanentlyResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 
-import { OAuthGuard } from './guard/oauth.guard';
-import { AuthService } from './auth.service';
-import { JwtAuthGuard } from './guard/jwt.guard';
+// Express imports
+import { Response } from 'express';
+
+// Local imports
 import { UserService } from 'src/user/user.service';
+import { AuthService } from './auth.service';
+import { GeneratedTwoFactorAuth } from './dto/generate2fa.dto';
+import { TwoFactorAuthDto } from './dto/twoFactorAuth.dto';
+import { OAuth42Guard } from './guard/42-oauth.guard';
+import { GoogleOauthGuard } from './guard/google-oauth.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -22,47 +36,87 @@ export class AuthController {
   private readonly logger = new Logger(AuthController.name);
 
   constructor(
-    private readonly authService: AuthService,
-    private readonly userService: UserService,
-    private readonly configService: ConfigService,
+    private authService: AuthService,
+    private userService: UserService,
   ) {}
 
-  @Get('login')
-  @UseGuards(OAuthGuard)
-  async login(@Req() req, @Res() res: Response) {
-    this.logger.debug(`User ID: ${req.user.id} requested to log in`);
-
-    const { token, user } = this.authService.login(req.user);
-
-    this.logger.log(`User ID: ${user.id} successfully logged in`);
-
-    res.cookie('token', token, {
-      maxAge: this.configService.get<number>('JWT_EXPIRATION_TIME') * 60 * 1000, // minutes to milliseconds
-      httpOnly: this.configService.get<string>('NODE_ENV') === 'production',
-      secure: this.configService.get<string>('NODE_ENV') === 'production',
-      domain:
-        this.configService.get<string>('NODE_ENV') === 'production'
-          ? 'frontend'
-          : undefined,
-      path: '/',
-    });
-    res.redirect(`${this.configService.get<string>('APP_DOMAIN')}/callback`);
-    // res.redirect(`../auth/profile`);
-    // this.logger.debug(`JWT: ${token} sent to user ID: ${user.id}`);
+  @Get('42')
+  @UseGuards(OAuth42Guard)
+  @ApiOperation({ summary: 'Authenticate using 42' })
+  @ApiMovedPermanentlyResponse({ description: 'Successful login' })
+  async signIn42(@Req() req: any, @Res() res: Response) {
+    await this.authService.signIn(res, req.user, false);
   }
 
-  @Get('profile')
+  @Get('google')
+  @UseGuards(GoogleOauthGuard)
+  @ApiOperation({ summary: 'Authenticate using Google' })
+  @ApiMovedPermanentlyResponse({ description: 'Successful login' })
+  async signInGoogle(@Req() req: any, @Res() res: Response) {
+    await this.authService.signIn(res, req.user, false);
+  }
+
+  @Post('2fa/generate')
   @UseGuards(JwtAuthGuard)
-  getProfile(@Req() req) {
-    this.logger.debug(`User ID: ${req.user.id} requested profile information`);
+  @ApiOperation({ summary: 'Generate 2FA QrCode' })
+  @ApiOkResponse({ description: 'Successful generation' })
+  async generate2faCode(@Req() req: any): Promise<GeneratedTwoFactorAuth> {
+    return await this.authService.generate2faCode(req.user);
+  }
 
-    const user = this.userService.findOne(req.user.id);
-    if (!user) {
-      this.logger.warn(`User ID: ${req.user} not found in database`);
-      throw new Error('User not found');
+  @Post('2fa/enable')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Turn on 2FA' })
+  @ApiOkResponse({ description: 'Successful verification' })
+  @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
+  async turnOn2fa(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
+    const isCodeValid = this.authService.verify2faCode(req.user, body.code);
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Invalid 2FA code');
     }
+    const user = await this.userService.turnOn2fa(req.user);
+    await this.authService.signIn(res, user, true, false);
+    return res.send();
+  }
 
-    this.logger.debug(`User ID: ${req.user.id} profile information sent`);
-    return user;
+  @Post('2fa/disable')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Turn off 2FA' })
+  @ApiOkResponse({ description: 'Successful verification' })
+  @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
+  async turnOff2fa(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
+    const isCodeValid = this.authService.verify2faCode(req.user, body.code);
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Invalid 2FA code');
+    }
+    const user = await this.userService.turnOff2fa(req.user);
+    await this.authService.signIn(res, user, false, false);
+    return res.send();
+  }
+
+  @Post('2fa/authenticate')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Verify 2FA code' })
+  @ApiOkResponse({ description: 'Successful verification' })
+  @ApiUnauthorizedResponse({ description: 'Invalid 2FA code' })
+  async authenticate(
+    @Req() req: any,
+    @Res() res: Response,
+    @Body() body: TwoFactorAuthDto,
+  ) {
+    const isCodeValid = this.authService.verify2faCode(req.user, body.code);
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Invalid 2FA code');
+    }
+    await this.authService.signIn(res, req.user, true, false);
+    return res.send(req.user);
   }
 }

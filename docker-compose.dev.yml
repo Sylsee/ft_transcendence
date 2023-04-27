@@ -5,30 +5,28 @@
 # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 version: "3.9"
 services:
-    # ------------------------------------------------------------
-    # Node - Backend
-    # ------------------------------------------------------------
-    backend:
-        build:
-            context: packages/backend
-            dockerfile: Dockerfile.dev
-        hostname: backend_dev
-        volumes:
-            - ./packages/backend/:/home/node/app
-        environment:
-            NODE_ENV: ${NODE_ENV}
-        command:
-            - sh
-            - -c
-            - npm ci && npm run start:dev
-        depends_on:
-            - db
-        ports:
-            - ${BACKEND_PORT}:${BACKEND_PORT}
-            - 9229:9229 # for NodeJS debugging
-        networks:
-            - transcendence-network
-        restart: unless-stopped
+  # ------------------------------------------------------------
+  # Node - Backend
+  # ------------------------------------------------------------
+  backend:
+    build:
+      context: packages/backend
+    hostname: backend_dev
+    volumes:
+      - ./packages/backend/:/home/node/app
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    command:
+      - sh
+      - -c
+      - npm ci && npm run start:dev
+    depends_on:
+      - db
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    networks:
+      - transcendence-network
+    restart: unless-stopped
 
     # ------------------------------------------------------------
     # PostreSQL - Database
@@ -49,29 +47,9 @@ services:
             - transcendence-network
         restart: always
 
-    # ------------------------------------------------------------
-    # PgAdmin - Database Admin
-    # ------------------------------------------------------------
-    pgadmin:
-        image: dpage/pgadmin4
-        hostname: pgadmin_dev
-        environment:
-            GUNICORN_ACCESS_LOGFILE: "/dev/null"
-            PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-            PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-        volumes:
-            - pgadmin:/root/.pgadmin
-        ports:
-            - ${PGADMIN_PORT}:80
-        networks:
-            - transcendence-network
-        depends_on:
-            - db
-        restart: always
-
-    #  ------------------------------------------------------------
-    #  Node - Frontend
-    #  ------------------------------------------------------------
+  # ------------------------------------------------------------
+  # Node - Frontend
+  # ------------------------------------------------------------
     frontend:
         container_name: frontend
         env_file: .env
@@ -85,15 +63,13 @@ services:
         volumes:
             - ./packages/frontend/src:/usr/src/app/src
         ports:
-            - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+            - ${FRONTEND_PORT}:${FRONTEND_PORT}
         networks:
             - transcendence-network
         restart: always
 
 volumes:
-    pgdata:
-    pgadmin:
-    node_modules:
+  pgdata:
 
 networks:
     transcendence-network:
