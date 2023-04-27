@@ -102,9 +102,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 				<input
 					id="name"
 					className="border-2 border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent"
-					{...register("name", {
-						required: true,
-					})}
+					{...register("name")}
 					onChange={(e) => handleNameChange(e)}
 				/>
 			</div>
