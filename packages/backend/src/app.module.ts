@@ -1,16 +1,18 @@
-// Nest dependencies
+// NestJS imports
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-// Other dependencies
+// Third-party imports
 import * as Joi from 'joi';
 
-// Local files
+// Local imports
 import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
-import { TypeOrmConfigService } from './config/typeOrmConfig';
+import { ChatModule } from './chat/chat.module';
+import { TypeOrmConfigService } from './config/type-orm.config';
+import { StaticModule } from './static/static.module';
 
 @Module({
   imports: [
@@ -27,6 +29,7 @@ import { TypeOrmConfigService } from './config/typeOrmConfig';
         DB_PORT: Joi.number().default(5432),
         FRONTEND_PORT: Joi.number().required(),
         APP_DOMAIN: Joi.string().required(),
+        APP_NAME: Joi.string().required(),
 
         DB_HOST: Joi.string().required(),
         DB_NAME: Joi.string().required(),
@@ -56,6 +59,8 @@ import { TypeOrmConfigService } from './config/typeOrmConfig';
     PassportModule.register({ session: true }),
     AuthModule,
     UserModule,
+    ChatModule,
+    StaticModule,
   ],
   providers: [TypeOrmConfigService],
 })

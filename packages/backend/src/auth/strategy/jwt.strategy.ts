@@ -1,4 +1,4 @@
-// NestJs imports
+// NestJS imports
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -6,7 +6,7 @@ import { PassportStrategy } from '@nestjs/passport';
 // Third-party imports
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-// Local files
+// Local imports
 import { UserService } from 'src/user/services/user.service';
 
 @Injectable()
@@ -15,14 +15,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   constructor(
     private readonly userService: UserService,
-    private configService: ConfigService,
+    private readonly configService: ConfigService,
   ) {
     const extractJwtFromCookie = (req) => {
-      let token = null;
+      let access_token = null;
       if (req && req.cookies) {
-        token = req.cookies['token'];
+        access_token = req.cookies['access_token'];
       }
-      return token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
+      return access_token || ExtractJwt.fromAuthHeaderAsBearerToken()(req);
     };
 
     super({
@@ -33,14 +33,15 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    const user = await this.userService.findOne(payload.sub);
+    const user = await this.userService.findOneById(payload.sub);
     if (!user) {
       this.logger.warn(
         `Failed to retrieve from database: user ID: ${payload.sub}`,
       );
+      // I don't send any message here because I don't want to give any hint to the attacker
       throw new UnauthorizedException();
     }
 
-    return { id: user.id };
+    return user;
   }
 }

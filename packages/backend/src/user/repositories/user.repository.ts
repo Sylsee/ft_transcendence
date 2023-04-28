@@ -5,8 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 // Third-party imports
 import { Repository } from 'typeorm';
 
-// Local files
-import { AuthProvider } from '../../auth/dto/auth-provider.enum';
+// Local imports
+import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
 
@@ -19,24 +19,32 @@ export class UserRepository {
     private userRepository: Repository<UserEntity>,
   ) {}
 
+  // TODO: Remove this method
+  async find(): Promise<UserEntity[]> {
+    return this.userRepository.find({ relations: ['blockedUsers'] });
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<UserEntity> {
+    const newUser = new UserEntity();
+    newUser.provider = createUserDto.provider;
+    newUser.providerId = createUserDto.providerId;
+    newUser.email = createUserDto.email;
+    newUser.name = createUserDto.name;
+    newUser.profilePictureUrl = createUserDto.profilePictureUrl;
+
+    return this.userRepository.save(newUser);
+  }
+
+  async update(userId: string, content: object): Promise<void> {
+    this.userRepository.update({ id: userId }, content);
+  }
+
   save(user: UserEntity): Promise<UserEntity> {
     return this.userRepository.save(user);
   }
 
   saveArray(users: UserEntity[]): Promise<UserEntity[]> {
     return this.userRepository.save(users);
-  }
-
-  async create(createUserDto: CreateUserDto) {
-    const newUser = this.userRepository.create({
-      ...createUserDto,
-    });
-
-    return await this.userRepository.save(newUser);
-  }
-
-  async find(): Promise<UserEntity[]> {
-    return await this.userRepository.find();
   }
 
   async findUserByProviderIDAndProvider(
@@ -47,23 +55,18 @@ export class UserRepository {
       .findOne({
         where: { providerId, provider },
       })
-      .catch((error) => {
-        this.logger.error(error);
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding user with providerId: ${providerId} and provider: ${provider}`,
+          err,
+        );
       });
   }
 
   async findOneById(id: string): Promise<UserEntity | void> {
-    return this.userRepository.findOneBy({ id: id }).catch((error) => {
-      this.logger.error(error);
+    return this.userRepository.findOneBy({ id: id }).catch((err) => {
+      this.logger.error(`Error when finding user with id: ${id}`, err);
     });
-  }
-
-  async getFriendsById(userId: string): Promise<UserEntity[] | void> {
-    const user = await this.findOneByIdWithRelations(userId, ['friends']);
-
-    if (user) {
-      return user?.friends;
-    }
   }
 
   async findOneByIdWithRelations(
@@ -78,5 +81,37 @@ export class UserRepository {
       .catch((error) => {
         this.logger.error(error);
       });
+  }
+
+  async findOneByName(username: string): Promise<UserEntity | void> {
+    return this.userRepository.findOneBy({ name: username }).catch((err) => {
+      this.logger.error(`Error when finding user with name: ${username}`, err);
+    });
+  }
+
+  async findUsersBlocking(
+    userId: string,
+    userIds: string[],
+  ): Promise<UserEntity[] | void> {
+    return this.userRepository
+      .createQueryBuilder('user')
+      .innerJoin('user.blockedUsers', 'blockedUsers')
+      .whereInIds(userIds)
+      .andWhere('blockedUsers.id = :userId', { userId })
+      .getMany()
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding users blocking user with id: ${userId}`,
+          err,
+        );
+      });
+  }
+
+  async getFriendsById(userId: string): Promise<UserEntity[] | void> {
+    const user = await this.findOneByIdWithRelations(userId, ['friends']);
+
+    if (user) {
+      return user?.friends;
+    }
   }
 }

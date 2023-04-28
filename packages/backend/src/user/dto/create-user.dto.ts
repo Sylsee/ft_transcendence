@@ -2,11 +2,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsEmail, IsNotEmpty, IsString, IsUrl, IsEnum } from 'class-validator';
-import { ProfileDto } from 'src/auth/dto/profile.dto';
+import { Transform } from 'class-transformer';
+import { IsEmail, IsEnum, IsNotEmpty, IsString, IsUrl } from 'class-validator';
+import * as sanitizeHtml from 'sanitize-html';
 
-// Local files
-import { AuthProvider } from '../../auth/dto/auth-provider.enum';
+// Local imports
+import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -14,6 +15,7 @@ export class CreateUserDto {
     isArray: true,
     description: 'Authentication provider',
     example: AuthProvider.GOOGLE,
+    required: true,
   })
   @IsNotEmpty()
   @IsEnum(AuthProvider)
@@ -22,6 +24,7 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'Provider ID from the authentication provider',
     example: '1234567890',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
@@ -30,34 +33,29 @@ export class CreateUserDto {
   @ApiProperty({
     description: 'User email address',
     example: 'example@example.com',
+    required: true,
   })
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
   @ApiProperty({
-    description: 'User display name',
-    example: 'John Doe',
+    description: 'User name',
+    example: 'John',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
+  @Transform(({ value }) => sanitizeHtml(value))
   name: string;
 
   @ApiProperty({
-    description: 'User avatar URL',
-    example: 'https://example.com/avatar.png',
+    description: 'User profile picture url',
+    example:
+      'http://localhost:3000/uploads/profile-pictures/profile-picture.png',
+    required: true,
   })
   @IsNotEmpty()
   @IsUrl()
-  avatarUrl: string;
-
-  static transform(profile: ProfileDto): CreateUserDto {
-    return {
-      provider: profile.provider,
-      providerId: profile.id,
-      email: profile.email,
-      name: profile.displayName,
-      avatarUrl: profile.photoUrl,
-    };
-  }
+  profilePictureUrl: string;
 }

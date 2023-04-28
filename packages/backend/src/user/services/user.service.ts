@@ -1,150 +1,194 @@
-// Nest dependencies
+// NestJS imports
 import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 
-// Local files
+// Local imports
+import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
+import { userIdInList } from 'src/shared/list';
+import {
+  downloadProfilePicture,
+  getProfilePictureUrlByDto,
+} from 'src/shared/profile-picture';
+import { formatUserName, getUniqueName } from 'src/shared/username';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UserRepository } from '../repositories/user.repository';
-import { AuthProvider } from '../../auth/dto/auth-provider.enum';
-import { UserDto } from '../dto/user.dto';
-import { FriendRequestDto } from '../dto/friend_request.dto';
-import { FriendRequest } from '../entities/friend_request.entity';
+import { FriendRequestsDto } from '../dto/relationship/friend-request.dto';
+import { FriendRequestDto } from '../dto/relationship/friend_request.dto';
+import { UserRelationshipDto } from '../dto/relationship/user-relationship.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserDto } from '../dto/user.dto';
+import { FriendRequest } from '../entities/friend_request.entity';
 import { UserEntity } from '../entities/user.entity';
-import { UserRelationshipDto } from '../dto/user-relationship.dto';
 import { UserRelationship } from '../enum/user-relationship.enum';
+import { UserRepository } from '../repositories/user.repository';
+import { FriendRequestService } from './friend_request.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  private readonly logger = new Logger(UserService.name);
 
-  async create(user: CreateUserDto): Promise<UserDto> {
-    return this.userRepository.create(user);
+  private socketUserMap = new Map<string, string>(); // socketId -> userId
+
+  constructor(
+    private readonly userRepository: UserRepository,
+    private friendRequestService: FriendRequestService,
+  ) {}
+
+  // TODO: Remove this method
+  findAll() {
+    return this.userRepository.find();
+  }
+
+  async create(userDto: CreateUserDto): Promise<UserEntity> {
+    userDto.name = formatUserName(userDto.name);
+    userDto.name = await getUniqueName(userDto.name, this);
+    userDto.profilePictureUrl = getProfilePictureUrlByDto(userDto);
+
+    const user = await this.userRepository.create(userDto);
+
+    await downloadProfilePicture(user, userDto, this);
+
+    return user;
+  }
+
+  update(userId: string, content: object): void {
+    this.userRepository.update(userId, content);
+  }
+
+  async save(user: UserEntity): Promise<UserEntity> {
+    return this.userRepository.save(user);
+  }
+
+  async findOneWithRelations(
+    id: string,
+    relations: string[],
+  ): Promise<UserEntity | void> {
+    return await this.userRepository.findOneByIdWithRelations(id, relations);
+  }
+
+  async findOneById(id: string): Promise<UserEntity | void> {
+    return this.userRepository.findOneById(id);
+  }
+
+  async findOneByName(username: string): Promise<UserEntity | void> {
+    return this.userRepository.findOneByName(username);
   }
 
   async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,
-  ): Promise<UserDto | void> {
-    const user = await this.userRepository.findUserByProviderIDAndProvider(
+  ): Promise<UserEntity | void> {
+    return this.userRepository.findUserByProviderIDAndProvider(
       providerId,
       provider,
     );
-
-    return user;
   }
 
-  async findAll(): Promise<UserDto[]> {
-    const users = await this.userRepository.find();
-    return await UserEntity.transformToDtoArray(users);
-  }
-
-  async findOne(id: string): Promise<UserEntity | void> {
-    return await this.userRepository.findOneById(id);
-  }
-
-  async findOneDto(id: string): Promise<UserDto> {
-    const user = await this.userRepository.findOneById(id);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID "${id}" not found`);
-    }
-
-    return user.transformToDto();
-  }
-
-  async updateOne(
+  async updateName(
     currentUser: UserEntity,
-    userId: string,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
-    if (currentUser.id !== userId) {
-      throw new ForbiddenException('Cannot update another user data');
+    currentUser.name = updateUserDto.name;
+    const updatedUser = await this.userRepository.save(currentUser);
+    if (!updatedUser) {
+      throw new InternalServerErrorException('Could not update user name');
     }
 
-    currentUser.name = updateUserDto.name;
-
-    return (await this.userRepository.save(currentUser)).transformToDto();
+    return this.transformToDto(updatedUser);
   }
+
+  // -----------------------------------------------------------
+  // ---------------------- Relationships ----------------------
+  // -----------------------------------------------------------
 
   async getFriendsById(id: string): Promise<UserDto[]> {
     const user = await this.findOneWithRelations(id, ['friends']);
-
     if (!user) {
-      throw new NotFoundException(`User with ID "${id}" not found`);
+      throw new NotFoundException('User not found');
     }
 
-    return await UserEntity.transformToDtoArray(user.friends);
+    return await this.transformToDtoArray(user.friends);
   }
 
-  async getSentFriendRequests(
-    currentUserId: string,
-    userId: string,
-  ): Promise<FriendRequestDto[]> {
-    if (currentUserId !== userId) {
-      throw new ForbiddenException(
-        'Cannot access to another user list requests',
-      );
-    }
+  async getFriendRequests(userId: string): Promise<FriendRequestsDto> {
     const user = await this.userRepository.findOneByIdWithRelations(userId, [
       'sentFriendRequests',
-    ]);
-
-    if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
-    }
-
-    return await FriendRequest.transformToDtoArray(user.sentFriendRequests);
-  }
-
-  async getReceivedFriendRequests(userId: string): Promise<FriendRequestDto[]> {
-    const user = await this.userRepository.findOneByIdWithRelations(userId, [
+      'sentFriendRequests.receiver',
       'receivedFriendRequests',
+      'receivedFriendRequests.receiver',
     ]);
-
     if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
+      throw new NotFoundException(`User not found`);
     }
 
-    return user.receivedFriendRequests;
+    const sentRequestDtos: FriendRequestDto[] =
+      await this.friendRequestService.getFriendRequestDto(
+        user.sentFriendRequests,
+      );
+    const receivedRequestDtos: FriendRequestDto[] =
+      await this.friendRequestService.getFriendRequestDto(
+        user.receivedFriendRequests,
+      );
+
+    return {
+      received: receivedRequestDtos,
+      sent: sentRequestDtos,
+    };
   }
 
   async sendFriendRequest(
     senderId: string,
     futureFriendId: string,
   ): Promise<void> {
+    if (senderId === futureFriendId) {
+      throw new BadRequestException('Cannot send friend request to yourself');
+    }
+
     const receiver = await this.userRepository.findOneByIdWithRelations(
       futureFriendId,
-      ['receivedFriendRequests'],
+      ['receivedFriendRequests', 'blockedUsers'],
     );
     if (!receiver) {
-      throw new NotFoundException(
-        `Receiver with ID "${futureFriendId}" not found`,
-      );
+      throw new NotFoundException('User not found');
     }
 
     const sender = await this.userRepository.findOneByIdWithRelations(
       senderId,
-      ['sentFriendRequests', 'sentFriendRequests.receiver'],
+      [
+        'sentFriendRequests',
+        'sentFriendRequests.receiver',
+        'receivedFriendRequests',
+        'receivedFriendRequests.sender',
+        'blockedUsers',
+      ],
     );
     if (!sender) {
-      throw new NotFoundException(`Sender with ID "${senderId}" not found`);
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
 
-    if (sender.id === receiver.id) {
-      throw new BadRequestException(`User ${sender.id} send request himself`);
-    } else if (
+    if (
       sender.sentFriendRequests.some((req) => req.receiver.id === receiver.id)
     ) {
-      throw new ConflictException(
-        `Friend request between users already exists`,
-      );
+      throw new ConflictException(`Friend request already sent`);
+    } else if (
+      userIdInList(receiver.blockedUsers, sender.id) ||
+      userIdInList(sender.blockedUsers, receiver.id)
+    ) {
+      throw new ForbiddenException('Cannot send friend request to this user');
+    }
+
+    if (
+      sender.receivedFriendRequests.some((req) => req.sender.id === receiver.id)
+    ) {
+      await this.addNewFriend(senderId, futureFriendId);
+      return;
     }
 
     const friendRequest = new FriendRequest();
@@ -157,7 +201,7 @@ export class UserService {
     await this.userRepository.saveArray([sender, receiver]);
   }
 
-  async getUserFriendsStatus(
+  async getFriendStatus(
     currentUserId: string,
     specifyUserId: string,
   ): Promise<UserRelationshipDto> {
@@ -172,11 +216,12 @@ export class UserService {
         'receivedFriendRequests.sender',
       ],
     );
-    const relationship = new UserRelationshipDto();
-
     if (!currentUser) {
-      throw new NotFoundException(`User with ID "${currentUserId}" not found`);
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
+
+    const relationship = new UserRelationshipDto();
 
     if (currentUser.friends.some((friend) => friend.id === specifyUserId)) {
       relationship.status = UserRelationship.friends;
@@ -209,17 +254,25 @@ export class UserService {
     currentUserId: string,
     newFriendId: string,
   ): Promise<void> {
+    if (currentUserId === newFriendId) {
+      throw new BadRequestException('Cannot add yourself as a friend');
+    }
+
     const currentUser = await this.findOneWithRelations(currentUserId, [
       'friends',
     ]);
-    const friend = await this.findOneWithRelations(newFriendId, ['friends']);
+    if (!currentUser) {
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
+    }
 
-    if (!currentUser || !friend) {
-      throw new NotFoundException(`User with ID "${newFriendId}" not found`);
-    } else if (currentUserId === newFriendId) {
-      throw new BadRequestException(`User cannot add to friends himself`);
-    } else if (this.isTwoUsersFriends(currentUser, friend)) {
-      throw new BadRequestException('Two users already friends');
+    const friend = await this.findOneWithRelations(newFriendId, ['friends']);
+    if (!friend) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    if (this.areUsersFriends(currentUser, friend)) {
+      throw new BadRequestException('Users are already friends');
     }
 
     currentUser.friends.push(friend);
@@ -236,14 +289,15 @@ export class UserService {
       'friends',
     ]);
     if (!currentUser) {
-      throw new NotFoundException('Current user not found');
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
 
     const friendToDelete = await this.findOneWithRelations(friendToDeleteId, [
       'friends',
     ]);
     if (!friendToDelete) {
-      throw new NotFoundException('Friend to delete not found');
+      throw new NotFoundException('User not found');
     }
 
     await this.deleteFriendByEntities(currentUser, friendToDelete);
@@ -253,36 +307,36 @@ export class UserService {
     currentUser: UserEntity,
     friendToDelete: UserEntity,
   ): Promise<void> {
-    if (!currentUser.friends) {
-      throw new NotFoundException(`Cannot find current user's friend list`);
-    } else if (!friendToDelete.friends) {
-      throw new NotFoundException(
-        `Cannot find friend list of friend to delete`,
-      );
-    }
-
-    if (
-      currentUser.friends.findIndex((user) => user.id === friendToDelete.id) ===
-      -1
-    ) {
-      throw new BadRequestException(`Two users aren't friends`);
+    if (!currentUser.friends || !friendToDelete.friends) {
+      this.logger.warn('Friend list not found for one of the users');
+      return;
     }
 
     currentUser.friends = currentUser.friends.filter((friend) => {
-      friend.id !== friendToDelete.id;
+      return friend.id !== friendToDelete.id;
     });
-
     friendToDelete.friends = friendToDelete.friends.filter((friend) => {
-      friend.id !== currentUser.id;
+      return friend.id !== currentUser.id;
     });
 
     await this.userRepository.saveArray([currentUser, friendToDelete]);
+  }
+
+  areUsersFriends(user1: UserEntity, user2: UserEntity): boolean {
+    return (
+      user1.friends.some((user) => user.id === user2.id) ||
+      user2.friends.some((user) => user.id === user1.id)
+    );
   }
 
   async blockUserById(
     currentUserId: string,
     userToBlockId: string,
   ): Promise<void> {
+    if (currentUserId === userToBlockId) {
+      throw new BadRequestException(`User cannot block himself`);
+    }
+
     const userToBlock = await this.userRepository.findOneByIdWithRelations(
       userToBlockId,
       ['friends'],
@@ -296,25 +350,18 @@ export class UserService {
       ['blockedUsers', 'friends'],
     );
     if (!currentUser) {
-      throw new InternalServerErrorException(`User not found`);
-    }
-
-    if (currentUserId == userToBlockId) {
-      throw new BadRequestException(`User cannot block himself`);
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
 
     const isUserAlreadyBlocked = currentUser.blockedUsers.some(
       (u) => u.id === userToBlock.id,
     );
     if (isUserAlreadyBlocked) {
-      return;
+      throw new BadRequestException(`User is already blocked`);
     }
 
-    if (
-      userToBlock.friends &&
-      currentUser.friends &&
-      this.isTwoUsersFriends(currentUser, userToBlock)
-    ) {
+    if (userIdInList(currentUser.friends, userToBlock.id)) {
       await this.deleteFriendByEntities(currentUser, userToBlock);
     }
 
@@ -322,66 +369,131 @@ export class UserService {
     await this.userRepository.save(currentUser);
   }
 
-  async getBlockedUsers(
-    currentUserId: string,
-    userId: string,
-  ): Promise<UserDto[]> {
-    if (currentUserId !== userId) {
-      throw new ForbiddenException(
-        'Cannot access to list blocked users of another user',
-      );
-    }
-
+  async getBlockedUsers(currentUserId: string): Promise<UserDto[]> {
     const currentUser = await this.userRepository.findOneByIdWithRelations(
       currentUserId,
       ['blockedUsers'],
     );
-
     if (!currentUser) {
-      throw new NotFoundException(`User with ID "${currentUserId}" not found`);
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
 
-    return await UserEntity.transformToDtoArray(currentUser.blockedUsers);
+    return await this.transformToDtoArray(currentUser.blockedUsers);
   }
 
   async unblockUserById(
     currentUserId: string,
     userToUnblockId: string,
   ): Promise<void> {
+    if (currentUserId === userToUnblockId) {
+      throw new BadRequestException(`User cannot unblock himself`);
+    }
+
     const currentUser = await this.userRepository.findOneByIdWithRelations(
       currentUserId,
       ['blockedUsers'],
     );
-
     if (!currentUser) {
-      throw new NotFoundException(`User with ID "${currentUserId}" not found`);
+      this.logger.error('Sender not found after authentication');
+      throw new InternalServerErrorException();
     }
 
-    const index = currentUser.blockedUsers.findIndex(
-      (u) => u.id === userToUnblockId,
+    if (!userIdInList(currentUser.blockedUsers, userToUnblockId)) {
+      throw new BadRequestException(`User is not blocked`);
+    }
+
+    currentUser.blockedUsers = currentUser.blockedUsers.filter(
+      (user) => user.id !== userToUnblockId,
     );
-    if (index === -1) {
-      throw new BadRequestException(
-        `User to unblock "${userToUnblockId}" not in blocked list`,
-      );
-    }
-
-    currentUser.blockedUsers.splice(index, 1);
-
     await this.userRepository.save(currentUser);
   }
 
-  async findOneWithRelations(
-    id: string,
-    relations: string[],
-  ): Promise<UserEntity | void> {
-    return await this.userRepository.findOneByIdWithRelations(id, relations);
+  async findUsersNotBlockingUser(
+    userId: string,
+    users: UserEntity[],
+  ): Promise<UserEntity[]> {
+    const userIds = users.map((user) => user.id);
+
+    const blockingUsers = await this.userRepository.findUsersBlocking(
+      userId,
+      userIds,
+    );
+    if (!blockingUsers) {
+      return users;
+    }
+
+    return users.filter((user) => {
+      return !blockingUsers?.some(
+        (blockingUser) => blockingUser.id === user.id,
+      );
+    });
   }
 
-  isTwoUsersFriends(user1: UserEntity, user2: UserEntity): boolean {
-    return (
-      user1.friends.some((user) => user.id === user2.id) ||
-      user2.friends.some((user) => user.id === user1.id)
-    );
+  // -----------------------------------------------------------
+  // --------------------------- 2fa ---------------------------
+  // -----------------------------------------------------------
+
+  async turnOn2fa(user: UserEntity): Promise<any> {
+    user.isTwoFactorAuthEnabled = true;
+    return this.userRepository.save(user);
+  }
+
+  async turnOff2fa(user: UserEntity): Promise<any> {
+    user.twoFactorAuthSecret = null;
+    user.isTwoFactorAuthEnabled = false;
+    return this.userRepository.save(user);
+  }
+
+  // -----------------------------------------------------------
+  // ------------------------- Socket --------------------------
+  // -----------------------------------------------------------
+
+  getSocketMap(): Map<string, string> {
+    return this.socketUserMap;
+  }
+
+  setSocketUser(socketId: string, userId: string): void {
+    this.socketUserMap.set(socketId, userId);
+  }
+
+  removeSocketUser(socketId: string): void {
+    this.socketUserMap.delete(socketId);
+  }
+
+  async getUserBySocket(socketId: string): Promise<UserEntity | void> {
+    const userId = this.findUserIdBySocketId(socketId);
+    if (userId) {
+      return this.findOneById(userId);
+    }
+  }
+
+  private findUserIdBySocketId(socketId: string): string | undefined {
+    return this.socketUserMap.get(socketId);
+  }
+
+  async getSocketID(userId: string): Promise<string | undefined> {
+    for (const [socketId, id] of this.socketUserMap.entries()) {
+      if (id === userId) {
+        return socketId;
+      }
+    }
+    return undefined;
+  }
+
+  // -----------------------------------------------------------
+  // ------------------------- Utils ---------------------------
+  // -----------------------------------------------------------
+
+  transformToDto(user: UserEntity): UserDto {
+    return {
+      id: user.id,
+      name: user.name,
+      profilePictureUrl: user.profilePictureUrl,
+    };
+  }
+
+  transformToDtoArray(users: UserEntity[]): Promise<UserDto[]> {
+    return Promise.all(users.map((user) => this.transformToDto(user)));
   }
 }

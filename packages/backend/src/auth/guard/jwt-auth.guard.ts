@@ -1,4 +1,4 @@
-// NestJs imports
+// NestJS imports
 import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 

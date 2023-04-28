@@ -1,21 +1,20 @@
 // Third-party imports
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
+  Entity,
+  JoinTable,
   ManyToMany,
   OneToMany,
-  AfterLoad,
-  JoinTable,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
-// Local files
-import { AuthProvider } from '../../auth/dto/auth-provider.enum';
+// Local imports
+import { ChannelEntity } from 'src/chat/entities/channel.entity';
+import { MessageEntity } from 'src/chat/entities/message.entity';
+import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
+import { AuthProvider } from '../../auth/enum/auth-provider.enum';
+import { UserStatus } from '../enum/user-status.enum';
 import { FriendRequest } from './friend_request.entity';
-import { UserDto } from '../dto/user.dto';
-import { plainToClass } from 'class-transformer';
-import { validate } from 'class-validator';
-import { InternalServerErrorException } from '@nestjs/common';
 
 @Entity('users')
 export class UserEntity {
@@ -38,7 +37,20 @@ export class UserEntity {
   name: string;
 
   @Column()
-  avatarUrl: string;
+  profilePictureUrl: string;
+
+  @Column({
+    type: 'enum',
+    enum: UserStatus,
+    default: UserStatus.inactive,
+  })
+  status: UserStatus;
+
+  @Column({ nullable: true })
+  twoFactorAuthSecret: string;
+
+  @Column({ default: false })
+  isTwoFactorAuthEnabled: boolean;
 
   // Relationships
   @ManyToMany(() => UserEntity, (user) => user.friends, {
@@ -46,12 +58,6 @@ export class UserEntity {
   })
   @JoinTable()
   friends: UserEntity[];
-
-  @ManyToMany(() => UserEntity, (user) => user.blockedUsers, {
-    nullable: true,
-  })
-  @JoinTable()
-  blockedUsers: UserEntity[];
 
   @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender, {
     nullable: true,
@@ -65,29 +71,32 @@ export class UserEntity {
   })
   receivedFriendRequests: FriendRequest[];
 
-  transformToDto(): UserDto {
-    return {
-      id: this.id,
-      name: this.name,
-      avatarUrl: this.avatarUrl,
-    };
-  }
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers, {
+    nullable: true,
+  })
+  @JoinTable()
+  blockedUsers: UserEntity[];
 
-  static async transformToDtoArray(users: UserEntity[]): Promise<UserDto[]> {
-    const userDtos = users.map((user) =>
-      plainToClass(UserDto, {
-        id: user.id,
-        name: user.name,
-        avatarUrl: user.avatarUrl,
-      }),
-    );
+  // Chat
+  @ManyToMany(() => ChannelEntity, (channel) => channel.users, {
+    nullable: true,
+  })
+  channels: ChannelEntity[];
 
-    const errors = await validate(userDtos);
+  @OneToMany(() => ChannelEntity, (channel) => channel.owner, {
+    nullable: true,
+  })
+  ownedChannels: ChannelEntity[];
 
-    if (errors.length > 0) {
-      throw new InternalServerErrorException(`Error while transform to userDto array: ${errors}`);
-    }
+  @OneToMany(() => MessageEntity, (message) => message.sender, {
+    cascade: ['remove'],
+    nullable: true,
+  })
+  sendMessages: MessageEntity[];
 
-    return userDtos;
-  }
+  @OneToMany(() => MuteUserEntity, (muteUser) => muteUser.user, {
+    cascade: ['remove'],
+    nullable: true,
+  })
+  muteChannels: MuteUserEntity[];
 }

@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 // Third-party imports
 import { Repository } from 'typeorm';
 
-// Local files
+// Local imports
 import { FriendRequest } from '../entities/friend_request.entity';
 
 @Injectable()
@@ -17,15 +17,23 @@ export class FriendRequestRepository {
     private friendRequestRepository: Repository<FriendRequest>,
   ) {}
 
+  save(newFriendRequest: FriendRequest): Promise<FriendRequest> {
+    return this.friendRequestRepository.save(newFriendRequest);
+  }
+
+  delete(friendRequest: FriendRequest) {
+    this.friendRequestRepository.delete(friendRequest.id);
+  }
+
   async findOneById(id: string): Promise<FriendRequest | void> {
     return this.friendRequestRepository.findOneBy({ id: id }).catch((error) => {
       this.logger.error(error);
     });
   }
 
-  async findSpecifyFriendRequest(
-    receiverId: string,
+  async findFriendRequest(
     senderId: string,
+    receiverId: string,
   ): Promise<FriendRequest | void> {
     return this.friendRequestRepository
       .createQueryBuilder('req')
@@ -59,13 +67,5 @@ export class FriendRequestRepository {
       .catch((error) => {
         this.logger.error(error);
       });
-  }
-
-  saveFriendRequest(newFriendRequest: FriendRequest): Promise<FriendRequest> {
-    return this.friendRequestRepository.save(newFriendRequest);
-  }
-
-  deleteFriendRequest(friendRequest: FriendRequest) {
-    this.friendRequestRepository.delete(friendRequest.id);
   }
 }

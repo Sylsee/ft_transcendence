@@ -1,22 +1,26 @@
 // NestJS imports
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
 import { HttpService } from '@nestjs/axios';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { PassportStrategy } from '@nestjs/passport';
 
 // Third-party imports
+import { plainToInstance } from 'class-transformer';
+import { validateOrReject } from 'class-validator';
 import { Strategy } from 'passport-oauth2';
 import { stringify } from 'querystring';
 import { lastValueFrom } from 'rxjs';
-import { validateOrReject } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
 
 // Local imports
-import { AuthService } from '../auth.service';
-import { ProfileDto } from '../dto/profile.dto';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { AuthProvider } from '../dto/auth-provider.enum';
 import { UserDto } from 'src/user/dto/user.dto';
+import { AuthService } from '../auth.service';
+import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
@@ -44,8 +48,9 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
 
   async validate(
     _accessToken: string,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _refreshToken: string,
-  ): Promise<{ user: UserDto; new: Boolean } | undefined> {
+  ): Promise<{ user: UserDto; new: boolean } | undefined> {
     // Fetch user data from 42's API
     const response = await lastValueFrom(
       this.httpService.get('https://api.intra.42.fr/v2/me', {
@@ -54,25 +59,22 @@ export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
         },
       }),
     );
-    if (!response) {
+    if (!response || !response.data) {
       this.logger.warn("Failed to fetch user data via 42's API");
-      throw new UnauthorizedException();
+      throw new InternalServerErrorException();
     }
 
     // Validate user data using class-validator
-    const profileDto = plainToInstance(ProfileDto, {
+    const userDto: CreateUserDto = plainToInstance(CreateUserDto, {
       provider: AuthProvider.FORTYTWO,
-      id: response.data.id.toString(),
-      displayName: response.data.usual_first_name || response.data.first_name,
+      providerId: response.data.id.toString(),
       email: response.data.email,
-      photoUrl: response.data.image.link,
+      name: response.data.usual_first_name || response.data.first_name,
+      profilePictureUrl: response.data.image?.versions?.medium,
     });
 
     // Create user if not exists
     try {
-      await validateOrReject(profileDto);
-
-      const userDto = CreateUserDto.transform(profileDto);
       await validateOrReject(userDto);
 
       const user = await this.authService.findOrCreateUser(userDto);

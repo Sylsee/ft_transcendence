@@ -1,7 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { UserRelationship } from "../enum/user-relationship.enum";
-import { IsEnum, IsNotEmpty } from "class-validator";
+// NestJS imports
+import { ApiProperty } from '@nestjs/swagger';
 
+// Third-party imports
+import { IsEnum, IsNotEmpty } from 'class-validator';
+
+// Local imports
+import { UserRelationship } from '../../enum/user-relationship.enum';
 
 export class UserRelationshipDto {
   @ApiProperty({

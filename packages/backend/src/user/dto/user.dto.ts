@@ -2,38 +2,33 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import {
-  IsNotEmpty,
-  IsString,
-  IsUUID,
-  IsUrl,
-} from 'class-validator';
-
-// Local imports
-import { UserStatus } from '../enum/user-status.enum';
+import { IsNotEmpty, IsString, IsUUID, IsUrl } from 'class-validator';
 
 export class UserDto {
   @ApiProperty({
     description: 'User id',
     example: '12345678-abcd-1234-abcd-1234567890ab',
+    required: true,
   })
   @IsNotEmpty()
   @IsUUID()
   id: string;
 
   @ApiProperty({
-    description: 'The display name of the user',
+    description: 'User name',
     example: 'John',
+    required: true,
   })
   @IsNotEmpty()
   @IsString()
   name: string;
 
   @ApiProperty({
-    description: 'The URL to the user avatar image',
-    example: 'https://example.com/avatar.png',
+    description: 'User profile picture url',
+    example: 'http://localhost:3000/uploads/profile-pictures/avatar.png',
+    required: true,
   })
   @IsNotEmpty()
   @IsUrl()
-  avatarUrl: string;
+  profilePictureUrl: string;
 }

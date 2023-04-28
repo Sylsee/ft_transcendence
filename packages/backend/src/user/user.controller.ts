@@ -1,37 +1,47 @@
-// NestJs imports
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// NestJS imports
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
-  ApiExtraModels,
+  ApiConflictResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
-  getSchemaPath,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
-// Local files
-import { ErrorBadRequest } from 'src/error/error-bad-request';
-import { UpdateFriendRequestDto } from './dto/update-friend-request.dto';
+// Third-party imports
+import { Request } from 'express';
+
+// Local imports
+import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
+import { multerConfig } from 'src/config/multer.config';
+import { getProfilePictureUrl } from 'src/shared/profile-picture';
+import { FriendRequestsDto } from './dto/relationship/friend-request.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
-import { UserService } from './services/user.service';
-import { FriendRequestDto } from './dto/friend_request.dto';
-import { FriendRequestService } from './services/friend_request.service';
 import { UserEntity } from './entities/user.entity';
-import { UserRelationshipDto } from './dto/user-relationship.dto';
 import { FriendRequestStatus } from './enum/friend_request-status.enum';
+import { FriendRequestService } from './services/friend_request.service';
+import { UserService } from './services/user.service';
 
 const ApiUserIdParam = ApiParam({
   name: 'id',
@@ -40,84 +50,115 @@ const ApiUserIdParam = ApiParam({
 });
 
 @ApiTags('Users')
-@ApiExtraModels(ErrorBadRequest)
-@ApiBadRequestResponse({
-  description: ErrorBadRequest.description,
-  schema: {
-    $ref: getSchemaPath(ErrorBadRequest),
-  },
-})
 @Controller('users')
 export class UserController {
+  private readonly logger: Logger = new Logger(UserController.name);
+
   constructor(
-    private readonly userService: UserService,
+    private userService: UserService,
+    private configService: ConfigService,
     private readonly friendRequestService: FriendRequestService,
   ) {}
 
   // TODO: Remove this endpoint
-  // ------------------------------------------------------------
-  // -------------------- Debug Endpoints -----------------------
-  // ------------------------------------------------------------
   @Get()
   @ApiOperation({
     summary: 'Get all users',
     description: 'Retrieve all users.',
   })
   @ApiOkResponse({ description: 'Users found', type: [UserDto] })
-  async getAllUsers() {
-    return await this.userService.findAll();
+  async getAllUsers(@Req() request: Request): Promise<any> {
+    if (this.configService.get<string>('NODE_ENV') === 'production') {
+      throw new BadRequestException();
+    }
+    return {
+      token: request.cookies['access_token'],
+      ...(await this.userService.findAll()),
+    };
   }
 
   // ------------------------------------------------------------
   // -------------------- User Endpoints ------------------------
   // ------------------------------------------------------------
-  @Get(':id')
-  @UseGuards(JwtAuthGuard)
+
+  @Get('user/:id')
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user by id',
     description: 'Retrieve a user by their unique identifier.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User found', type: UserDto })
-  async getUserById(@Param('id') id: string): Promise<UserDto> {
-    return await this.userService.findOneDto(id);
+  @ApiBadRequestResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getUserById(@Req() req, @Param('id') id: string): Promise<UserDto> {
+    const user = await this.userService.findOneById(id);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    // TODO: See if we send the user status if users are friends
+    return this.userService.transformToDto(user);
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
+  @Patch()
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
-    summary: 'Update user',
-    description: 'Update the specified user with the provided data.',
+    summary: 'Update user name',
+    description: 'Update the name of the current user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'User updated', type: UserDto })
+  @ApiOkResponse({ description: 'User name updated', type: UserDto })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  async updateUser(
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async updateUserName(
     @Req() req,
-    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
-    const user: UserEntity = req.user;
-    return await this.userService.updateOne(user, id, updateUserDto);
+    return await this.userService.updateName(req.user, updateUserDto);
+  }
+
+  @Post('profile-picture')
+  @UseGuards(Jwt2faAuthGuard)
+  @UseInterceptors(FileInterceptor('profile-picture', multerConfig))
+  @ApiOperation({
+    summary: 'Upload profile picture',
+    description: 'Upload a profile picture for the current user.',
+  })
+  @ApiOkResponse({ description: 'Profile picture uploaded', type: UserDto })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async uploadProfilePicture(
+    @Req() req: any,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const profilePictureUrl = getProfilePictureUrl(file.filename);
+
+    if (req.user.profilePictureUrl !== profilePictureUrl) {
+      req.user.profilePictureUrl = profilePictureUrl;
+      this.userService.save(req.user);
+    }
   }
 
   // ------------------------------------------------------------
   // -------------------- Friend Endpoints ----------------------
   // ------------------------------------------------------------
+
   @Get('friends/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friends',
     description: 'Retrieve the friends of the specified user.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
-  async getUserFriends(@Param('id') id: string) {
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getFriends(@Param('id') id: string) {
     return await this.userService.getFriendsById(id);
   }
 
   @Get('friend-status/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friend status',
     description:
@@ -126,15 +167,14 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({
     description: 'User friend status found',
-    type: UserRelationshipDto,
   })
-  async getUserFriendStatus(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    return await this.userService.getUserFriendsStatus(user.id, id);
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getFriendStatus(@Req() req, @Param('id') id: string) {
+    return await this.userService.getFriendStatus(req.user.id, id);
   }
 
   @Delete('friend/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Delete a friend',
     description:
@@ -142,6 +182,8 @@ export class UserController {
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Friend deleted', type: [UserDto] })
+  @ApiNotFoundResponse({ description: 'Friend request not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteUserFriend(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
     await this.friendRequestService.deleteFriendRequestBetweenUsers(
@@ -154,86 +196,102 @@ export class UserController {
   // ------------------------------------------------------------
   // -------------------- Friend Request Endpoints --------------
   // ------------------------------------------------------------
+
   @Post('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Send a friend request',
     description: 'Send a friend request to the specified user ID.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Friend request sent', type: [UserDto] })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiBadRequestResponse({
+    description: 'Cannot send friend request to yourself',
+  })
+  @ApiConflictResponse({ description: 'Friend request already sent' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async sendUserFriendRequest(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    await this.userService.sendFriendRequest(user.id, id);
+    await this.userService.sendFriendRequest(req.user.id, id);
   }
 
-  @Get('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @Get('friend-request')
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get user friend requests',
-    description:
-      'Retrieve a list of friend requests for the specified user ID.',
+    description: 'Retrieve the list of friend requests.',
   })
   @ApiUserIdParam
   @ApiOkResponse({
     description: 'User friend requests found',
-    type: [FriendRequestDto],
+    type: FriendRequestsDto,
   })
-  async getUserFriendRequests(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    return await this.userService.getSentFriendRequests(user.id, id);
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getFriendRequests(@Req() req): Promise<FriendRequestsDto> {
+    return await this.userService.getFriendRequests(req.user.id);
   }
 
-  @Patch('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @Patch('friend-request/:id/approve')
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
-    summary: 'Accept or deny received friend request',
-    description:
-      'Accept or deny a received friend request from the specified user.',
+    summary: 'Accept received friend request',
+    description: 'Accept a received friend request from the specified user.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend request updated', type: [UserDto] })
+  @ApiOkResponse({ description: 'Friend request accepted' })
+  @ApiNotFoundResponse({ description: 'Friend request not found' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
-  async updateUserFriendRequest(
-    @Req() req,
-    @Param('id') id: string,
-    @Body() updateFriendRequestDto: UpdateFriendRequestDto,
-  ) {
-    const user: UserEntity = req.user;
-
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async approveFriendRequest(@Req() req, @Param('id') id: string) {
     await this.friendRequestService.changeFriendRequestStatus(
-      user,
+      req.user,
       id,
-      updateFriendRequestDto,
+      FriendRequestStatus.approved,
     );
 
-    if (updateFriendRequestDto.status === FriendRequestStatus.approved) {
-      await this.userService.addNewFriend(user.id, id);
-    }
+    await this.userService.addNewFriend(req.user.id, id);
+  }
+
+  @Patch('friend-request/:id/reject')
+  @UseGuards(Jwt2faAuthGuard)
+  @ApiOperation({
+    summary: 'Deny received friend request',
+    description: 'Deny a received friend request from the specified user.',
+  })
+  @ApiUserIdParam
+  @ApiOkResponse({ description: 'Friend request denied' })
+  @ApiNotFoundResponse({ description: 'Friend request not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async rejectFriendRequest(@Req() req, @Param('id') id: string) {
+    await this.friendRequestService.changeFriendRequestStatus(
+      req.user,
+      id,
+      FriendRequestStatus.rejected,
+    );
   }
 
   @Delete('friend-request/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Delete a sent friend request',
     description: 'Cancel a friend request sent to the specified user ID.',
   })
   @ApiUserIdParam
-  @ApiOkResponse({ description: 'Friend request deleted', type: [UserDto] })
+  @ApiOkResponse({ description: 'Friend request deleted' })
+  @ApiNotFoundResponse({ description: 'Friend request not found' })
+  @ApiBadRequestResponse({ description: 'Friend request already processed' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteUserFriendRequest(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-
-    await this.friendRequestService.deleteFriendRequestByReceiverId(
-      user.id,
-      id,
-    );
+    await this.friendRequestService.deleteFriendRequest(req.user.id, id);
   }
 
   // ------------------------------------------------------------
   // -------------------- Block User Endpoints ------------------
   // ------------------------------------------------------------
+
   @Post('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Block a user',
     description:
@@ -241,34 +299,37 @@ export class UserController {
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User blocked', type: [UserDto] })
+  @ApiBadRequestResponse({ description: 'Cannot block yourself' })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async blockUser(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    await this.userService.blockUserById(user.id, id);
+    await this.userService.blockUserById(req.user.id, id);
   }
 
-  @Get('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @Get('block')
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Get blocked users',
-    description: 'Retrieve a list of blocked users for the specify user.',
+    description: 'Retrieve the list of blocked users.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'Blocked users found', type: [UserDto] })
-  async getBlockedUsers(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    return await this.userService.getBlockedUsers(req.id, id);
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getBlockedUsers(@Req() req) {
+    return await this.userService.getBlockedUsers(req.user.id);
   }
 
   @Delete('block/:id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(Jwt2faAuthGuard)
   @ApiOperation({
     summary: 'Unblock a user',
     description: 'Unblock the specified user by their unique identifier.',
   })
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User unblocked', type: [UserDto] })
+  @ApiBadRequestResponse({ description: 'User is not blocked' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async unblockUser(@Req() req, @Param('id') id: string) {
-    const user: UserEntity = req.user;
-    await this.userService.unblockUserById(user.id, id);
+    await this.userService.unblockUserById(req.user.id, id);
   }
 }
