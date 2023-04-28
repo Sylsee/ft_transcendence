@@ -7,8 +7,8 @@ import {
 import { fetchUserById } from "api/user/userRequests";
 import { logout } from "store/auth-slice/auth-slice";
 import { getUser, setUser } from "store/selfUser-slice/selfUser-slice";
-import { RootState } from "types/global";
-import { User } from "types/user";
+import { RootState } from "types/global/global";
+import { User } from "types/user/user";
 
 const actionHandlers: Record<
 	string,

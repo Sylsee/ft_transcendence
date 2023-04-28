@@ -2,7 +2,7 @@ import { Chat } from "components/Chat/Chat";
 import { ChatModal } from "components/Chat/ChatModal/ChatModal";
 import { useFetchChannels } from "hooks/chat/useFetchChannels";
 import { useSelector } from "react-redux";
-import { RootState } from "types/global";
+import { RootState } from "types/global/global";
 
 interface ChatWrapperProps {
 	showModal: boolean;

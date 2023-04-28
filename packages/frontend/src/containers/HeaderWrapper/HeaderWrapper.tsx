@@ -9,8 +9,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { authenticate } from "store/auth-slice/auth-slice";
 import { setShowChatModal } from "store/chat-slice/chat-slice";
-import { AuthStatus } from "types/auth";
-import { RootState } from "types/global";
+import { AuthStatus } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const HeaderWrapper: React.FC = () => {
 	// state

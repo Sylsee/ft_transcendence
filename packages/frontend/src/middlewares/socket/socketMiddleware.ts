@@ -17,7 +17,7 @@ import {
 	handleNotificationInvite,
 	handleRemovedChannel,
 } from "store/socket-slice/socket-slice";
-import { RootState } from "types/global";
+import { RootState } from "types/global/global";
 
 const actionHandlers: Record<
 	string,

@@ -3,7 +3,7 @@ import { disableTwoFa, enableTwoFa } from "api/auth/2fa/2faRequests";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { setTwoFactorAuthEnabled } from "store/auth-slice/auth-slice";
-import { ApiErrorResponse } from "types/global";
+import { ApiErrorResponse } from "types/global/global";
 
 const useToggleTwoFa = (
 	isTwoFactorAuthEnabled: boolean

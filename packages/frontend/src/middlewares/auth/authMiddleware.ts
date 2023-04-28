@@ -13,8 +13,8 @@ import {
 	setAuthState,
 } from "store/auth-slice/auth-slice";
 import { getUser } from "store/selfUser-slice/selfUser-slice";
-import { AuthStatus, DecodedToken } from "types/auth";
-import { RootState } from "types/global";
+import { AuthStatus, DecodedToken } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const actionHandlers: Record<
 	string,

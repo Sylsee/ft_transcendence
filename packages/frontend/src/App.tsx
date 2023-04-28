@@ -16,8 +16,8 @@ import {
 	socketChatListeners,
 } from "sockets/listeners/chatListeners";
 import { connectSocket } from "sockets/socket";
-import { AuthStatus } from "types/auth";
-import { RootState } from "types/global";
+import { AuthStatus } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const router = createBrowserRouter([
 	{

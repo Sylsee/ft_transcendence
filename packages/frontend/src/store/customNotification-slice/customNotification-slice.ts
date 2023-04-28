@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
 	CustomNotification,
 	CustomNotificationState,
-} from "types/customNotification";
+} from "types/customNotification/customNotification";
 
 const initialState: CustomNotificationState = {
 	notifications: [],

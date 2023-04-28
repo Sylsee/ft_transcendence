@@ -11,8 +11,8 @@ import {
 	setActiveChannel,
 } from "store/chat-slice/chat-slice";
 import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
-import { ChannelType, Message } from "types/chat";
-import { RootState } from "types/global";
+import { ChannelType, Message } from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface MessageItemProps {
 	message: Message;

@@ -3,8 +3,8 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { removeCustomNotification } from "store/customNotification-slice/customNotification-slice";
-import { CustomNotificationType } from "types/customNotification";
-import { RootState } from "types/global";
+import { CustomNotificationType } from "types/customNotification/customNotification";
+import { RootState } from "types/global/global";
 
 interface ToastManagerProps {}
 

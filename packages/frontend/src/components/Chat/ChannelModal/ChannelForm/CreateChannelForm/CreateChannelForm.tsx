@@ -4,7 +4,7 @@ import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Channel, ChannelModalType, ChannelType } from "types/chat";
+import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
 interface CreateChannelFormProps {
 	handleCloseModal: () => void;

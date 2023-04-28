@@ -7,9 +7,9 @@ import {
 	MessageType,
 	ServerMessage,
 	SetMessagesPayload,
-} from "types/chat";
-import { RootState } from "types/global";
-import { ChannelIdPayload, ChannelPayload } from "types/socket";
+} from "types/chat/chat";
+import { RootState } from "types/global/global";
+import { ChannelIdPayload, ChannelPayload } from "types/socket/socket";
 
 const initialState: ChatState = {
 	channels: [],

@@ -3,7 +3,7 @@ import { JoinChannelForm } from "components/Chat/ChannelModal/ChannelForm/JoinCh
 import { Modal } from "components/Modal/Modal";
 import { ModalHeader } from "components/Modal/ModalHeader/ModalHeader";
 import { useEffect } from "react";
-import { Channel, ChannelModalType } from "types/chat";
+import { Channel, ChannelModalType } from "types/chat/chat";
 
 interface ChannelModalProps {
 	modalType: ChannelModalType;

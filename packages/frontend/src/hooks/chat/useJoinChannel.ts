@@ -2,9 +2,9 @@ import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { joinChannel } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
 import { addChannel, setActiveChannel } from "store/chat-slice/chat-slice";
-import { JoinChannelRequest } from "types/chat";
-import { ApiErrorResponse } from "types/global";
-import { ChannelPayload } from "types/socket";
+import { JoinChannelRequest } from "types/chat/chat";
+import { ApiErrorResponse } from "types/global/global";
+import { ChannelPayload } from "types/socket/socket";
 
 const useJoinChannel = (): UseMutationResult<
 	ChannelPayload,

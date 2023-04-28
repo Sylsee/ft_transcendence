@@ -3,7 +3,7 @@ import { Modal } from "components/Modal/Modal";
 import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
 import { ModalHeader } from "components/Modal/ModalHeader/ModalHeader";
 import { useEffect, useRef, useState } from "react";
-import { ApiErrorResponse } from "types/global";
+import { ApiErrorResponse } from "types/global/global";
 
 interface TwoFactorAuthenticationModalProps {
 	title: string;

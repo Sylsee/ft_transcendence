@@ -1,8 +1,8 @@
 import { ErrorItem } from "components/Error/ErrorItem";
 import { Loader } from "components/Loader/Loader";
-import { ApiErrorResponse } from "types/global";
-import { LoaderType } from "types/loader";
-import { User } from "types/user";
+import { ApiErrorResponse } from "types/global/global";
+import { LoaderType } from "types/loader/loader";
+import { User } from "types/user/user";
 
 interface FriendsListProps {
 	isConnectedUser: boolean;

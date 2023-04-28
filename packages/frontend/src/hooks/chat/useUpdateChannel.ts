@@ -3,9 +3,9 @@ import { updateChannel } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { updateChannelSafety } from "store/chat-slice/chat-slice";
-import { CreateChannelRequest } from "types/chat";
-import { ApiErrorResponse } from "types/global";
-import { ChannelPayload } from "types/socket";
+import { CreateChannelRequest } from "types/chat/chat";
+import { ApiErrorResponse } from "types/global/global";
+import { ChannelPayload } from "types/socket/socket";
 
 const useUpdateChannel = (
 	id: string | undefined

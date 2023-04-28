@@ -6,7 +6,7 @@ import { useFetchUser } from "hooks/user/useFetchUser";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
-import { RootState } from "types/global";
+import { RootState } from "types/global/global";
 
 const Profile = () => {
 	// react-router

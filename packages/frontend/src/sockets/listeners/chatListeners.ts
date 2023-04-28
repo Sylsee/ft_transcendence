@@ -10,12 +10,12 @@ import {
 	handleNewChannel,
 	handleRemovedChannel,
 } from "store/socket-slice/socket-slice";
-import { Message, ServerMessage } from "types/chat";
+import { Message, ServerMessage } from "types/chat/chat";
 import {
 	ChannelNotifications,
 	CustomNotificationType,
-} from "types/customNotification";
-import { ChannelIdPayload, ChannelPayload } from "types/socket";
+} from "types/customNotification/customNotification";
+import { ChannelIdPayload, ChannelPayload } from "types/socket/socket";
 
 export const socketChatListeners = (dispatch: Dispatch) => {
 	const socket = getSocket();

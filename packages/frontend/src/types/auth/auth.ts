@@ -1,3 +1,4 @@
+// enums
 export enum AuthStatus {
 	NotAuthenticated,
 	PartiallyAuthenticated,

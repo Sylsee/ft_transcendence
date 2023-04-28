@@ -20,8 +20,8 @@ import {
 	ChannelModalType,
 	ChannelType,
 	MessageType,
-} from "types/chat";
-import { RootState } from "types/global";
+} from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface ChatProps {
 	channels: Channel[];

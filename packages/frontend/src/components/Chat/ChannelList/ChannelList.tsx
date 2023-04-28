@@ -1,6 +1,6 @@
 import { ChannelItem } from "components/Chat/ChannelItem/ChannelItem";
 import { useState } from "react";
-import { Channel } from "types/chat";
+import { Channel } from "types/chat/chat";
 
 interface ChannelListProps {
 	title: string;

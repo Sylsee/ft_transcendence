@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDeleteChannel } from "hooks/chat/useDeleteChannel";
 import { useLeaveChannel } from "hooks/chat/useLeaveChannel";
 import { useEffect, useState } from "react";
-import { Channel, ChannelType } from "types/chat";
+import { Channel, ChannelType } from "types/chat/chat";
 
 interface ChannelItemProps {
 	channel: Channel;

@@ -1,7 +1,7 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { updateUserById } from "api/user/userRequests";
-import { ApiErrorResponse } from "types/global";
-import { UpdateUserRequest, User } from "types/user";
+import { ApiErrorResponse } from "types/global/global";
+import { UpdateUserRequest, User } from "types/user/user";
 
 const useUpdateUser = (
 	id: string

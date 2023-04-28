@@ -3,7 +3,7 @@ import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
 import { useJoinChannel } from "hooks/chat/useJoinChannel";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Channel, ChannelType } from "types/chat";
+import { Channel, ChannelType } from "types/chat/chat";
 
 interface JoinChannelFormProps {
 	handleCloseModal: () => void;

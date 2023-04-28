@@ -5,8 +5,8 @@ import { IconButton } from "components/IconButton/IconButton";
 import { API_BASE_URL, API_ROUTES } from "config";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { AuthStatus } from "types/auth";
-import { RootState } from "types/global";
+import { AuthStatus } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const Home: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);

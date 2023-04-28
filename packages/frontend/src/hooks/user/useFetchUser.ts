@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { fetchUserById } from "api/user/userRequests";
-import { User } from "types/user";
+import { User } from "types/user/user";
 
 const useFetchUser = (
 	id: string | undefined,

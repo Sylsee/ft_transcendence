@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useUploadProfilePicture } from "hooks/user/useUploadProfilePicture";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { UserStatus } from "types/user";
+import { UserStatus } from "types/user/user";
 
 interface ProfileAvatarProps {
 	id: string;

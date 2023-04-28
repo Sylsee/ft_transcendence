@@ -3,7 +3,7 @@ import { deleteChannel } from "api/chat/chatRequests";
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { removeChannelById } from "store/chat-slice/chat-slice";
-import { ApiErrorResponse } from "types/global";
+import { ApiErrorResponse } from "types/global/global";
 
 const useDeleteChannel = (
 	id: string

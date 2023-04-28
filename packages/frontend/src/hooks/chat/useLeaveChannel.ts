@@ -1,8 +1,8 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { leaveChannel } from "api/chat/chatRequests";
 import { toast } from "react-toastify";
-import { Channel } from "types/chat";
-import { ApiErrorResponse } from "types/global";
+import { Channel } from "types/chat/chat";
+import { ApiErrorResponse } from "types/global/global";
 
 const useLeaveChannel = (
 	id: string

@@ -2,8 +2,8 @@ import { Profile2faAuth } from "components/Profile/ProfileCard/Profile2faAuth/Pr
 import { ProfileAvatar } from "components/Profile/ProfileCard/ProfileAvatar/ProfileAvatar";
 import { ProfileName } from "components/Profile/ProfileCard/ProfileName/ProfileName";
 import { useSelector } from "react-redux";
-import { RootState } from "types/global";
-import { User } from "types/user";
+import { RootState } from "types/global/global";
+import { User } from "types/user/user";
 
 interface ProfileCardProps {
 	user: User;

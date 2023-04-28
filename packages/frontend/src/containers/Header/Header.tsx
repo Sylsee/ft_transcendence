@@ -6,8 +6,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "store/auth-slice/auth-slice";
-import { AuthStatus } from "types/auth";
-import { RootState } from "types/global";
+import { AuthStatus } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const Header: React.FC = () => {
 	// state
