@@ -35,11 +35,10 @@ import { Request } from 'express';
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
 import { multerConfig } from 'src/config/multer.config';
 import { getProfilePictureUrl } from 'src/shared/profile-picture';
-import { FriendRequestsDto } from './dto/relationship/friend-request.dto';
+import { FriendRequestsDto } from './dto/relationship/friend-requests.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
-import { FriendRequestStatus } from './enum/friend_request-status.enum';
 import { FriendRequestService } from './services/friend_request.service';
 import { UserService } from './services/user.service';
 
@@ -244,12 +243,7 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'Bad Request' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async approveFriendRequest(@Req() req, @Param('id') id: string) {
-    await this.friendRequestService.changeFriendRequestStatus(
-      req.user,
-      id,
-      FriendRequestStatus.approved,
-    );
-
+    await this.friendRequestService.deleteFriendRequest(id, req.user.id);
     await this.userService.addNewFriend(req.user.id, id);
   }
 
@@ -264,11 +258,7 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Friend request not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async rejectFriendRequest(@Req() req, @Param('id') id: string) {
-    await this.friendRequestService.changeFriendRequestStatus(
-      req.user,
-      id,
-      FriendRequestStatus.rejected,
-    );
+    await this.friendRequestService.deleteFriendRequest(id, req.user.id);
   }
 
   @Delete('friend-request/:id')

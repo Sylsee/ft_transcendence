@@ -18,8 +18,7 @@ import {
 } from 'src/shared/profile-picture';
 import { formatUserName, getUniqueName } from 'src/shared/username';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { FriendRequestsDto } from '../dto/relationship/friend-request.dto';
-import { FriendRequestDto } from '../dto/relationship/friend_request.dto';
+import { FriendRequestsDto } from '../dto/relationship/friend-requests.dto';
 import { UserRelationshipDto } from '../dto/relationship/user-relationship.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserDto } from '../dto/user.dto';
@@ -128,23 +127,12 @@ export class UserService {
     }
 
     // prettier-ignore
-    const sentRequestDtos: FriendRequestDto[] =
-      user.sentFriendRequests.map((request) => {
-        const { receiver, ...rest } = request;
-        return this.friendRequestService.mapRequestToDto({
-          user: receiver,
-          ...rest,
-        });
-      },
+    const sentRequestDtos: UserDto[] = user.sentFriendRequests.map(
+      (request) => this.transformToDto(request.receiver),
     );
-    const receivedRequestDtos: FriendRequestDto[] =
-      user.receivedFriendRequests.map((request) => {
-        const { sender, ...rest } = request;
-        return this.friendRequestService.mapRequestToDto({
-          user: sender,
-          ...rest,
-        });
-      });
+    const receivedRequestDtos: UserDto[] = user.receivedFriendRequests.map(
+      (request) => this.transformToDto(request.sender),
+    );
 
     return {
       received: receivedRequestDtos,

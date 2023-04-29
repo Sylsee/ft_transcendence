@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 // Local imports
-import { FriendRequestDto } from './friend_request.dto';
+import { UserDto } from '../user.dto';
 
 export class FriendRequestsDto {
   @ApiProperty({
@@ -13,12 +13,12 @@ export class FriendRequestsDto {
     required: true,
   })
   @IsNotEmpty()
-  received: FriendRequestDto[];
+  received: UserDto[];
 
   @ApiProperty({
     description: 'The sent friend requests',
     required: true,
   })
   @IsNotEmpty()
-  sent: FriendRequestDto[];
+  sent: UserDto[];
 }
