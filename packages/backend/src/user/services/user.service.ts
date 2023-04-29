@@ -121,20 +121,30 @@ export class UserService {
       'sentFriendRequests',
       'sentFriendRequests.receiver',
       'receivedFriendRequests',
-      'receivedFriendRequests.receiver',
+      'receivedFriendRequests.sender',
     ]);
     if (!user) {
       throw new NotFoundException(`User not found`);
     }
 
+    // prettier-ignore
     const sentRequestDtos: FriendRequestDto[] =
-      await this.friendRequestService.getFriendRequestDto(
-        user.sentFriendRequests,
-      );
+      user.sentFriendRequests.map((request) => {
+        const { receiver, ...rest } = request;
+        return this.friendRequestService.mapRequestToDto({
+          user: receiver,
+          ...rest,
+        });
+      },
+    );
     const receivedRequestDtos: FriendRequestDto[] =
-      await this.friendRequestService.getFriendRequestDto(
-        user.receivedFriendRequests,
-      );
+      user.receivedFriendRequests.map((request) => {
+        const { sender, ...rest } = request;
+        return this.friendRequestService.mapRequestToDto({
+          user: sender,
+          ...rest,
+        });
+      });
 
     return {
       received: receivedRequestDtos,

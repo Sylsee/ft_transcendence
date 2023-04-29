@@ -9,7 +9,6 @@ import {
 
 // Local imports
 import { FriendRequestDto } from '../dto/relationship/friend_request.dto';
-import { FriendRequest } from '../entities/friend_request.entity';
 import { UserEntity } from '../entities/user.entity';
 import { FriendRequestStatus } from '../enum/friend_request-status.enum';
 import { FriendRequestRepository } from '../repositories/friend_request.repository';
@@ -77,18 +76,12 @@ export class FriendRequestService {
     this.friendRequestRepository.delete(request);
   }
 
-  async getFriendRequestDto(
-    friendRequests: FriendRequest[],
-  ): Promise<FriendRequestDto[]> {
-    if (!friendRequests.length) return Promise.resolve([]);
-
-    return friendRequests.map((request) => {
-      return {
-        id: request.id,
-        name: request.receiver.name,
-        profilePictureUrl: request.receiver.profilePictureUrl,
-        status: request.status,
-      };
-    });
+  mapRequestToDto(request: any): FriendRequestDto {
+    return {
+      id: request.user.id,
+      name: request.user.name,
+      profilePictureUrl: request.user.profilePictureUrl,
+      status: request.status,
+    };
   }
 }
