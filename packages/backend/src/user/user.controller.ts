@@ -185,10 +185,6 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async deleteUserFriend(@Req() req, @Param('id') id: string) {
     const user: UserEntity = req.user;
-    await this.friendRequestService.deleteFriendRequestBetweenUsers(
-      user.id,
-      id,
-    );
     await this.userService.deleteFriend(user.id, id);
   }
 

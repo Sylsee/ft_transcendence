@@ -24,20 +24,4 @@ export class FriendRequestService {
 
     this.friendRequestRepository.delete(request);
   }
-
-  async deleteFriendRequestBetweenUsers(
-    first: string,
-    second: string,
-  ): Promise<void> {
-    const request =
-      await this.friendRequestRepository.findPossibleFriendRequest(
-        first,
-        second,
-      );
-    if (!request) {
-      throw new NotFoundException('Friend request not found');
-    }
-
-    this.friendRequestRepository.delete(request);
-  }
 }
