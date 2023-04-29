@@ -152,8 +152,8 @@ export class UserController {
   @ApiOkResponse({ description: 'User friends found', type: [UserDto] })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async getFriends(@Param('id') id: string) {
-    return await this.userService.getFriendsById(id);
+  async getFriends(@Req() req, @Param('id') id: string) {
+    return await this.userService.getFriendsById(req.user, id);
   }
 
   @Get('friend-status/:id')

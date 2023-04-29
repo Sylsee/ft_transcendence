@@ -275,18 +275,14 @@ export class ChannelService {
 
     await this.channelRepository.save(channel);
 
-    this.chatGateway.sendEvent(user, ChatEvent.NOTIFICATION, {
+    this.chatGateway.sendEvent(user, ChatEvent.Notification, {
       content: `You joined the channel ${channel.name}`,
     });
 
-    this.chatGateway.sendEvent(
-      channel.users,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
-      {
-        channelId: channel.id,
-        content: `${user.name} joined the channel`,
-      },
-    );
+    this.chatGateway.sendEvent(channel.users, ChatEvent.ChannelServerMessage, {
+      channelId: channel.id,
+      content: `${user.name} joined the channel`,
+    });
 
     return ChannelDto.transform(channel, user.id);
   }
@@ -308,7 +304,7 @@ export class ChannelService {
       throw new ForbiddenException('Not in this channel');
     }
 
-    this.chatGateway.sendEvent(user.id, ChatEvent.NOTIFICATION, {
+    this.chatGateway.sendEvent(user.id, ChatEvent.Notification, {
       content: `You left the channel ${channel.name}`,
     });
 
@@ -338,7 +334,7 @@ export class ChannelService {
 
       this.chatGateway.sendEvent(
         channel.users,
-        ChatEvent.CHANNEL_SERVER_MESSAGE,
+        ChatEvent.ChannelServerMessage,
         {
           channelId: channel.id,
           content: `${user.name} left the channel`,
@@ -348,13 +344,13 @@ export class ChannelService {
       // Send channel avaibility event to the user
       const channelDto = ChannelDto.transform(channel, user.id);
       if (channelDto === null) {
-        this.chatGateway.sendEvent(user, ChatEvent.CHANNEL_UNAVAILABLE, {
+        this.chatGateway.sendEvent(user, ChatEvent.ChannelUnavailable, {
           channelId: channel.id,
         });
       } else {
         this.chatGateway.sendEvent(
           user,
-          ChatEvent.CHANNEL_AVAILABLE,
+          ChatEvent.ChannelAvailable,
           channelDto,
         );
       }

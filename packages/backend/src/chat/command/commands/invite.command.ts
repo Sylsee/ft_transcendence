@@ -94,13 +94,13 @@ export default class InviteCommand implements Command {
           socketID,
         );
       }
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION_INVITE, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.NotificationInvite, {
         channelId: channel.id,
         content: `${sender.name} invited you to ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `Invited ${invitedUser.name} to ${channel.name}`,
     });

@@ -53,7 +53,10 @@ export class UserDto {
   @IsEnum(UserStatus)
   status?: UserStatus;
 
-  static transform(user: UserEntity, requestUser: UserEntity = null): UserDto {
+  static transform(
+    user: UserEntity,
+    requestUser: UserEntity = undefined,
+  ): UserDto {
     const shouldIncludeStatus = (): boolean => {
       if (!requestUser) return false;
 

@@ -75,8 +75,7 @@ export class AuthService {
   async verify(token: string): Promise<UserEntity> {
     try {
       const payload = await this.jwtService.verify(token);
-      const user = await this.jwt2faStrategy.validate(payload);
-      return user;
+      return await this.jwt2faStrategy.validate(payload);
     } catch (error) {
       throw new UnauthorizedException({ message: error });
     }

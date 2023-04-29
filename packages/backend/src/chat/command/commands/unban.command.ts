@@ -81,12 +81,12 @@ export default class UnBanCommand implements Command {
           socketID,
         );
       }
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
         content: `You have been unbanned from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${unbanUser.name} has been unbanned`,
     });

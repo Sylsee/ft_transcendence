@@ -106,13 +106,16 @@ export class UserService {
   // ---------------------- Relationships ----------------------
   // -----------------------------------------------------------
 
-  async getFriendsById(id: string): Promise<UserDto[]> {
+  async getFriendsById(
+    currentUser: UserEntity,
+    id: string,
+  ): Promise<UserDto[]> {
     const user = await this.findOneWithRelations(id, ['friends']);
     if (!user) {
       throw new NotFoundException('User not found');
     }
 
-    return await this.transformToDtoArray(user.friends);
+    return await this.transformToDtoArray(user.friends, currentUser);
   }
 
   async getFriendRequests(userId: string): Promise<FriendRequestsDto> {
@@ -483,7 +486,12 @@ export class UserService {
   // ------------------------- Utils ---------------------------
   // -----------------------------------------------------------
 
-  transformToDtoArray(users: UserEntity[]): Promise<UserDto[]> {
-    return Promise.all(users.map((user) => UserDto.transform(user)));
+  transformToDtoArray(
+    users: UserEntity[],
+    requestUser: UserEntity = undefined,
+  ): Promise<UserDto[]> {
+    return Promise.all(
+      users.map((user) => UserDto.transform(user, requestUser)),
+    );
   }
 }

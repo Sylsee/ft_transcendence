@@ -78,12 +78,12 @@ export default class OpCommand implements Command {
     const socketID = await this.userService.getSocketID(opUser.id);
     if (socketID) {
       this.chatGateway.sendChannelAvailableEvent(channel, opUser.id, socketID);
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
         content: `You have been opped in ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${opUser.name} has been opped`,
     });

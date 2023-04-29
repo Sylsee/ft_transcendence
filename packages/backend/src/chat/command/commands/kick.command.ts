@@ -89,7 +89,7 @@ export default class KickCommand implements Command {
     const socketId = await this.userService.getSocketID(kickUser.id);
     if (socketId) {
       if (channel.type === ChannelType.PRIVATE) {
-        this.chatGateway.sendEvent(socketId, ChatEvent.CHANNEL_UNAVAILABLE, {
+        this.chatGateway.sendEvent(socketId, ChatEvent.ChannelUnavailable, {
           channelId: channel.id,
         });
       } else {
@@ -99,12 +99,12 @@ export default class KickCommand implements Command {
           socketId,
         );
       }
-      this.chatGateway.sendEvent(socketId, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketId, ChatEvent.Notification, {
         content: `You have been kicked from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `You have kicked ${kickUser.name} from ${channel.name}`,
     });
