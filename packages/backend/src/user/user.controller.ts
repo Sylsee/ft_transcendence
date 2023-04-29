@@ -91,13 +91,13 @@ export class UserController {
   @ApiBadRequestResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getUserById(@Req() req, @Param('id') id: string): Promise<UserDto> {
-    const user = await this.userService.findOneById(id);
+    const user = await this.userService.findOneWithRelations(id, ['friends']);
     if (!user) {
       throw new BadRequestException('User not found');
     }
 
-    // TODO: See if we send the user status if users are friends
-    return this.userService.transformToDto(user);
+    const userDto = UserDto.transform(user, req.user);
+    return userDto;
   }
 
   @Patch()
@@ -124,7 +124,7 @@ export class UserController {
     summary: 'Upload profile picture',
     description: 'Upload a profile picture for the current user.',
   })
-  @ApiOkResponse({ description: 'Profile picture uploaded', type: UserDto })
+  @ApiOkResponse({ description: 'Profile picture uploaded' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async uploadProfilePicture(
     @Req() req: any,

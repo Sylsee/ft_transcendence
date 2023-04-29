@@ -19,7 +19,7 @@ export class MessageService {
     channel: ChannelEntity,
     content: string,
   ): Promise<MessageEntity> {
-    return this.messageRepository.create(content, sender, channel);
+    return this.messageRepository.create(sender, channel, content);
   }
 
   async getMessageDto(

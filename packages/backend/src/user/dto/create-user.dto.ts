@@ -12,7 +12,6 @@ import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 export class CreateUserDto {
   @ApiProperty({
     enum: AuthProvider,
-    isArray: true,
     description: 'Authentication provider',
     example: AuthProvider.GOOGLE,
     required: true,

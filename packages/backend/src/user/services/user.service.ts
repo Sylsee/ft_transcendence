@@ -99,7 +99,7 @@ export class UserService {
       throw new InternalServerErrorException('Could not update user name');
     }
 
-    return this.transformToDto(updatedUser);
+    return UserDto.transform(updatedUser);
   }
 
   // -----------------------------------------------------------
@@ -128,10 +128,10 @@ export class UserService {
 
     // prettier-ignore
     const sentRequestDtos: UserDto[] = user.sentFriendRequests.map(
-      (request) => this.transformToDto(request.receiver),
+      (request) => UserDto.transform(request.receiver),
     );
     const receivedRequestDtos: UserDto[] = user.receivedFriendRequests.map(
-      (request) => this.transformToDto(request.sender),
+      (request) => UserDto.transform(request.sender),
     );
 
     return {
@@ -483,15 +483,7 @@ export class UserService {
   // ------------------------- Utils ---------------------------
   // -----------------------------------------------------------
 
-  transformToDto(user: UserEntity): UserDto {
-    return {
-      id: user.id,
-      name: user.name,
-      profilePictureUrl: user.profilePictureUrl,
-    };
-  }
-
   transformToDtoArray(users: UserEntity[]): Promise<UserDto[]> {
-    return Promise.all(users.map((user) => this.transformToDto(user)));
+    return Promise.all(users.map((user) => UserDto.transform(user)));
   }
 }

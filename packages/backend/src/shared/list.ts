@@ -12,5 +12,5 @@ export function removeUserFromList(
 }
 
 export function userIdInList(list: UserEntity[], userId: string): boolean {
-  return list && list.findIndex((user) => user.id === userId) !== -1;
+  return list?.some((user) => user.id === userId) ?? false;
 }
