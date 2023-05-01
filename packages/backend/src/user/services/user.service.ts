@@ -344,7 +344,13 @@ export class UserService {
 
     const currentUser = await this.userRepository.findOneByIdWithRelations(
       currentUserId,
-      ['blockedUsers', 'friends'],
+      [
+        'blockedUsers',
+        'friends',
+        'receivedFriendRequests',
+        'receivedFriendRequests.receiver',
+        'receivedFriendRequests.sender',
+      ],
     );
     if (!currentUser) {
       this.logger.error('Sender not found after authentication');
@@ -360,6 +366,19 @@ export class UserService {
 
     if (userIdInList(currentUser.friends, userToBlock.id)) {
       await this.deleteFriendByEntities(currentUser, userToBlock);
+    }
+    if (currentUser.receivedFriendRequests.some((user) => user.receiver.id)) {
+      await this.friendRequestService.deleteFriendRequest(
+        userToBlock.id,
+        currentUser.id,
+      );
+    } else if (
+      currentUser.receivedFriendRequests.some((user) => user.sender.id)
+    ) {
+      await this.friendRequestService.deleteFriendRequest(
+        currentUser.id,
+        userToBlock.id,
+      );
     }
 
     currentUser.blockedUsers.push(userToBlock);
