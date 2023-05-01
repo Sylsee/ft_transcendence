@@ -8,7 +8,7 @@ import { ChannelType } from 'src/chat/enum/channel-type.enum';
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { ChannelService } from '../../services/channel.service';
 import { Command } from '../command.interface';
 
@@ -87,15 +87,15 @@ export default class BanCommand implements Command {
     // Send events to the banned user
     const socketID = await this.userService.getSocketID(banUser.id);
     if (socketID) {
-      this.chatGateway.sendEvent(socketID, ChatEvent.CHANNEL_UNAVAILABLE, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
         content: `You have been banned from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `User ${banUser.name} has been banned`,
     });

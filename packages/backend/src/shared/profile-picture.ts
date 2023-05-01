@@ -10,7 +10,7 @@ import { join } from 'path';
 // Local imports
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 const logger: Logger = new Logger('ProfilePicture');
 
@@ -25,7 +25,6 @@ export function getProfilePictureUrl(
   filename: string,
   configService = new ConfigService(),
 ): string {
-  // TODO: check how can I use the service
   return `http://localhost:${configService.get(
     'PORT',
   )}/uploads/profile-pictures/${filename}`;

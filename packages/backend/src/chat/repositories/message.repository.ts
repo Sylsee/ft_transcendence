@@ -20,9 +20,9 @@ export class MessageRepository {
   ) {}
 
   async create(
-    content: string,
     sender: UserEntity,
     channel: ChannelEntity,
+    content: string,
   ): Promise<MessageEntity> {
     const message = new MessageEntity();
     message.content = content;

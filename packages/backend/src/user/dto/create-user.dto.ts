@@ -12,7 +12,6 @@ import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 export class CreateUserDto {
   @ApiProperty({
     enum: AuthProvider,
-    isArray: true,
     description: 'Authentication provider',
     example: AuthProvider.GOOGLE,
     required: true,
@@ -40,8 +39,8 @@ export class CreateUserDto {
   email: string;
 
   @ApiProperty({
-    description: 'User display name',
-    example: 'John Doe',
+    description: 'User name',
+    example: 'John',
     required: true,
   })
   @IsNotEmpty()

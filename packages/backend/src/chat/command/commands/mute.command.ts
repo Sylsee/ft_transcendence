@@ -92,7 +92,7 @@ export default class MuteCommand implements Command {
 
     await this.muteUserService.create(muteUser, channel, muteEndTime);
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `User ${muteUser.name} has been muted for ${time} minutes`,
     });
