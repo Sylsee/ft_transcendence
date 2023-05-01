@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   forwardRef,
@@ -219,9 +220,19 @@ export class ChannelService {
       throw new ForbiddenException('User is not in channel');
     }
 
+    const user = await this.userService.findOneWithRelations(userId, [
+      'blockedUsers',
+    ]);
+    if (!user) {
+      this.logger.error('User not found after authentication');
+      throw new InternalServerErrorException();
+    }
+
     return await Promise.all(
       channel.messages?.map((message) => {
-        return MessageDto.transform(message);
+        if (!userIdInList(user.blockedUsers, message.sender.id)) {
+          return MessageDto.transform(message);
+        }
       }),
     );
   }
