@@ -224,14 +224,10 @@ export class UserService {
 
     const relationship = new UserRelationshipDto();
 
-    if (currentUser.friends.some((friend) => friend.id === specifyUserId)) {
+    if (userIdInList(currentUser.friends, specifyUserId)) {
       relationship.status = UserRelationship.friends;
-    } else if (
-      currentUser.blockedUsers.some(
-        (blockedUser) => blockedUser.id === specifyUserId,
-      )
-    ) {
-      relationship.status = UserRelationship.notFriends;
+    } else if (userIdInList(currentUser.blockedUsers, specifyUserId)) {
+      relationship.status = UserRelationship.block;
     } else if (
       currentUser.sentFriendRequests.some(
         (request) => request.receiver.id === specifyUserId,
