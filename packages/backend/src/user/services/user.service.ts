@@ -110,7 +110,10 @@ export class UserService {
     currentUser: UserEntity,
     id: string,
   ): Promise<UserDto[]> {
-    const user = await this.findOneWithRelations(id, ['friends']);
+    const user = await this.findOneWithRelations(id, [
+      'friends',
+      'friends.friends',
+    ]);
     if (!user) {
       throw new NotFoundException('User not found');
     }
