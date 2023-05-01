@@ -3,4 +3,5 @@ export enum UserRelationship {
   notFriends = 'notFriends',
   friendRequestSent = 'friendRequestSent',
   friendRequestReceived = 'friendRequestReceived',
+  block = 'block',
 }
