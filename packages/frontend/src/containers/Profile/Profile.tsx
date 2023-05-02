@@ -1,7 +1,7 @@
 import { ErrorNotFound } from "components/Error/ErrorNotFound";
 import { Loader } from "components/Loader/Loader";
-import { FriendsCard } from "components/Profile/FriendsCard/FriendsCard";
 import { ProfileCard } from "components/Profile/ProfileCard/ProfileCard";
+import { UserRelationCard } from "components/Profile/UserRelationCard/UserRelationCard";
 import { useFetchUser } from "hooks/user/useFetchUser";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -50,7 +50,10 @@ const Profile = () => {
 					isConnectedUser={isConnectedUser}
 				/>
 				<div className="flex flex-col lg:w-1/2 w-full mt-7 lg:mt-0 lg:ml-4">
-					<FriendsCard id={id} isConnectedUser={isConnectedUser} />
+					<UserRelationCard
+						id={id}
+						isConnectedUser={isConnectedUser}
+					/>
 					{/* <div className="flex bg-blue-gray-400 w-full">
 						<div className="flex flex-col">
 							<p>Stats</p>
