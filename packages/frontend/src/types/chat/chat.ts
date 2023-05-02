@@ -28,6 +28,7 @@ export interface ChatState {
 	activeChannelId: string | null;
 	selectedChannelId: string | null;
 	showModal: boolean;
+	showChat: boolean;
 }
 
 export interface MessageSender {

@@ -8,6 +8,7 @@ import { customNotificationSlice } from "store/customNotification-slice/customNo
 import { selfUserSlice } from "store/selfUser-slice/selfUser-slice";
 import { socketSlice } from "store/socket-slice/socket-slice";
 import { tooltipSlice } from "store/toolTip-slice/toolTip-slice";
+import { userRelationSlice } from "store/userRelation-slice/userRelation-slice";
 
 const rootReducer = {
 	AUTH: authSlice.reducer,
@@ -16,6 +17,7 @@ const rootReducer = {
 	SOCKET: socketSlice.reducer,
 	CUSTOM_NOTIFICATION: customNotificationSlice.reducer,
 	TOOLTIP: tooltipSlice.reducer,
+	USER_RELATION: userRelationSlice.reducer,
 };
 
 const store = configureStore({

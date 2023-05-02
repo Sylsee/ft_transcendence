@@ -11,8 +11,8 @@ export interface Match {
 }
 
 export enum UserStatus {
-	Online = "online",
-	Offline = "offline",
+	Active = "active",
+	Inactive = "inactive",
 }
 
 export interface User {
@@ -23,26 +23,27 @@ export interface User {
 	isTwoFactorAuthEnabled?: boolean;
 }
 
-// interface FriendsRequests {
-// 	id: number;
-// 	name: string;
-// }
-
-export enum UserRelationship {
-	BlockRequestReceived,
-	BlockRequestSent,
-	NotFriends,
-	FriendRequestReceived,
-	FriendRequestSent,
-	Friends,
+export enum FriendStatusType {
+	BlockRequestReceived = "blockRequestReceived",
+	BlockRequestSent = "blockRequestSent",
+	NotFriends = "notFriends",
+	FriendRequestReceived = "friendRequestReceived",
+	FriendRequestSent = "friendRequestSent",
+	Friends = "friends",
+	Block = "block",
+	Pending = "pending",
 }
 
 export interface SelfUserState {
 	user: User | null;
 }
 
-export interface getUserPayload {
+export interface GetUserPayload {
 	id: string;
+}
+
+export interface UserRelationState {
+	loaders: Record<string, boolean>;
 }
 
 // API Routes
@@ -52,4 +53,50 @@ export interface UpdateUserRequest {
 
 export interface UploadProfilePictureRequest {
 	profilePicture: File;
+}
+
+export interface UpdateFriendRequestData {
+	status: boolean;
+}
+
+export interface UpdateFriendRequest {
+	id: string;
+	data: UpdateFriendRequestData;
+}
+
+export interface FriendStatusQueryResponse {
+	status: FriendStatusType;
+}
+
+export type FriendRequest = User;
+
+export interface FriendRequestQueryResponse {
+	received: FriendRequest[];
+	sent: FriendRequest[];
+}
+
+export interface ButtonProps {
+	name: string;
+	color: string;
+	handleClick: (id: string) => void;
+}
+
+export interface ButtonPropsList {
+	buttons?: ButtonProps[];
+}
+
+export enum UserListType {
+	FriendList,
+	ReceivedFriendRequests,
+	SentFriendRequests,
+	BlockedUsers,
+}
+
+export interface MutationContextIdType {
+	id: string | undefined;
+}
+
+export enum FriendRequestType {
+	Received = "received",
+	Sent = "sent",
 }

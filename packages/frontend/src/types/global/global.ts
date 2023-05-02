@@ -3,7 +3,7 @@ import { ChatState } from "types/chat/chat";
 import { CustomNotificationState } from "types/customNotification/customNotification";
 import { SocketState } from "types/socket/socket";
 import { TooltipState } from "types/toolTip/toolTip";
-import { SelfUserState } from "types/user/user";
+import { SelfUserState, UserRelationState } from "types/user/user";
 
 export interface RootState {
 	AUTH: AuthState;
@@ -12,6 +12,7 @@ export interface RootState {
 	SOCKET: SocketState;
 	CUSTOM_NOTIFICATION: CustomNotificationState;
 	TOOLTIP: TooltipState;
+	USER_RELATION: UserRelationState;
 }
 
 export interface ApiErrorResponse {
