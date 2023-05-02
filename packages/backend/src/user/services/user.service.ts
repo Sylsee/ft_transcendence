@@ -22,7 +22,6 @@ import { FriendRequestsDto } from '../dto/relationship/friend-requests.dto';
 import { UserRelationshipDto } from '../dto/relationship/user-relationship.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
 import { UserDto } from '../dto/user.dto';
-import { FriendRequest } from '../entities/friend_request.entity';
 import { UserEntity } from '../entities/user.entity';
 import { UserRelationship } from '../enum/user-relationship.enum';
 import { UserRepository } from '../repositories/user.repository';
@@ -195,14 +194,7 @@ export class UserService {
       return;
     }
 
-    const friendRequest = new FriendRequest();
-    friendRequest.sender = sender;
-    friendRequest.receiver = receiver;
-
-    sender.sentFriendRequests.push(friendRequest);
-    receiver.receivedFriendRequests.push(friendRequest);
-
-    await this.userRepository.saveArray([sender, receiver]);
+    await this.friendRequestService.create(sender, receiver);
   }
 
   async getFriendStatus(
@@ -351,8 +343,9 @@ export class UserService {
         'blockedUsers',
         'friends',
         'receivedFriendRequests',
-        'receivedFriendRequests.receiver',
         'receivedFriendRequests.sender',
+        'sentFriendRequests',
+        'sentFriendRequests.receiver',
       ],
     );
     if (!currentUser) {
@@ -370,13 +363,20 @@ export class UserService {
     if (userIdInList(currentUser.friends, userToBlock.id)) {
       await this.deleteFriendByEntities(currentUser, userToBlock);
     }
-    if (currentUser.receivedFriendRequests.some((user) => user.receiver.id)) {
+
+    if (
+      currentUser.receivedFriendRequests.some(
+        (user) => user.sender.id === userToBlock.id,
+      )
+    ) {
       await this.friendRequestService.deleteFriendRequest(
         userToBlock.id,
         currentUser.id,
       );
     } else if (
-      currentUser.receivedFriendRequests.some((user) => user.sender.id)
+      currentUser.sentFriendRequests.some(
+        (user) => user.receiver.id === userToBlock.id,
+      )
     ) {
       await this.friendRequestService.deleteFriendRequest(
         currentUser.id,

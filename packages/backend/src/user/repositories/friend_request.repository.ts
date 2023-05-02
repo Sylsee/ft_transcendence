@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 
 // Local imports
 import { FriendRequest } from '../entities/friend_request.entity';
+import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class FriendRequestRepository {
@@ -17,12 +18,29 @@ export class FriendRequestRepository {
     private friendRequestRepository: Repository<FriendRequest>,
   ) {}
 
+  async create(
+    sender: UserEntity,
+    receiver: UserEntity,
+  ): Promise<FriendRequest> {
+    const newRequest = new FriendRequest();
+    newRequest.receiver = receiver;
+    newRequest.sender = sender;
+
+    return this.friendRequestRepository.save(newRequest);
+  }
+
   save(newFriendRequest: FriendRequest): Promise<FriendRequest> {
     return this.friendRequestRepository.save(newFriendRequest);
   }
 
-  delete(friendRequest: FriendRequest) {
-    this.friendRequestRepository.delete(friendRequest.id);
+  async delete(senderId: string, receiverId: string): Promise<any> {
+    return await this.friendRequestRepository
+      .createQueryBuilder()
+      .delete()
+      .from(FriendRequest)
+      .where('senderId = :senderId', { senderId })
+      .andWhere('receiverId = :receiverId', { receiverId })
+      .execute();
   }
 
   async findOneById(id: string): Promise<FriendRequest | void> {
