@@ -228,13 +228,16 @@ export class ChannelService {
       throw new InternalServerErrorException();
     }
 
-    return await Promise.all(
-      channel.messages?.map((message) => {
-        if (!userIdInList(user.blockedUsers, message.sender.id)) {
-          return MessageDto.transform(message);
-        }
-      }),
-    );
+    return channel.messages?.reduce(async (accumulatorPromise, message) => {
+      const accumulator = await accumulatorPromise;
+
+      if (!userIdInList(user.blockedUsers, message.sender.id)) {
+        const transformedMessage = MessageDto.transform(message);
+        accumulator.push(transformedMessage);
+      }
+
+      return accumulator;
+    }, Promise.resolve([]));
   }
 
   // ---------------------- User Management ----------------------
