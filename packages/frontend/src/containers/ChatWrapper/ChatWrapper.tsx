@@ -13,21 +13,23 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 	showModal,
 	setShowModal,
 }) => {
+	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
 	const channels = useSelector((store: RootState) => store.CHAT.channels);
 	useFetchChannels();
 
-	if (!showModal)
+	if (showChat)
 		return (
 			<div className="hidden lg:flex flex-col w-1/3 items-stretch max-h-full">
 				<Chat channels={channels} />
 			</div>
 		);
-
-	return (
-		<ChatModal setShowModal={setShowModal}>
-			<Chat channels={channels} />
-		</ChatModal>
-	);
+	else if (showModal)
+		return (
+			<ChatModal setShowModal={setShowModal}>
+				<Chat channels={channels} />
+			</ChatModal>
+		);
+	else return null;
 };
 
 export { ChatWrapper };

@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet, useLocation } from "react-router-dom";
 import { authenticate } from "store/auth-slice/auth-slice";
-import { setShowChatModal } from "store/chat-slice/chat-slice";
+import { setShowChat, setShowChatModal } from "store/chat-slice/chat-slice";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
 
@@ -30,12 +30,17 @@ const HeaderWrapper: React.FC = () => {
 
 	// Etat pour afficher le chat en mode modal
 	const showModal = useSelector((store: RootState) => store.CHAT.showModal);
-	const setShowModal = (value: boolean) => {
+	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
+	const handleShowChatModal = (value: boolean) => {
 		dispatch(setShowChatModal(value));
 	};
 
+	const handleShowChat = (value: boolean) => {
+		dispatch(setShowChat(value));
+	};
+
 	return (
-		<div className="h-full flex flex-col items-stretch max-h-full bg-gradient-custom">
+		<div className="h-full flex flex-col items-stretch max-h-full bg-backgroundColor">
 			<div className="flex-shrink-0">
 				<Header />
 			</div>
@@ -46,15 +51,24 @@ const HeaderWrapper: React.FC = () => {
 				{isAuth === AuthStatus.Authenticated && (
 					<ChatWrapper
 						showModal={showModal}
-						setShowModal={setShowModal}
+						setShowModal={handleShowChatModal}
 					/>
 				)}
 			</div>
 			{!showModal && (
 				<button
 					type="button"
-					className="text-white hover:text-blue-500 bg-gradient-color font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden rounded-full p-4 shadow-lg"
-					onClick={() => setShowModal(true)}
+					className="text-white hover:bg-astronaut-900  bg-mirage-900  font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden rounded-full p-4 shadow-lg"
+					onClick={() => handleShowChatModal(true)}
+				>
+					<FontAwesomeIcon icon={faMessage} />
+				</button>
+			)}
+			{!showChat && (
+				<button
+					type="button"
+					className="text-white hover:bg-astronaut-900  bg-mirage-900 font-medium text-sm text-center fixed bottom-4 right-4 hidden lg:block rounded-full p-4 shadow-lg"
+					onClick={() => handleShowChat(true)}
 				>
 					<FontAwesomeIcon icon={faMessage} />
 				</button>

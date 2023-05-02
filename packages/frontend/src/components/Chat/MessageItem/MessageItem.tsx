@@ -122,6 +122,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 					<span
 						ref={setReferenceElement}
 						onClick={() => toggleTooltip()}
+						style={{ color: "#c7b99b" }}
 						className="font-semibold text-white cursor-pointer hover:underline"
 					>
 						{message.sender.name}
@@ -131,7 +132,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="bg-white p-2 rounded shadow border"
+							className="bg-white p-2 rounded shadow borde"
 						>
 							<div
 								ref={setArrowElement}

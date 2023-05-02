@@ -16,6 +16,7 @@ const initialState: ChatState = {
 	activeChannelId: null,
 	selectedChannelId: null,
 	showModal: false,
+	showChat: false,
 };
 
 export const chatSlice = createSlice({
@@ -24,6 +25,9 @@ export const chatSlice = createSlice({
 	reducers: {
 		setShowChatModal: (state, action: PayloadAction<boolean>) => {
 			state.showModal = action.payload;
+		},
+		setShowChat: (state, action: PayloadAction<boolean>) => {
+			state.showChat = action.payload;
 		},
 		setChannels: (state, action: PayloadAction<Channel[]>) => {
 			state.channels = action.payload.map((channel) => ({
@@ -179,4 +183,5 @@ export const {
 	addServerMessage,
 	setShowChatModal,
 	updateChannelSafety,
+	setShowChat,
 } = chatSlice.actions;

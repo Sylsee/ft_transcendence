@@ -52,7 +52,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 			{inputIsValid && (
 				<button
 					type="submit"
-					className="bg-white text-blue-400  hover:text-blue-700  font-bold py-2 px-4"
+					className="bg-white hover:text-astronaut-500  text-astronaut-400  font-bold py-2 px-4"
 				>
 					<FontAwesomeIcon icon={faPaperPlane} />
 				</button>
