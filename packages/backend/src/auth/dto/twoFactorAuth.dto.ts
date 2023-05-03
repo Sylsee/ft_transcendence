@@ -1,7 +1,7 @@
 // NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
 
-// Third party imports
+// Third-party imports
 import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 export class TwoFactorAuthDto {

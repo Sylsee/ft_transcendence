@@ -25,7 +25,7 @@ import { userIdInList } from 'src/shared/list';
 import { sendEvent } from 'src/shared/websocket';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { CreateMessageDto } from './dto/message/create-message.dto';
 import { ChannelEntity } from './entities/channel.entity';
 import { ChannelType } from './enum/channel-type.enum';
@@ -60,7 +60,6 @@ export class ChatGateway
     this.logger.log('Initializing socket.io server at /chat');
   }
 
-  // TODO: send to friends user status
   async handleConnection(client: Socket): Promise<void> {
     let token: string;
     if (client.handshake.headers.cookie) {
@@ -87,6 +86,21 @@ export class ChatGateway
       this.userService.update(user.id, { status: UserStatus.active });
 
       this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
+
+      // Send user status to friends
+      const userWithFriends = await this.userService.findOneWithRelations(
+        user.id,
+        ['friends'],
+      );
+      if (!userWithFriends) {
+        this.logger.error('User not found after authentication');
+        return;
+      }
+
+      this.sendEvent(userWithFriends.friends, ChatEvent.UserStatus, {
+        id: userWithFriends.id,
+        status: UserStatus.active,
+      });
     } catch (error) {
       client.emit('exception', {
         status: 'error',
@@ -99,8 +113,7 @@ export class ChatGateway
     }
   }
 
-  // TODO: send to friends user status
-  handleDisconnect(client: Socket): void {
+  async handleDisconnect(client: Socket): Promise<void> {
     try {
       this.userService.removeSocketUser(client.id);
 
@@ -110,6 +123,21 @@ export class ChatGateway
       this.logger.verbose(
         `User ${userId} disconnected with socket ${client.id}`,
       );
+
+      // Send user status to friends
+      const userWithFriends = await this.userService.findOneWithRelations(
+        userId,
+        ['friends'],
+      );
+      if (!userWithFriends) {
+        this.logger.error('User not found after authentication');
+        return;
+      }
+
+      this.sendEvent(userWithFriends.friends, ChatEvent.UserStatus, {
+        id: userWithFriends.id,
+        status: UserStatus.inactive,
+      });
     } catch (error) {
       this.logger.warn(`Unable to disconnect user: ${client.id}`);
     }
@@ -199,7 +227,7 @@ export class ChatGateway
         }
       });
 
-      this.sendEvent(socketsIds, ChatEvent.CHANNEL_UNAVAILABLE, {
+      this.sendEvent(socketsIds, ChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
     }
@@ -210,7 +238,7 @@ export class ChatGateway
       channel.type === ChannelType.DIRECT_MESSAGE
     ) {
       const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
-      this.sendEvent(users, ChatEvent.CHANNEL_UNAVAILABLE, {
+      this.sendEvent(users, ChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
     }

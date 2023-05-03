@@ -1,34 +1,27 @@
 // Third-party imports
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 // Local imports
 import { UserEntity } from './user.entity';
 
-@Entity()
+@Entity('friend_requests')
 export class FriendRequest {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: false })
-  accepted: boolean;
-
-  @ManyToOne(() => UserEntity, { nullable: false })
-  @JoinColumn({
-    name: `FromUser`,
-    foreignKeyConstraintName: `FK_FromUser_UserEntity`,
+  @ManyToOne(() => UserEntity, (user) => user.sentFriendRequests, {
+    nullable: false,
   })
-  fromUser: UserEntity;
-
-  @ManyToOne(() => UserEntity, { nullable: false })
   @JoinColumn({
-    name: `ToUser`,
-    foreignKeyConstraintName: `FK_ToUser_UserEntity`,
+    foreignKeyConstraintName: `FK_Sender_UserEntity`,
   })
-  toUser: UserEntity;
+  sender: UserEntity;
+
+  @ManyToOne(() => UserEntity, (user) => user.receivedFriendRequests, {
+    nullable: false,
+  })
+  @JoinColumn({
+    foreignKeyConstraintName: `FK_Receiver_UserEntity`,
+  })
+  receiver: UserEntity;
 }
