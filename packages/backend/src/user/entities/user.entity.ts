@@ -61,13 +61,11 @@ export class UserEntity {
 
   @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender, {
     nullable: true,
-    cascade: true,
   })
   sentFriendRequests: FriendRequest[];
 
   @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver, {
     nullable: true,
-    cascade: true,
   })
   receivedFriendRequests: FriendRequest[];
 
