@@ -10,7 +10,12 @@ import {
 	handleNewChannel,
 	handleRemovedChannel,
 } from "store/socket-slice/socket-slice";
-import { Message, ServerMessage } from "types/chat/chat";
+import {
+	Message,
+	MessageType,
+	ServerMessage,
+	ServerMessages,
+} from "types/chat/chat";
 import {
 	ChannelNotifications,
 	CustomNotificationType,
@@ -28,9 +33,22 @@ export const socketChatListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		ChatEvent.ChannelServerMessage,
-		(serverMessage: ServerMessage) => {
+		(serverMessage: ServerMessage | ServerMessages) => {
 			console.log(ChatEvent.ChannelServerMessage, serverMessage);
-			dispatch(addServerMessage(serverMessage));
+
+			const messages = Array.isArray(serverMessage.content)
+				? serverMessage.content
+				: [serverMessage.content];
+
+			messages.forEach((content) => {
+				dispatch(
+					addServerMessage({
+						type: MessageType.Special,
+						channelId: serverMessage.channelId,
+						content,
+					})
+				);
+			});
 		}
 	);
 

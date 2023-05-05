@@ -9,6 +9,7 @@ export const API_ROUTES = {
 	DISABLE_2FA: "/auth/2fa/disable",
 	VERIFY_2FA: "/auth/2fa/authenticate",
 	USER: (id: string) => `/users/user/${id}`,
+	UPDATE_USER: `/users`,
 	USER_STATS: (id: string) => `/users/stats/${id}`,
 	USER_MATCH_HISTORY: (id: string) => `/users/match-history/${id}`,
 	USER_FRIEND_STATUS: (id: string) => `/users/friend-status/${id}`,

@@ -5,7 +5,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ErrorItem } from "components/Error/ErrorItem";
-import { Loader } from "components/Loader/Loader";
 import { useUpdateUser } from "hooks/user/useUpdateUser";
 import { useEffect, useRef, useState } from "react";
 
@@ -28,7 +27,7 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 	const [inputValue, setInputValue] = useState<string>(name);
 
 	// mutation
-	const { mutate, error, status } = useUpdateUser(id);
+	const { mutate, error, status } = useUpdateUser();
 
 	// hooks
 	useEffect(() => {
@@ -50,8 +49,17 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 		e.preventDefault();
 		if (inputValue.length > 0 && inputValue !== name)
 			mutate({ name: inputValue });
-		if (status === "success") setIsEditing(false);
 	};
+
+	useEffect(() => {
+		if (status === "success") {
+			setIsEditing(false);
+		}
+	}, [status]);
+
+	useEffect(() => {
+		console.log(isEditing);
+	}, [isEditing]);
 
 	const handleOnChange = (e: any) => {
 		setInputValue(e.target.value.replace(/ /g, "_"));
@@ -60,37 +68,39 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 	return (
 		<div className="flex ">
 			{isConnectedUser && isEditing ? (
-				<div className="flex flex-col">
-					<div className="flex items-center h-[40px]">
-						<form onSubmit={handleSubmit}>
-							<input
-								ref={inputRef}
-								name="name"
-								className="bg-transparent border-solid border-2 "
-								style={{
-									padding: "",
-								}}
-								value={inputValue}
-								onChange={handleOnChange}
-							/>
-							{status === "loading" ? (
-								<Loader />
-							) : (
-								<button type="submit" className="ml-4">
+				<div className="flex flex-col justify-center items-center">
+					<div className="flex flex-col">
+						<div className="flex items-center h-[40px]">
+							<form onSubmit={handleSubmit}>
+								<input
+									ref={inputRef}
+									name="name"
+									className="bg-transparent border-solid border-2 "
+									style={{
+										padding: "",
+									}}
+									value={inputValue}
+									onChange={handleOnChange}
+								/>
+								<button
+									type="submit"
+									className="ml-4"
+									disabled={status === "loading"}
+								>
 									<FontAwesomeIcon
 										fixedWidth
 										icon={faCheck}
 									/>
 								</button>
-							)}
-						</form>
-						<button className="ml-4">
-							<FontAwesomeIcon
-								fixedWidth
-								icon={faXmark}
-								onClick={handleCancelButton}
-							/>
-						</button>
+							</form>
+							<button className="ml-4">
+								<FontAwesomeIcon
+									fixedWidth
+									icon={faXmark}
+									onClick={handleCancelButton}
+								/>
+							</button>
+						</div>
 					</div>
 					{status === "error" ? (
 						<div>

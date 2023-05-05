@@ -1,4 +1,5 @@
 import { MessageItem } from "components/Chat/MessageItem/MessageItem";
+import { ServerMessageItem } from "components/Chat/ServerMessageItem/ServerMessageItem";
 import React from "react";
 import { Channel, MessageType } from "types/chat/chat";
 
@@ -22,12 +23,10 @@ const ActiveChannel: React.FC<ActiveChannelProps> = ({
 							);
 						else if (message.type === MessageType.Special)
 							return (
-								<div
+								<ServerMessageItem
 									key={index}
-									className="text-red-600 p-4 font-bold"
-								>
-									{message.content}
-								</div>
+									content={message.content}
+								/>
 							);
 						else return null;
 					})}

@@ -57,6 +57,10 @@ export interface ServerMessage {
 	content: string;
 }
 
+export interface ServerMessages extends Omit<ServerMessage, "content"> {
+	content: string[];
+}
+
 export type ChatMessage = Message | ServerMessage;
 
 export enum ChatModalType {

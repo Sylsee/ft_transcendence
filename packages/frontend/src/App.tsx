@@ -81,6 +81,7 @@ const App: React.FC = () => {
 		socketChatListeners(dispatch);
 		socketUserListeners(queryClient, connectedUserId);
 		return () => {
+			console.log("remove listeners");
 			removeSocketChatListeners();
 			removeSocketUserListeners();
 		};
