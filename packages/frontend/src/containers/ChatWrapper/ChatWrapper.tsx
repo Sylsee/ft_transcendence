@@ -36,9 +36,6 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 	const dispatch = useDispatch();
 	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
 	const channels = useSelector((store: RootState) => store.CHAT.channels);
-	const activeChannelId = useSelector(
-		(store: RootState) => store.CHAT.activeChannelId
-	);
 	const activeChannel = useSelector(selectActiveChannel);
 	const selectedChannel = useSelector(selectSelectedChannel);
 
