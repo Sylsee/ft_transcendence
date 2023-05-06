@@ -1,5 +1,5 @@
 // NestJS imports
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
 import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
@@ -7,12 +7,6 @@ import { IsDate, IsNotEmpty, IsString, IsUUID } from 'class-validator';
 // Local imports
 import { MessageEntity } from 'src/chat/entities/message.entity';
 import { UserDto } from 'src/user/dto/user.dto';
-
-class SenderDto extends PickType(UserDto, [
-  'id',
-  'name',
-  'profilePictureUrl',
-] as const) {}
 
 export class MessageDto {
   @ApiProperty({
@@ -44,11 +38,11 @@ export class MessageDto {
 
   @ApiProperty({
     description: 'The sender of the message',
-    type: SenderDto,
+    type: UserDto,
     required: true,
   })
   @IsNotEmpty()
-  sender: SenderDto;
+  sender: UserDto;
 
   @ApiProperty({
     description: 'The timestamp of the message',
@@ -64,11 +58,7 @@ export class MessageDto {
       id: message.id,
       channelId: message.channel.id,
       content: message.content,
-      sender: {
-        id: message.sender.id,
-        name: message.sender.name,
-        profilePictureUrl: message.sender.profilePictureUrl,
-      },
+      sender: UserDto.transform(message.sender),
       timestamp: message.createdAt,
     };
   }

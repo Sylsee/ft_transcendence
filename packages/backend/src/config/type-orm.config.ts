@@ -1,9 +1,9 @@
-// Nest dependencies
+// NestJS imports
 import { Injectable } from '@nestjs/common';
 import { ConfigService as NestConfigService } from '@nestjs/config';
 import { TypeOrmModuleOptions, TypeOrmOptionsFactory } from '@nestjs/typeorm';
 
-// Other dependencies
+// Third-party imports
 import * as env from 'dotenv';
 
 // Local imports
@@ -12,7 +12,6 @@ import { MessageEntity } from 'src/chat/entities/message.entity';
 import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
 import { FriendRequest } from 'src/user/entities/friend_request.entity';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserFriend } from 'src/user/entities/user_friend.entity';
 
 env.config();
 
@@ -40,7 +39,6 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
 
       entities: [
         UserEntity,
-        UserFriend,
         FriendRequest,
         ChannelEntity,
         MessageEntity,

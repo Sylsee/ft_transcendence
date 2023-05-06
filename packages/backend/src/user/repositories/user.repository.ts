@@ -6,9 +6,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 // Local imports
-import { AuthProvider } from '../auth/enum/auth-provider.enum';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UserEntity } from './entities/user.entity';
+import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
+import { CreateUserDto } from '../dto/create-user.dto';
+import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository {
@@ -18,6 +18,11 @@ export class UserRepository {
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
   ) {}
+
+  // TODO: Remove this method
+  async find(): Promise<UserEntity[]> {
+    return this.userRepository.find({ relations: ['blockedUsers'] });
+  }
 
   async create(createUserDto: CreateUserDto): Promise<UserEntity> {
     const newUser = new UserEntity();
@@ -34,12 +39,12 @@ export class UserRepository {
     this.userRepository.update({ id: userId }, content);
   }
 
-  async save(user: UserEntity): Promise<UserEntity> {
+  save(user: UserEntity): Promise<UserEntity> {
     return this.userRepository.save(user);
   }
 
-  async find(): Promise<UserEntity[]> {
-    return this.userRepository.find();
+  saveArray(users: UserEntity[]): Promise<UserEntity[]> {
+    return this.userRepository.save(users);
   }
 
   async findUserByProviderIDAndProvider(
@@ -64,17 +69,35 @@ export class UserRepository {
     });
   }
 
+  async findOneByIdWithRelations(
+    id: string,
+    relations: string[],
+  ): Promise<UserEntity | void> {
+    return this.userRepository
+      .findOne({
+        where: { id: id },
+        relations: relations,
+      })
+      .catch((error) => {
+        this.logger.error(error);
+      });
+  }
+
   async findOneByName(username: string): Promise<UserEntity | void> {
     return this.userRepository.findOneBy({ name: username }).catch((err) => {
       this.logger.error(`Error when finding user with name: ${username}`, err);
     });
   }
 
-  async findBlockingBy(userId: string): Promise<UserEntity[] | void> {
+  async findUsersBlocking(
+    userId: string,
+    userIds: string[],
+  ): Promise<UserEntity[] | void> {
     return this.userRepository
       .createQueryBuilder('user')
-      .innerJoin('user.blockedBy', 'blockingUser')
-      .where('user.id = :userId', { userId })
+      .innerJoin('user.blockedUsers', 'blockedUsers')
+      .whereInIds(userIds)
+      .andWhere('blockedUsers.id = :userId', { userId })
       .getMany()
       .catch((err) => {
         this.logger.error(
@@ -82,5 +105,13 @@ export class UserRepository {
           err,
         );
       });
+  }
+
+  async getFriendsById(userId: string): Promise<UserEntity[] | void> {
+    const user = await this.findOneByIdWithRelations(userId, ['friends']);
+
+    if (user) {
+      return user?.friends;
+    }
   }
 }

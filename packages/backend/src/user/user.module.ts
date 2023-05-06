@@ -5,15 +5,21 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 // Local imports
 import { FriendRequest } from './entities/friend_request.entity';
 import { UserEntity } from './entities/user.entity';
-import { UserFriend } from './entities/user_friend.entity';
+import { FriendRequestRepository } from './repositories/friend_request.repository';
+import { UserRepository } from './repositories/user.repository';
+import { FriendRequestService } from './services/friend_request.service';
+import { UserService } from './services/user.service';
 import { UserController } from './user.controller';
-import { UserRepository } from './user.repository';
-import { UserService } from './user.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, FriendRequest, UserFriend])],
+  imports: [TypeOrmModule.forFeature([UserEntity, FriendRequest])],
   controllers: [UserController],
-  providers: [UserService, UserRepository],
+  providers: [
+    UserService,
+    UserRepository,
+    FriendRequestService,
+    FriendRequestRepository,
+  ],
   exports: [UserService],
 })
 export class UserModule {}

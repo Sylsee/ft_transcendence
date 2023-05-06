@@ -11,7 +11,7 @@ import { toDataURL } from 'qrcode';
 // Local imports
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { GeneratedTwoFactorAuth } from './dto/generate2fa.dto';
 import { Jwt2faStrategy } from './strategy/jwt-2fa.strategy';
 
@@ -75,8 +75,7 @@ export class AuthService {
   async verify(token: string): Promise<UserEntity> {
     try {
       const payload = await this.jwtService.verify(token);
-      const user = await this.jwt2faStrategy.validate(payload);
-      return user;
+      return await this.jwt2faStrategy.validate(payload);
     } catch (error) {
       throw new UnauthorizedException({ message: error });
     }
