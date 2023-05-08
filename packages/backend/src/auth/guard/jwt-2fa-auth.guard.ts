@@ -4,7 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class Jwt2faAuthGuard extends AuthGuard('jwt-2fa') {
-  private readonly logger = new Logger(Jwt2faAuthGuard.name);
+  private readonly logger: Logger = new Logger(Jwt2faAuthGuard.name);
 
   handleRequest(err, user, info) {
     if (err || !user) {

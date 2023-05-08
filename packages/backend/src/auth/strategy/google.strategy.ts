@@ -15,7 +15,7 @@ import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  private readonly logger = new Logger(GoogleStrategy.name);
+  private readonly logger: Logger = new Logger(GoogleStrategy.name);
 
   constructor(
     private configService: ConfigService,

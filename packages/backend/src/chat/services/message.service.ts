@@ -10,7 +10,7 @@ import { MessageRepository } from '../repositories/message.repository';
 
 @Injectable()
 export class MessageService {
-  private readonly logger = new Logger(MessageService.name);
+  private readonly logger: Logger = new Logger(MessageService.name);
 
   constructor(private messageRepository: MessageRepository) {}
 

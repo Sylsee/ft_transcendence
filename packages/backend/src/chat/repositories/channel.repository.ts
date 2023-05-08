@@ -12,7 +12,7 @@ import { ChannelType } from '../enum/channel-type.enum';
 
 @Injectable()
 export class ChannelRepository {
-  private readonly logger = new Logger(ChannelRepository.name);
+  private readonly logger: Logger = new Logger(ChannelRepository.name);
 
   constructor(
     @InjectRepository(ChannelEntity)

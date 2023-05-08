@@ -11,7 +11,7 @@ import { UserService } from 'src/user/services/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  private readonly logger = new Logger(JwtStrategy.name);
+  private readonly logger: Logger = new Logger(JwtStrategy.name);
 
   constructor(
     private readonly userService: UserService,

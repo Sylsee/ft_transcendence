@@ -12,6 +12,7 @@ import { AuthModule } from 'src/auth/auth.module';
 import { UserModule } from 'src/user/user.module';
 import { ChatModule } from './chat/chat.module';
 import { TypeOrmConfigService } from './config/type-orm.config';
+import { GameModule } from './game/game.module';
 import { StaticModule } from './static/static.module';
 
 @Module({
@@ -61,6 +62,7 @@ import { StaticModule } from './static/static.module';
     UserModule,
     ChatModule,
     StaticModule,
+    GameModule,
   ],
   providers: [TypeOrmConfigService],
 })

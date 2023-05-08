@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -75,15 +75,15 @@ export default class OpCommand implements Command {
 
     await this.channelService.save(channel);
 
-    const socketID = await this.userService.getSocketID(opUser.id);
+    const socketID = await this.userService.getSocketId(opUser.id);
     if (socketID) {
       this.chatGateway.sendChannelAvailableEvent(channel, opUser.id, socketID);
-      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
+      this.chatGateway.sendEvent(socketID, ServerChatEvent.Notification, {
         content: `You have been opped in ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${opUser.name} has been opped`,
     });

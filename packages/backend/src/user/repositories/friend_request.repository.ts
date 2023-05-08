@@ -10,7 +10,7 @@ import { FriendRequest } from '../entities/friend_request.entity';
 
 @Injectable()
 export class FriendRequestRepository {
-  private readonly logger = new Logger(FriendRequestRepository.name);
+  private readonly logger: Logger = new Logger(FriendRequestRepository.name);
 
   constructor(
     @InjectRepository(FriendRequest)
