@@ -1,18 +1,29 @@
-import React, { useEffect } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { ErrorNotFound } from "components/Error/ErrorNotFound";
+import { TwoFaAuthenticate } from "components/TwoFaAuthenticate/TwoFaAuthenticate";
+import { Callback } from "containers/Callback/Callback";
+import { HeaderWrapper } from "containers/HeaderWrapper/HeaderWrapper";
+import { Home } from "containers/Home/Home";
+import { Profile } from "containers/Profile/Profile";
+import { ProtectedRoute } from "containers/ProtectedRoute/ProtectedRoute";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Home } from "./components/Home/Home";
-import { Profile } from "./components/Profile/Profile";
-import { HeaderWrapper } from "./components/HeaderWrapper/HeaderWrapper";
-import "./index.css";
-import { ErrorPage } from "./pages/ErrorPage/ErrorPage";
-import { ProtectedRoute } from "./components/ProtectedRoute/ProtectedRoute";
-import { Callback } from "./components/Callback/Callback";
+import { ToastContainer } from "react-toastify";
+import {
+	removeSocketChatListeners,
+	socketChatListeners,
+} from "sockets/listeners/chatListeners";
+import { connectSocket } from "sockets/socket";
+import { AuthStatus } from "types/auth/auth";
+import { RootState } from "types/global/global";
 
 const router = createBrowserRouter([
 	{
 		path: "/",
 		element: <HeaderWrapper />,
-		errorElement: <ErrorPage />,
+		errorElement: <ErrorNotFound />,
 		children: [
 			{
 				path: "/",
@@ -21,11 +32,10 @@ const router = createBrowserRouter([
 			{
 				path: "/callback",
 				element: <Callback />,
-				loader: async () => {
-					console.log("loading");
-
-					return null;
-				},
+			},
+			{
+				path: "/auth/2fa",
+				element: <TwoFaAuthenticate />,
 			},
 			{
 				element: <ProtectedRoute />,
@@ -42,18 +52,36 @@ const router = createBrowserRouter([
 			},
 			{
 				path: "*",
-				element: <ErrorPage />,
+				element: <ErrorNotFound />,
 			},
 		],
 	},
 ]);
 
+const queryClient = new QueryClient();
+
 const App: React.FC = () => {
+	const dispatch = useDispatch();
+	const isAuth = useSelector((state: RootState) => state.AUTH.isAuth);
+	useEffect(() => {
+		if (isAuth !== AuthStatus.Authenticated) return;
+
+		connectSocket();
+		socketChatListeners(dispatch);
+		return () => {
+			removeSocketChatListeners();
+		};
+	}, [dispatch, isAuth]);
+
 	return (
 		<>
-			<RouterProvider router={router} />
+			<QueryClientProvider client={queryClient}>
+				<ToastContainer />
+				<RouterProvider router={router} />
+				<ReactQueryDevtools initialIsOpen={true} />
+			</QueryClientProvider>
 		</>
 	);
 };
 
-export default App;
+export { App };

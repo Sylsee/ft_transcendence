@@ -1,4 +1,4 @@
-const pong_logo = () => {
+const pong_logo = (): JSX.Element => {
 	return (
 		<svg
 			id="Icons"
