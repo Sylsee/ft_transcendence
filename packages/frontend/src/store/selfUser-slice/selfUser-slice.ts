@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-	GetUserPayload,
-	SelfUserState,
 	User,
 	UserStatus,
 } from "types/user/user";
+import { GetUserPayload, SelfUserState } from "../../types/user/reducer";
 
 const initialState: SelfUserState = {
 	user: null,

@@ -1,6 +1,7 @@
 import { createSelector, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
 	Channel,
+	ChannelModalType,
 	ChannelType,
 	ChatState,
 	Message,

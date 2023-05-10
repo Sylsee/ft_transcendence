@@ -3,7 +3,8 @@ import { updateUserById } from "api/user/userRequests";
 import { useDispatch } from "react-redux";
 import { setUser } from "store/selfUser-slice/selfUser-slice";
 import { ApiErrorResponse } from "types/global/global";
-import { UpdateUserRequest, User } from "types/user/user";
+import { User } from "types/user/user";
+import { UpdateUserRequest } from "../../types/user/api";
 
 const useUpdateUser = (): UseMutationResult<
 	User,

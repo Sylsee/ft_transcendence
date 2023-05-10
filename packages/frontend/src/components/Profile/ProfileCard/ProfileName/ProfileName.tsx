@@ -57,10 +57,6 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 		}
 	}, [status]);
 
-	useEffect(() => {
-		console.log(isEditing);
-	}, [isEditing]);
-
 	const handleOnChange = (e: any) => {
 		setInputValue(e.target.value.replace(/ /g, "_"));
 	};

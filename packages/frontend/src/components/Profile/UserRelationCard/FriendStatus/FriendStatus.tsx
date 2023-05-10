@@ -8,7 +8,8 @@ import { useRejectFriendRequest } from "hooks/userRelations/useRejectFriendReque
 import { useSendFriendRequest } from "hooks/userRelations/useSendFriendRequest";
 import { useUnblockUser } from "hooks/userRelations/useUnblockUser";
 import React from "react";
-import { FriendStatusType } from "types/user/user";
+
+import { FriendStatusType } from "../../../../types/userRelations/userRelations";
 
 interface FriendStatusProps {
 	id: string;

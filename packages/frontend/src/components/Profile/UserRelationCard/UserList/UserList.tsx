@@ -6,7 +6,7 @@ import { useDeleteFriendRequest } from "hooks/userRelations/useDeleteFriendReque
 import { useRejectFriendRequest } from "hooks/userRelations/useRejectFriendRequest";
 import { useUnblockUser } from "hooks/userRelations/useUnblockUser";
 import { ApiErrorResponse } from "types/global/global";
-import { FriendRequest, UserListType } from "types/user/user";
+import { FriendRequest, UserListType } from "../../../../types/userRelations/userRelations";
 
 interface UserListProps {
 	type: UserListType;

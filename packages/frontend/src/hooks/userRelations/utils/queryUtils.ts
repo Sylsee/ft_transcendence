@@ -1,11 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
 import {
-	FriendRequest,
-	FriendRequestQueryResponse,
-	FriendRequestType,
 	User,
 	UserStatus,
 } from "types/user/user";
+import { FriendRequest, FriendRequestType } from "../../../types/userRelations/userRelations";
+import { FriendRequestQueryResponse } from "../../../types/userRelations/api";
 
 export const cancelFriendQueries = (
 	queryClient: QueryClient,

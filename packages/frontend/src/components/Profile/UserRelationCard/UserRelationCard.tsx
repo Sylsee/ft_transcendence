@@ -3,7 +3,10 @@ import { UserList } from "components/Profile/UserRelationCard/UserList/UserList"
 import { useFetchBlockedUsers } from "hooks/userRelations/useFetchBlockedUsers";
 import { useFetchFriends } from "hooks/userRelations/useFetchFriends";
 import { useFetchFriendsRequests } from "hooks/userRelations/useFetchFriendsRequests";
-import { UserListType } from "types/user/user";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+import { UserListType } from "../../../types/userRelations/userRelations";
 
 interface UserRelationCardProps {
 	id: string;
