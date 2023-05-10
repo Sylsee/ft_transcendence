@@ -9,7 +9,7 @@ import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { Command } from '../command.interface';
 
 @Injectable()
@@ -81,12 +81,12 @@ export default class UnBanCommand implements Command {
           socketID,
         );
       }
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
         content: `You have been unbanned from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${unbanUser.name} has been unbanned`,
     });

@@ -22,7 +22,7 @@ import {
 import { Response } from 'express';
 
 // Local imports
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { AuthService } from './auth.service';
 import { GeneratedTwoFactorAuth } from './dto/generate2fa.dto';
 import { TwoFactorAuthDto } from './dto/twoFactorAuth.dto';

@@ -1,32 +1,33 @@
 export enum ChatEvent {
-  MESSAGE = 'message',
-  /*
-    MessageDto
-  */
-  CHANNEL_SERVER_MESSAGE = 'channel:server_message',
+  ChannelServerMessage = 'channel:server_message',
   /*
     channelId: string
     content: string
   */
-  CHANNEL_MESSAGE = 'channel:message',
+  ChannelMessage = 'channel:message',
   /*
     MessageDto
   */
-  NOTIFICATION = 'notification',
+  Notification = 'notification',
   /*
     content: string
   */
-  NOTIFICATION_INVITE = 'notification:invite',
+  NotificationInvite = 'notification:invite',
   /*
       channelId:  string,
       content: `${sender.name} invited you to ${channel.name}`,
   */
-  CHANNEL_AVAILABLE = 'channel:available',
+  ChannelAvailable = 'channel:available',
   /*
     ChannelDto
   */
-  CHANNEL_UNAVAILABLE = 'channel:unavailable',
+  ChannelUnavailable = 'channel:unavailable',
   /*
     channelId: string
+  */
+  UserStatus = 'user.status',
+  /*
+    id: string
+    status: UserStatus
   */
 }

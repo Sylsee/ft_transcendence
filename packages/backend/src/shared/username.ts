@@ -2,7 +2,7 @@
 import { adjectives, uniqueNamesGenerator } from 'unique-names-generator';
 
 // Local imports
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 export function formatUserName(name: string): string {
   return name.replace(/ /g, '-').replace(/[^a-zA-Z0-9-_]/g, '');

@@ -14,6 +14,7 @@ import { MessageEntity } from 'src/chat/entities/message.entity';
 import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
 import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 import { UserStatus } from '../enum/user-status.enum';
+import { FriendRequest } from './friend_request.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -52,18 +53,27 @@ export class UserEntity {
   isTwoFactorAuthEnabled: boolean;
 
   // Relationships
-  @OneToMany(() => UserEntity, (user) => user.friends)
+  @ManyToMany(() => UserEntity, (user) => user.friends, {
+    nullable: true,
+  })
+  @JoinTable()
   friends: UserEntity[];
 
-  @ManyToMany(() => UserEntity, (user) => user.friendRequests)
-  friendRequests: UserEntity[];
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.sender, {
+    nullable: true,
+  })
+  sentFriendRequests: FriendRequest[];
 
-  @ManyToMany(() => UserEntity, (user) => user.blockedBy)
+  @OneToMany(() => FriendRequest, (friendRequest) => friendRequest.receiver, {
+    nullable: true,
+  })
+  receivedFriendRequests: FriendRequest[];
+
+  @ManyToMany(() => UserEntity, (user) => user.blockedUsers, {
+    nullable: true,
+  })
   @JoinTable()
   blockedUsers: UserEntity[];
-
-  @ManyToMany(() => UserEntity, (user) => user.blockedUsers)
-  blockedBy: UserEntity[];
 
   // Chat
   @ManyToMany(() => ChannelEntity, (channel) => channel.users, {

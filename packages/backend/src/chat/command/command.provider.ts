@@ -2,7 +2,7 @@
 import { Provider } from '@nestjs/common';
 
 // Local imports
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { ChatGateway } from '../chat.gateway';
 import { ChannelService } from '../services/channel.service';
 import { MuteUserService } from '../services/mute-user.service';

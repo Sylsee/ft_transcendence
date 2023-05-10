@@ -8,7 +8,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserEntity } from 'src/user/entities/user.entity';
 
 // Local imports
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 @Injectable()
 export class Jwt2faStrategy extends PassportStrategy(Strategy, 'jwt-2fa') {

@@ -4,7 +4,7 @@ import { Server } from 'socket.io';
 // Local imports
 import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 export async function sendEvent(
   server: Server,

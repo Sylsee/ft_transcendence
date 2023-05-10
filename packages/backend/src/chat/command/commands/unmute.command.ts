@@ -83,12 +83,12 @@ export default class UnMuteCommand implements Command {
 
     await this.muteUserService.delete(user);
 
-    this.chatGateway.sendEvent(unMuteUser, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(unMuteUser, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `You have been unmuted from ${channel.name}`,
     });
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${unMuteUser.name} has been unmuted`,
     });
