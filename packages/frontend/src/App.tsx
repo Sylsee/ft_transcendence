@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ErrorNotFound } from "components/Error/ErrorNotFound";
+import { Lobby } from "components/Lobby/Lobby";
 import { TwoFaAuthenticate } from "components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { Callback } from "containers/Callback/Callback";
 import { HeaderWrapper } from "containers/HeaderWrapper/HeaderWrapper";
@@ -49,8 +50,8 @@ const router = createBrowserRouter([
 						element: <Profile />,
 					},
 					{
-						path: "/user/edit",
-						element: <Profile />,
+						path: "/lobby",
+						element: <Lobby />,
 					},
 				],
 			},
