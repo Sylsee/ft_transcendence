@@ -2,11 +2,12 @@ import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChannelList } from "components/Chat/ChannelList/ChannelList";
 import React from "react";
+import { useSelector } from "react-redux";
+import { selectActiveChannel } from "store/chat-slice/chat-slice";
 import { Channel } from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface ChatMenuProps {
-	isMenuOpen: boolean;
-	activeChannel: Channel | null;
 	handleClickChannel: (channel: Channel) => void;
 	handleCreateChannel: () => void;
 	handleEditChannel: (channel: Channel) => void;
@@ -14,13 +15,13 @@ interface ChatMenuProps {
 }
 
 const ChatMenu: React.FC<ChatMenuProps> = ({
-	isMenuOpen,
-	activeChannel,
 	handleClickChannel,
 	handleCreateChannel,
 	handleEditChannel,
 	channels,
 }) => {
+	const isMenuOpen = useSelector((store: RootState) => store.CHAT.isMenuOpen);
+	const activeChannel = useSelector(selectActiveChannel);
 	return (
 		<div
 			className={`bg-mirage-950 absolute h-full top-0 left-0 w-64 p-4  transform transition-transform duration-300 ${

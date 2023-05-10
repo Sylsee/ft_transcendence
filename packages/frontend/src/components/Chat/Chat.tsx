@@ -1,59 +1,46 @@
-import { UseMutateFunction } from "@tanstack/react-query";
 import { ActiveChannel } from "components/Chat/ActiveChannel/ActiveChannel";
 import { ChannelModal } from "components/Chat/ChannelModal/ChannelModal";
 import { ChatHeader } from "components/Chat/ChatHeader/ChatHeader";
 import { ChatInput } from "components/Chat/ChatInput/ChatInput";
 import { ChatMenu } from "components/Chat/ChatMenu/ChatMenu";
-import { useEffect, useLayoutEffect } from "react";
-import { useSelector } from "react-redux";
-import { Channel, ChannelModalType, JoinChannelRequest } from "types/chat/chat";
-import { ApiErrorResponse, RootState } from "types/global/global";
-import { ChannelPayload } from "types/socket/socket";
+import { useJoinChannel } from "hooks/chat/useJoinChannel";
+import { useMessageQuery } from "hooks/chat/useMessageQuery";
+import { useEffect, useLayoutEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+	selectActiveChannel,
+	selectSelectedChannel,
+	setActiveChannel,
+	setIsMenuOpen,
+	setSelectedChannel,
+	setShowChannelModal,
+	setShowChat,
+	setShowChatModal,
+	toggleChatMenu,
+} from "store/chat-slice/chat-slice";
+import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface ChatProps {
 	channels: Channel[];
-	isMenuOpen: boolean;
-	setIsMenuOpen: (value: boolean) => void;
 	showChannelModal: ChannelModalType;
-	messagesEndRef: React.RefObject<HTMLDivElement>;
-	activeChannel: Channel | null;
-	selectedChannel: Channel | null;
-	handleEditChannel: (channel: Channel) => void;
-	handleCreateChannel: () => void;
-	handleCloseModal: () => void;
-	handleCloseChat: () => void;
-	handleCloseChatModal: () => void;
-	handleClickChannel: (channel: Channel) => void;
-	refetchMessage: () => void;
-	joinChannelMutation: UseMutateFunction<
-		ChannelPayload,
-		ApiErrorResponse,
-		JoinChannelRequest,
-		unknown
-	>;
 }
 
-const Chat: React.FC<ChatProps> = ({
-	channels,
-	isMenuOpen,
-	setIsMenuOpen,
-	showChannelModal,
-	messagesEndRef,
-	activeChannel,
-	selectedChannel,
-	handleEditChannel,
-	handleCreateChannel,
-	handleCloseModal,
-	handleCloseChat,
-	handleCloseChatModal,
-	handleClickChannel,
-	refetchMessage,
-	joinChannelMutation,
-}) => {
+const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
+	// refs
+	const messagesEndRef = useRef<HTMLDivElement>(null);
+
 	// redux
+	const dispatch = useDispatch();
 	const activeChannelId = useSelector(
 		(store: RootState) => store.CHAT.activeChannelId
 	);
+	const activeChannel = useSelector(selectActiveChannel);
+	const selectedChannel = useSelector(selectSelectedChannel);
+	const { refetch: refetchMessage } = useMessageQuery(activeChannel?.id);
+
+	// mutations
+	const { mutate: joinChannelMutation } = useJoinChannel();
 
 	// hooks
 	useLayoutEffect(() => {
@@ -69,8 +56,8 @@ const Chat: React.FC<ChatProps> = ({
 	useEffect(() => {
 		if (!activeChannelId) return;
 
-		setIsMenuOpen(false);
-	}, [activeChannelId, setIsMenuOpen]);
+		dispatch(setIsMenuOpen(false));
+	}, [activeChannelId, dispatch]);
 
 	useEffect(() => {
 		if (!activeChannel) return;
@@ -84,14 +71,50 @@ const Chat: React.FC<ChatProps> = ({
 
 	// handlers
 	const toggleMenu = () => {
-		setIsMenuOpen(!isMenuOpen);
+		dispatch(toggleChatMenu());
+	};
+
+	const handleEditChannel = (channel: Channel) => {
+		dispatch(setSelectedChannel(channel.id));
+		dispatch(setShowChannelModal(ChannelModalType.Update));
+	};
+
+	const handleCreateChannel = () => {
+		dispatch(setSelectedChannel(null));
+		dispatch(setShowChannelModal(ChannelModalType.Create));
+	};
+
+	const handleCloseModal = () => {
+		dispatch(setSelectedChannel(null));
+		dispatch(setShowChannelModal(ChannelModalType.None));
+	};
+
+	const handleCloseChat = () => {
+		dispatch(setShowChat(false));
+	};
+
+	const handleCloseChatModal = () => {
+		dispatch(setShowChatModal(false));
+	};
+
+	const handleClickChannel = (channel: Channel) => {
+		if (channel.permissions.isMember) {
+			dispatch(setActiveChannel(channel.id));
+			setIsMenuOpen(false);
+		} else if (
+			!channel.permissions.isMember &&
+			channel.type === ChannelType.Password_protected
+		) {
+			dispatch(setSelectedChannel(channel.id));
+			setShowChannelModal(ChannelModalType.Join);
+		} else {
+			joinChannelMutation({ id: channel.id, data: {} });
+		}
 	};
 
 	return (
 		<div className="bg-mirage h-full items-stretch  flex flex-col ">
 			<ChatHeader
-				isMenuOpen={isMenuOpen}
-				activeChannel={activeChannel}
 				toggleMenu={toggleMenu}
 				handleCloseChat={handleCloseChat}
 				handleCloseChatModal={handleCloseChatModal}
@@ -102,8 +125,6 @@ const Chat: React.FC<ChatProps> = ({
 					activeChannel={activeChannel}
 				/>
 				<ChatMenu
-					isMenuOpen={isMenuOpen}
-					activeChannel={activeChannel}
 					handleClickChannel={handleClickChannel}
 					handleEditChannel={handleEditChannel}
 					handleCreateChannel={handleCreateChannel}

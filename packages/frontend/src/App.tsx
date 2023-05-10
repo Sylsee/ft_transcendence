@@ -19,7 +19,11 @@ import {
 	removeSocketUserListeners,
 	socketUserListeners,
 } from "sockets/listeners/userListeners";
-import { connectSocket } from "sockets/socket";
+import {
+	connectChatSocket,
+	disconnectChatSocket,
+	initializeChatSocket,
+} from "sockets/socket";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
 
@@ -69,23 +73,26 @@ const App: React.FC = () => {
 	const connectedUserId = useSelector(
 		(state: RootState) => state.USER.user?.id
 	);
+	const chatSocket = initializeChatSocket();
 
 	useEffect(() => {
-		if (
-			isAuth !== AuthStatus.Authenticated ||
-			connectedUserId === undefined
-		)
-			return;
-
-		connectSocket();
-		socketChatListeners(dispatch);
-		socketUserListeners(queryClient, connectedUserId);
+		if (!chatSocket || !connectedUserId) return;
+		if (isAuth !== AuthStatus.Authenticated) {
+			disconnectChatSocket();
+			removeSocketChatListeners();
+			removeSocketUserListeners();
+		}
+		if (isAuth === AuthStatus.Authenticated) {
+			connectChatSocket();
+			socketChatListeners(dispatch);
+			socketUserListeners(queryClient, connectedUserId);
+		}
 		return () => {
-			console.log("remove listeners");
+			disconnectChatSocket();
 			removeSocketChatListeners();
 			removeSocketUserListeners();
 		};
-	}, [dispatch, isAuth, queryClient, connectedUserId]);
+	}, [chatSocket, dispatch, isAuth, queryClient, connectedUserId]);
 
 	return (
 		<>

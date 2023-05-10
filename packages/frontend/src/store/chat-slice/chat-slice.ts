@@ -18,6 +18,8 @@ const initialState: ChatState = {
 	selectedChannelId: null,
 	showModal: false,
 	showChat: false,
+	showChannelModal: ChannelModalType.None,
+	isMenuOpen: false,
 };
 
 export const chatSlice = createSlice({
@@ -29,6 +31,18 @@ export const chatSlice = createSlice({
 		},
 		setShowChat: (state, action: PayloadAction<boolean>) => {
 			state.showChat = action.payload;
+		},
+		setIsMenuOpen: (state, action: PayloadAction<boolean>) => {
+			state.isMenuOpen = action.payload;
+		},
+		toggleChatMenu: (state) => {
+			state.isMenuOpen = !state.isMenuOpen;
+		},
+		setShowChannelModal: (
+			state,
+			action: PayloadAction<ChannelModalType>
+		) => {
+			state.showChannelModal = action.payload;
 		},
 		setChannels: (state, action: PayloadAction<Channel[]>) => {
 			state.channels = action.payload.map((channel) => ({
@@ -185,4 +199,7 @@ export const {
 	setShowChatModal,
 	updateChannelSafety,
 	setShowChat,
+	setShowChannelModal,
+	setIsMenuOpen,
+	toggleChatMenu,
 } = chatSlice.actions;
