@@ -92,8 +92,17 @@ export class UserService {
     currentUser: UserEntity,
     updateUserDto: UpdateUserDto,
   ): Promise<UserDto> {
+    if (await this.findOneByName(updateUserDto.name)) {
+      throw new ConflictException('Username already taken');
+    }
+
     currentUser.name = updateUserDto.name;
-    const updatedUser = await this.userRepository.save(currentUser);
+    const updatedUser = await this.userRepository
+      .save(currentUser)
+      .catch((err) => {
+        this.logger.error(err);
+        throw new InternalServerErrorException();
+      });
     if (!updatedUser) {
       throw new InternalServerErrorException('Could not update user name');
     }

@@ -109,6 +109,7 @@ export class UserController {
   @ApiUserIdParam
   @ApiOkResponse({ description: 'User name updated', type: UserDto })
   @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiConflictResponse({ description: 'Username already exists' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async updateUserName(
     @Req() req,
