@@ -5,7 +5,7 @@ import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { formatTime } from 'src/shared/time';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { ChatGateway } from '../chat.gateway';
 import { Command } from '../command/command.interface';
 import { ChannelDto } from '../dto/channel/channel.dto';
@@ -63,7 +63,7 @@ export class ChatService {
       if (leftTime <= 0) {
         await this.muteUserService.delete(userMute);
       } else {
-        this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+        this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
           channelId: channel.id,
           content: `You are muted for ${formatTime(leftTime)}`,
         });
@@ -72,7 +72,7 @@ export class ChatService {
     }
 
     const usersNotBlockingSender =
-      await this.userService.findUsersNotBlockingUser(channel.users, sender.id);
+      await this.userService.findUsersNotBlockingUser(sender.id, channel.users);
 
     try {
       await this.handleNewMessage(
@@ -102,7 +102,7 @@ export class ChatService {
     // Send the message to the channel
     await this.chatGateway.sendEvent(
       receivers,
-      ChatEvent.CHANNEL_MESSAGE,
+      ChatEvent.ChannelMessage,
       message,
     );
   }
@@ -151,7 +151,7 @@ export class ChatService {
 
       this.chatGateway.sendEvent(
         unavailableSocketsIds,
-        ChatEvent.CHANNEL_UNAVAILABLE,
+        ChatEvent.ChannelUnavailable,
         {
           channelId: channel.id,
         },
@@ -173,7 +173,7 @@ export class ChatService {
 
       this.chatGateway.sendEvent(
         socket,
-        ChatEvent.CHANNEL_AVAILABLE,
+        ChatEvent.ChannelAvailable,
         channelDto,
       );
       resolve();

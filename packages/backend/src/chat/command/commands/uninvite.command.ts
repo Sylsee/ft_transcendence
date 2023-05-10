@@ -9,7 +9,7 @@ import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { Command } from '../command.interface';
 
 @Injectable()
@@ -76,16 +76,16 @@ export default class UnInviteCommand implements Command {
     const socketID = await this.userService.getSocketID(uninvitedUser.id);
     if (socketID) {
       if (channel.type === ChannelType.PRIVATE) {
-        this.chatGateway.sendEvent(socketID, ChatEvent.CHANNEL_UNAVAILABLE, {
+        this.chatGateway.sendEvent(socketID, ChatEvent.ChannelUnavailable, {
           channelId: channel.id,
         });
       }
-      this.chatGateway.sendEvent(socketID, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
         content: `You are uninvited to join ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${uninvitedUser.name} has been uninvited to join ${channel.name}`,
     });
