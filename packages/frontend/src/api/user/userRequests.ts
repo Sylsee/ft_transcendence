@@ -8,7 +8,7 @@ const fetchUserById = async (userId: string) => {
 };
 
 const updateUserById = async (userId: string, data: UpdateUserRequest) => {
-	const response = await apiClient.patch(API_ROUTES.USER(userId), data);
+	const response = await apiClient.patch(API_ROUTES.USERS(userId), data);
 	return response.data;
 };
 
