@@ -1,14 +1,15 @@
 import { apiClient } from "api/api";
 import { API_ROUTES } from "config";
-import { UpdateUserRequest } from "types/user/user";
+
+import { UpdateUserRequest } from "../../types/user/api";
 
 const fetchUserById = async (userId: string) => {
 	const response = await apiClient.get(API_ROUTES.USER(userId));
 	return response.data;
 };
 
-const updateUserById = async (userId: string, data: UpdateUserRequest) => {
-	const response = await apiClient.patch(API_ROUTES.USERS(userId), data);
+const updateUserById = async (data: UpdateUserRequest) => {
+	const response = await apiClient.patch(API_ROUTES.UPDATE_USER, data);
 	return response.data;
 };
 

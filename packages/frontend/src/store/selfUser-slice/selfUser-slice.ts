@@ -1,10 +1,9 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
-	getUserPayload,
-	SelfUserState,
 	User,
 	UserStatus,
 } from "types/user/user";
+import { GetUserPayload, SelfUserState } from "../../types/user/reducer";
 
 const initialState: SelfUserState = {
 	user: null,
@@ -14,9 +13,9 @@ export const selfUserSlice = createSlice({
 	name: "selfUser",
 	initialState,
 	reducers: {
-		getUser(state, action: PayloadAction<getUserPayload>) {},
+		getUser(state, action: PayloadAction<GetUserPayload>) {},
 		setUser(state, action: PayloadAction<User>) {
-			state.user = { ...action.payload, status: UserStatus.Online };
+			state.user = { ...action.payload, status: UserStatus.Active };
 		},
 	},
 });

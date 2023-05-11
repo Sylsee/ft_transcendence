@@ -7,7 +7,7 @@ import { HeaderWrapper } from "containers/HeaderWrapper/HeaderWrapper";
 import { Home } from "containers/Home/Home";
 import { Profile } from "containers/Profile/Profile";
 import { ProtectedRoute } from "containers/ProtectedRoute/ProtectedRoute";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
@@ -15,7 +15,15 @@ import {
 	removeSocketChatListeners,
 	socketChatListeners,
 } from "sockets/listeners/chatListeners";
-import { connectSocket } from "sockets/socket";
+import {
+	removeSocketUserListeners,
+	socketUserListeners,
+} from "sockets/listeners/userListeners";
+import {
+	connectChatSocket,
+	disconnectChatSocket,
+	initializeChatSocket,
+} from "sockets/socket";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
 
@@ -58,25 +66,38 @@ const router = createBrowserRouter([
 	},
 ]);
 
-const queryClient = new QueryClient();
-
 const App: React.FC = () => {
 	const dispatch = useDispatch();
 	const isAuth = useSelector((state: RootState) => state.AUTH.isAuth);
-	useEffect(() => {
-		if (isAuth !== AuthStatus.Authenticated) return;
+	const queryClient = useMemo(() => new QueryClient(), []);
+	const connectedUserId = useSelector(
+		(state: RootState) => state.USER.user?.id
+	);
+	const chatSocket = initializeChatSocket();
 
-		connectSocket();
-		socketChatListeners(dispatch);
-		return () => {
+	useEffect(() => {
+		if (!chatSocket || !connectedUserId) return;
+		if (isAuth !== AuthStatus.Authenticated) {
+			disconnectChatSocket();
 			removeSocketChatListeners();
+			removeSocketUserListeners();
+		}
+		if (isAuth === AuthStatus.Authenticated) {
+			connectChatSocket();
+			socketChatListeners(dispatch);
+			socketUserListeners(queryClient, connectedUserId);
+		}
+		return () => {
+			disconnectChatSocket();
+			removeSocketChatListeners();
+			removeSocketUserListeners();
 		};
-	}, [dispatch, isAuth]);
+	}, [chatSocket, dispatch, isAuth, queryClient, connectedUserId]);
 
 	return (
 		<>
 			<QueryClientProvider client={queryClient}>
-				<ToastContainer />
+				<ToastContainer theme="dark" />
 				<RouterProvider router={router} />
 				<ReactQueryDevtools initialIsOpen={true} />
 			</QueryClientProvider>

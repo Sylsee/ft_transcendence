@@ -67,6 +67,27 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 			toast.error(`${createChannelError.message}`);
 	}, [createChannelStatus, createChannelError]);
 
+	useEffect(() => {
+		if (!showTooltip) return;
+
+		const handleClickOutside = (e: Event) => {
+			if (!(e.target instanceof HTMLElement)) return;
+			if (
+				referenceElement?.contains(e.target) ||
+				popperElement?.contains(e.target)
+			) {
+				return;
+			}
+			dispatch(setActiveTooltip(null));
+		};
+
+		document.addEventListener("click", handleClickOutside);
+
+		return () => {
+			document.removeEventListener("click", handleClickOutside);
+		};
+	}, [showTooltip, referenceElement, popperElement, dispatch]);
+
 	// popper hook
 	const { styles, attributes, state } = usePopper(
 		referenceElement,
@@ -118,11 +139,12 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 	return (
 		<div className="flex items-start space-x-4 p-2 break-words">
 			<div style={{ width: "calc(100% - 3rem)" }}>
-				<div className="text-gray-500">
+				<div className="select-none text-gray-500">
 					<span
 						ref={setReferenceElement}
 						onClick={() => toggleTooltip()}
-						className="font-semibold text-white cursor-pointer hover:underline"
+						style={{ color: "#c7b99b" }}
+						className=" font-semibold text-white cursor-pointer hover:underline"
 					>
 						{message.sender.name}
 					</span>
@@ -131,7 +153,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="bg-white p-2 rounded shadow border"
+							className="bg-white p-2 rounded shadow borde"
 						>
 							<div
 								ref={setArrowElement}

@@ -10,9 +10,10 @@ export interface Match {
 	date: Date;
 }
 
+// user
 export enum UserStatus {
-	Online = "online",
-	Offline = "offline",
+	Active = "active",
+	Inactive = "inactive",
 }
 
 export interface User {
@@ -23,33 +24,3 @@ export interface User {
 	isTwoFactorAuthEnabled?: boolean;
 }
 
-// interface FriendsRequests {
-// 	id: number;
-// 	name: string;
-// }
-
-export enum UserRelationship {
-	BlockRequestReceived,
-	BlockRequestSent,
-	NotFriends,
-	FriendRequestReceived,
-	FriendRequestSent,
-	Friends,
-}
-
-export interface SelfUserState {
-	user: User | null;
-}
-
-export interface getUserPayload {
-	id: string;
-}
-
-// API Routes
-export interface UpdateUserRequest {
-	name: string;
-}
-
-export interface UploadProfilePictureRequest {
-	profilePicture: File;
-}

@@ -1,18 +1,22 @@
 import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { updateUserById } from "api/user/userRequests";
+import { useDispatch } from "react-redux";
+import { setUser } from "store/selfUser-slice/selfUser-slice";
 import { ApiErrorResponse } from "types/global/global";
-import { UpdateUserRequest, User } from "types/user/user";
+import { User } from "types/user/user";
+import { UpdateUserRequest } from "../../types/user/api";
 
-const useUpdateUser = (
-	id: string
-): UseMutationResult<User, ApiErrorResponse, UpdateUserRequest> => {
-	// const dispatch = useDispatch();
+const useUpdateUser = (): UseMutationResult<
+	User,
+	ApiErrorResponse,
+	UpdateUserRequest
+> => {
+	const dispatch = useDispatch();
 	const mutation = useMutation<User, ApiErrorResponse, UpdateUserRequest>(
-		(data: UpdateUserRequest) => updateUserById(id, data),
+		(data: UpdateUserRequest) => updateUserById(data),
 		{
 			onSuccess: (user) => {
-				console.log("USER", user, "updated");
-				//dispatch(setUser(user)); // TODO: wait for API to be fixed
+				dispatch(setUser(user));
 			},
 		}
 	);

@@ -2,15 +2,20 @@ import { ChatEvent } from "config";
 import { toast } from "react-toastify";
 import { Dispatch } from "redux";
 import { Socket } from "socket.io-client";
-import { getSocket } from "sockets/socket";
-import { addServerMessage } from "store/chat-slice/chat-slice";
+import { getChatSocket } from "sockets/socket";
+import {
+	addChannel,
+	addMessage,
+	addServerMessage,
+	removeChannel,
+} from "store/chat-slice/chat-slice";
 import { addCustomNotification } from "store/customNotification-slice/customNotification-slice";
 import {
-	handleChannelMessage,
-	handleNewChannel,
-	handleRemovedChannel,
-} from "store/socket-slice/socket-slice";
-import { Message, ServerMessage } from "types/chat/chat";
+	Message,
+	MessageType,
+	ServerMessage,
+	ServerMessages,
+} from "types/chat/chat";
 import {
 	ChannelNotifications,
 	CustomNotificationType,
@@ -18,19 +23,32 @@ import {
 import { ChannelIdPayload, ChannelPayload } from "types/socket/socket";
 
 export const socketChatListeners = (dispatch: Dispatch) => {
-	const socket = getSocket();
+	const socket = getChatSocket();
 	if (!socket) return;
 
 	socket.on(ChatEvent.ChannelMessage, (message: Message) => {
 		console.log(ChatEvent.ChannelMessage, message);
-		dispatch(handleChannelMessage(message));
+		dispatch(addMessage(message));
 	});
 
 	socket.on(
 		ChatEvent.ChannelServerMessage,
-		(serverMessage: ServerMessage) => {
+		(serverMessage: ServerMessage | ServerMessages) => {
 			console.log(ChatEvent.ChannelServerMessage, serverMessage);
-			dispatch(addServerMessage(serverMessage));
+
+			const messages = Array.isArray(serverMessage.content)
+				? serverMessage.content
+				: [serverMessage.content];
+
+			messages.forEach((content) => {
+				dispatch(
+					addServerMessage({
+						type: MessageType.Special,
+						channelId: serverMessage.channelId,
+						content,
+					})
+				);
+			});
 		}
 	);
 
@@ -58,17 +76,17 @@ export const socketChatListeners = (dispatch: Dispatch) => {
 
 	socket.on(ChatEvent.ChannelAvailable, (channel: ChannelPayload) => {
 		console.log(ChatEvent.ChannelAvailable, channel);
-		dispatch(handleNewChannel(channel));
+		dispatch(addChannel(channel));
 	});
 
 	socket.on(ChatEvent.ChannelUnavailability, (id: ChannelIdPayload) => {
 		console.log(ChatEvent.ChannelUnavailability, id);
-		dispatch(handleRemovedChannel(id));
+		dispatch(removeChannel(id));
 	});
 };
 
 export const removeSocketChatListeners = () => {
-	const socket: Socket | undefined = getSocket();
+	const socket: Socket | undefined = getChatSocket();
 	if (!socket) return;
 
 	socket.off(ChatEvent.Message);

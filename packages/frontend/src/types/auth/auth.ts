@@ -1,17 +1,8 @@
-// enums
+// auth
 export enum AuthStatus {
 	NotAuthenticated,
 	PartiallyAuthenticated,
 	Authenticated,
-}
-
-export interface AuthState {
-	isAuth: AuthStatus;
-	isTwoFactorAuthEnabled: boolean;
-}
-
-export interface AuthenticatePayload {
-	token: string;
 }
 
 export interface DecodedToken {
@@ -22,3 +13,4 @@ export interface DecodedToken {
 	iat: number;
 	exp: number;
 }
+

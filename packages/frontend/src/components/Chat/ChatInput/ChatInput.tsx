@@ -2,7 +2,7 @@ import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChatEvent } from "config";
 import { useEffect, useRef, useState } from "react";
-import { emitSocketEvent } from "sockets/socket";
+import { emitChatSocketEvent } from "sockets/socket";
 
 interface ChatInputProps {
 	channelId: string;
@@ -35,7 +35,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 		if (!inputIsValid) return;
 
 		const payload = { channelId, content: message };
-		emitSocketEvent(ChatEvent.Message, payload);
+		emitChatSocketEvent(ChatEvent.Message, payload);
 		setMessage("");
 	};
 	return (
@@ -52,7 +52,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 			{inputIsValid && (
 				<button
 					type="submit"
-					className="bg-white text-blue-400  hover:text-blue-700  font-bold py-2 px-4"
+					className="bg-white hover:text-astronaut-500  text-astronaut-400  font-bold py-2 px-4"
 				>
 					<FontAwesomeIcon icon={faPaperPlane} />
 				</button>

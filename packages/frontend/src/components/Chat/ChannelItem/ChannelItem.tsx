@@ -65,8 +65,11 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 			onMouseEnter={() => setHover(true)}
 			onMouseLeave={() => setHover(false)}
 			onTouchStart={handleTouchStart}
-			className={`hover:bg-pink-200 px-2 py-1 ${
-				isActive === true ? "bg-red-200" : ""
+			style={{
+				transition: "all 0.2s",
+			}}
+			className={`hover:bg-astronaut-700 px-2 py-1 ${
+				isActive === true ? "bg-astronaut-800" : ""
 			}`}
 		>
 			<div className="flex justify-between items-center cursor-pointer">
