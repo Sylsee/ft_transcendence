@@ -17,7 +17,7 @@ import { MAX_PLAYERS } from '../constants';
 import { UserWithReadyStatusDto } from '../dto/user-with-ready-status.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
-import { Instance } from '../instance/instance';
+import { Game } from '../game/game';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
 import { GamePayloads } from '../types/GamePayloads';
 
@@ -38,7 +38,7 @@ export class Lobby {
     UserEntity['id']
   >();
 
-  public readonly instance: Instance = new Instance(this);
+  public readonly instance: Game = new Game(this);
 
   constructor(
     private readonly server: Server,

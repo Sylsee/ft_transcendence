@@ -52,6 +52,7 @@
     "passport-google-oauth2": "^0.2.0",
     "passport-jwt": "^4.0.0",
     "passport-oauth2": "^1.6.1",
+    "perf_hooks": "0.0.1",
     "pg": "^8.10.0",
     "qrcode": "^1.5.1",
     "reflect-metadata": "^0.1.13",

@@ -16,6 +16,7 @@ import { UserService } from 'src/user/services/user.service';
 import { LOBBY_MAX_LIFETIME, MAX_PLAYERS } from '../constants';
 import { InviteToLobbyDto } from '../dto/invite-lobby.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
+import { MovePaddleDto } from '../dto/move-paddle.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
@@ -305,6 +306,23 @@ export class LobbyManager {
     this.playerQueue.splice(0, MAX_PLAYERS).forEach(async (client) => {
       lobby.addPlayer(client);
     });
+  }
+
+  // -------------------- Game --------------------
+
+  public movePaddle(
+    client: AuthenticatedSocket,
+    movePaddleDto: MovePaddleDto,
+  ): void {
+    if (!client.data.lobby) {
+      throw new WsException('You are not in a lobby');
+    }
+
+    if (!client.data.lobby.instance || !client.data.lobby.instance.hasStarted) {
+      throw new WsException('Game not started');
+    }
+
+    client.data.lobby.instance.movePaddle(client, movePaddleDto);
   }
 
   // -------------------- Utils --------------------
