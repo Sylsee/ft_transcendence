@@ -36,6 +36,10 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 		}
 	}, [isEditing, inputRef]);
 
+	useEffect(() => {
+		setInputValue(name);
+	}, [name]);
+
 	// handlers
 	const handleEdit = () => {
 		setIsEditing(true);
