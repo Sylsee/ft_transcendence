@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { userIdInList } from 'src/shared/list';
@@ -34,7 +34,7 @@ export default class MuteCommand implements Command {
     }
 
     if (!arg) {
-      throw new Error('No username provided');
+      throw new Error('Invalid arguments');
     }
 
     const args = arg.split(/\s+/);
@@ -92,7 +92,7 @@ export default class MuteCommand implements Command {
 
     await this.muteUserService.create(muteUser, channel, muteEndTime);
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `User ${muteUser.name} has been muted for ${time} minutes`,
     });

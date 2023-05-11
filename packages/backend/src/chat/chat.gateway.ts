@@ -1,5 +1,5 @@
 // NestJS imports
-import { Inject, Logger, forwardRef } from '@nestjs/common';
+import { Inject, Logger, UsePipes, forwardRef } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -21,18 +21,22 @@ import { Server, Socket } from 'socket.io';
 
 // Local imports
 import { AuthService } from 'src/auth/auth.service';
+import { GameGateway } from 'src/game/game.gateway';
 import { userIdInList } from 'src/shared/list';
 import { sendEvent } from 'src/shared/websocket';
+import { WsValidationPipe } from 'src/shared/ws.validation-pipe';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { CreateMessageDto } from './dto/message/create-message.dto';
 import { ChannelEntity } from './entities/channel.entity';
 import { ChannelType } from './enum/channel-type.enum';
-import { ChatEvent } from './enum/chat-event.enum';
+import { ClientChatEvent } from './enum/client-chat-event.enum';
+import { ServerChatEvent } from './enum/server-chat-event.enum';
 import { ChannelService } from './services/channel.service';
 import { ChatService } from './services/chat.service';
 
+@UsePipes(new WsValidationPipe())
 @WebSocketGateway({
   namespace: '/chat',
   cors: {
@@ -43,7 +47,7 @@ import { ChatService } from './services/chat.service';
 export class ChatGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
-  private readonly logger = new Logger(ChatGateway.name);
+  private readonly logger: Logger = new Logger(ChatGateway.name);
 
   @WebSocketServer()
   private server: Server;
@@ -54,13 +58,14 @@ export class ChatGateway
     private chatService: ChatService,
     private userService: UserService,
     private authService: AuthService,
+    @Inject(forwardRef(() => GameGateway))
+    private gameGateway: GameGateway,
   ) {}
 
   async afterInit(): Promise<void> {
     this.logger.log('Initializing socket.io server at /chat');
   }
 
-  // TODO: send to friends user status
   async handleConnection(client: Socket): Promise<void> {
     let token: string;
     if (client.handshake.headers.cookie) {
@@ -84,9 +89,29 @@ export class ChatGateway
       client.data.id = user.id;
 
       this.userService.setSocketUser(client.id, user.id);
-      this.userService.update(user.id, { status: UserStatus.active });
 
-      this.logger.verbose(`User ${user.id} connected with socket ${client.id}`);
+      this.logger.verbose(
+        `User ${user.id} connected with socket ${client.id} to namespace ${client.nsp.name}`,
+      );
+
+      // Send user status to friends
+      if (user.status === UserStatus.Offline) {
+        this.userService.update(user.id, { status: UserStatus.Online });
+
+        const userWithFriends = await this.userService.findOneWithRelations(
+          user.id,
+          ['friends'],
+        );
+        if (!userWithFriends) {
+          this.logger.error('User not found after authentication');
+          throw new WsException('Internal server error');
+        }
+
+        this.sendEvent(userWithFriends.friends, ServerChatEvent.UserStatus, {
+          id: userWithFriends.id,
+          status: userWithFriends.status,
+        });
+      }
     } catch (error) {
       client.emit('exception', {
         status: 'error',
@@ -99,16 +124,34 @@ export class ChatGateway
     }
   }
 
-  // TODO: send to friends user status
-  handleDisconnect(client: Socket): void {
+  async handleDisconnect(client: Socket): Promise<void> {
     try {
+      const userId = client.data.id;
+
+      // Disconnect from game namespace
+      this.gameGateway.disconnectAuthenticatedSocket(client.data.id);
+
       this.userService.removeSocketUser(client.id);
 
-      const userId = client.data.id;
-      this.userService.update(userId, { status: UserStatus.inactive });
+      // Update user status
+      this.userService.update(userId, { status: UserStatus.Offline });
+
+      // Send user status to friends
+      const user = await this.userService.findOneWithRelations(userId, [
+        'friends',
+      ]);
+      if (!user) {
+        this.logger.error('User not found after authentication');
+        return;
+      }
+
+      this.sendEvent(user.friends, ServerChatEvent.UserStatus, {
+        id: user.id,
+        status: UserStatus.Offline,
+      });
 
       this.logger.verbose(
-        `User ${userId} disconnected with socket ${client.id}`,
+        `User ${userId} disconnected with socket ${client.id} from namespace ${client.nsp.name}`,
       );
     } catch (error) {
       this.logger.warn(`Unable to disconnect user: ${client.id}`);
@@ -117,7 +160,7 @@ export class ChatGateway
 
   // ---------------------------- Events ----------------------------
 
-  @SubscribeMessage('send:message')
+  @SubscribeMessage(ClientChatEvent.Message)
   async handleMessage(
     @ConnectedSocket() client: Socket,
     @MessageBody() payload: CreateMessageDto,
@@ -199,7 +242,7 @@ export class ChatGateway
         }
       });
 
-      this.sendEvent(socketsIds, ChatEvent.CHANNEL_UNAVAILABLE, {
+      this.sendEvent(socketsIds, ServerChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
     }
@@ -210,7 +253,7 @@ export class ChatGateway
       channel.type === ChannelType.DIRECT_MESSAGE
     ) {
       const users = [...(channel.users ?? []), ...(channel.invitedUsers ?? [])];
-      this.sendEvent(users, ChatEvent.CHANNEL_UNAVAILABLE, {
+      this.sendEvent(users, ServerChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
     }
@@ -218,7 +261,7 @@ export class ChatGateway
 
   async sendEvent(
     user: string | UserEntity | Array<string | UserEntity>,
-    event: ChatEvent,
+    event: ServerChatEvent,
     data: object | string,
   ): Promise<void> {
     return sendEvent(this.server, user, event, data, this.userService);

@@ -22,7 +22,7 @@ import {
 import { Response } from 'express';
 
 // Local imports
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { AuthService } from './auth.service';
 import { GeneratedTwoFactorAuth } from './dto/generate2fa.dto';
 import { TwoFactorAuthDto } from './dto/twoFactorAuth.dto';
@@ -33,7 +33,7 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name);
+  private readonly logger: Logger = new Logger(AuthController.name);
 
   constructor(
     private authService: AuthService,

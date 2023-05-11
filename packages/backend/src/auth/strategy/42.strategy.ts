@@ -24,7 +24,7 @@ import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class OAuth42Strategy extends PassportStrategy(Strategy, '42') {
-  private readonly logger = new Logger(OAuth42Strategy.name);
+  private readonly logger: Logger = new Logger(OAuth42Strategy.name);
 
   constructor(
     private authService: AuthService,

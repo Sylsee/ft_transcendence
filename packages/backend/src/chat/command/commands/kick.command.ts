@@ -5,11 +5,11 @@ import { Injectable } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { Command } from '../command.interface';
 
 @Injectable()
@@ -86,12 +86,16 @@ export default class KickCommand implements Command {
     await this.channelService.save(channel);
 
     // Send notification
-    const socketId = await this.userService.getSocketID(kickUser.id);
+    const socketId = await this.userService.getSocketId(kickUser.id);
     if (socketId) {
       if (channel.type === ChannelType.PRIVATE) {
-        this.chatGateway.sendEvent(socketId, ChatEvent.CHANNEL_UNAVAILABLE, {
-          channelId: channel.id,
-        });
+        this.chatGateway.sendEvent(
+          socketId,
+          ServerChatEvent.ChannelUnavailable,
+          {
+            channelId: channel.id,
+          },
+        );
       } else {
         this.chatGateway.sendChannelAvailableEvent(
           channel,
@@ -99,12 +103,12 @@ export default class KickCommand implements Command {
           socketId,
         );
       }
-      this.chatGateway.sendEvent(socketId, ChatEvent.NOTIFICATION, {
+      this.chatGateway.sendEvent(socketId, ServerChatEvent.Notification, {
         content: `You have been kicked from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `You have kicked ${kickUser.name} from ${channel.name}`,
     });

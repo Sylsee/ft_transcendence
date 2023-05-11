@@ -5,19 +5,19 @@ import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { WsException } from '@nestjs/websockets';
 import { formatTime } from 'src/shared/time';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { ChatGateway } from '../chat.gateway';
 import { Command } from '../command/command.interface';
 import { ChannelDto } from '../dto/channel/channel.dto';
 import { CommandArgsDto } from '../dto/command/command-args.dto';
 import { ChannelEntity } from '../entities/channel.entity';
-import { ChatEvent } from '../enum/chat-event.enum';
+import { ServerChatEvent } from '../enum/server-chat-event.enum';
 import { MessageService } from './message.service';
 import { MuteUserService } from './mute-user.service';
 
 @Injectable()
 export class ChatService {
-  private readonly logger = new Logger(ChatService.name);
+  private readonly logger: Logger = new Logger(ChatService.name);
 
   constructor(
     private userService: UserService,
@@ -63,16 +63,20 @@ export class ChatService {
       if (leftTime <= 0) {
         await this.muteUserService.delete(userMute);
       } else {
-        this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
-          channelId: channel.id,
-          content: `You are muted for ${formatTime(leftTime)}`,
-        });
+        this.chatGateway.sendEvent(
+          sender,
+          ServerChatEvent.ChannelServerMessage,
+          {
+            channelId: channel.id,
+            content: `You are muted for ${formatTime(leftTime)}`,
+          },
+        );
         return;
       }
     }
 
     const usersNotBlockingSender =
-      await this.userService.findUsersNotBlockingUser(channel.users, sender.id);
+      await this.userService.findUsersNotBlockingUser(sender.id, channel.users);
 
     try {
       await this.handleNewMessage(
@@ -102,7 +106,7 @@ export class ChatService {
     // Send the message to the channel
     await this.chatGateway.sendEvent(
       receivers,
-      ChatEvent.CHANNEL_MESSAGE,
+      ServerChatEvent.ChannelMessage,
       message,
     );
   }
@@ -151,7 +155,7 @@ export class ChatService {
 
       this.chatGateway.sendEvent(
         unavailableSocketsIds,
-        ChatEvent.CHANNEL_UNAVAILABLE,
+        ServerChatEvent.ChannelUnavailable,
         {
           channelId: channel.id,
         },
@@ -173,7 +177,7 @@ export class ChatService {
 
       this.chatGateway.sendEvent(
         socket,
-        ChatEvent.CHANNEL_AVAILABLE,
+        ServerChatEvent.ChannelAvailable,
         channelDto,
       );
       resolve();

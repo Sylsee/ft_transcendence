@@ -1,7 +1,6 @@
 import { ChannelPermissions, ChannelType } from "types/chat/chat";
 
-export interface SocketState {}
-
+// channel
 export interface ChannelPayload {
 	id: string;
 	name: string;
@@ -11,9 +10,4 @@ export interface ChannelPayload {
 
 export interface ChannelIdPayload {
 	channelId: string;
-}
-
-export interface MessagePayload {
-	channelId: string;
-	content: string;
 }

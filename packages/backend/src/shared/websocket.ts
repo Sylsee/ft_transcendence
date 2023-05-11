@@ -2,14 +2,13 @@
 import { Server } from 'socket.io';
 
 // Local imports
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 
 export async function sendEvent(
   server: Server,
   user: string | UserEntity | Array<string | UserEntity>,
-  event: ChatEvent,
+  event: string,
   data: object | string,
   userService: UserService,
 ): Promise<void> {
@@ -21,7 +20,7 @@ export async function sendEvent(
     if (typeof user === 'string') {
       return user;
     } else {
-      return await userService.getSocketID(user.id);
+      return await userService.getSocketId(user.id);
     }
   };
 

@@ -1,23 +1,25 @@
 import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { Channel, ChannelType } from "types/chat/chat";
+import { useSelector } from "react-redux";
+import { selectActiveChannel } from "store/chat-slice/chat-slice";
+import { ChannelType } from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface ChatHeaderProps {
-	isMenuOpen: boolean;
-	activeChannel: Channel | null;
 	handleCloseChat: () => void;
 	handleCloseChatModal: () => void;
 	toggleMenu: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
-	isMenuOpen,
-	activeChannel,
 	handleCloseChat,
 	handleCloseChatModal,
 	toggleMenu,
 }) => {
+	const isMenuOpen = useSelector((store: RootState) => store.CHAT.isMenuOpen);
+	const activeChannel = useSelector(selectActiveChannel);
+
 	return (
 		<div className="flex">
 			<div className="w-4">

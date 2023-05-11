@@ -10,7 +10,7 @@ import { MessageRepository } from '../repositories/message.repository';
 
 @Injectable()
 export class MessageService {
-  private readonly logger = new Logger(MessageService.name);
+  private readonly logger: Logger = new Logger(MessageService.name);
 
   constructor(private messageRepository: MessageRepository) {}
 
@@ -19,7 +19,7 @@ export class MessageService {
     channel: ChannelEntity,
     content: string,
   ): Promise<MessageEntity> {
-    return this.messageRepository.create(content, sender, channel);
+    return this.messageRepository.create(sender, channel, content);
   }
 
   async getMessageDto(

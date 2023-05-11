@@ -15,7 +15,7 @@ import { AuthProvider } from '../enum/auth-provider.enum';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  private readonly logger = new Logger(GoogleStrategy.name);
+  private readonly logger: Logger = new Logger(GoogleStrategy.name);
 
   constructor(
     private configService: ConfigService,
@@ -38,7 +38,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     // Get user profile picture
     const defaultPhotoUrl =
       profile.photos && profile.photos[0] ? profile.photos[0].value : null;
-    const parsedUrl = defaultPhotoUrl?.replace(/=s\d+-c/, '=s128-c');
+    const parsedUrl = defaultPhotoUrl?.replace(/=s\d+-c/, '=s400-c');
 
     // Validate user data using class-validator
     const userDto: CreateUserDto = plainToInstance(CreateUserDto, {

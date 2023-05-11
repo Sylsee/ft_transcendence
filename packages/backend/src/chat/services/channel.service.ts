@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   forwardRef,
@@ -16,7 +17,7 @@ import * as bcrypt from 'bcrypt';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { hashPassword } from 'src/shared/password';
 import { UserEntity } from 'src/user/entities/user.entity';
-import { UserService } from 'src/user/user.service';
+import { UserService } from 'src/user/services/user.service';
 import { ChatGateway } from '../chat.gateway';
 import { ChannelDto } from '../dto/channel/channel.dto';
 import { CreateChannelDto } from '../dto/channel/create-channel.dto';
@@ -24,12 +25,12 @@ import { UpdateChannelDto } from '../dto/channel/update-channel.dto';
 import { MessageDto } from '../dto/message/message.dto';
 import { ChannelEntity } from '../entities/channel.entity';
 import { ChannelType } from '../enum/channel-type.enum';
-import { ChatEvent } from '../enum/chat-event.enum';
+import { ServerChatEvent } from '../enum/server-chat-event.enum';
 import { ChannelRepository } from '../repositories/channel.repository';
 
 @Injectable()
 export class ChannelService {
-  private logger = new Logger(ChannelService.name);
+  private readonly logger: Logger = new Logger(ChannelService.name);
 
   constructor(
     @Inject(forwardRef(() => ChatGateway))
@@ -158,15 +159,17 @@ export class ChannelService {
       throw new NotFoundException('Channel not found');
     }
 
-    if (channel.type === ChannelType.DIRECT_MESSAGE) {
-      throw new ForbiddenException('Cannot delete a Direct Message channel');
-    }
-
-    if (channel.owner && channel.owner.id !== userId) {
-      throw new ForbiddenException('Not the owner of this channel');
-    }
-    if (!channel.owner && !userIdInList(channel.admins, userId)) {
-      throw new ForbiddenException('Not an admin of this channel');
+    // If not direct message and user is not in the channel
+    if (
+      channel.type !== ChannelType.DIRECT_MESSAGE &&
+      !userIdInList(channel.users, userId)
+    ) {
+      if (channel.owner && channel.owner.id !== userId) {
+        throw new ForbiddenException('Not the owner of this channel');
+      }
+      if (!channel.owner && !userIdInList(channel.admins, userId)) {
+        throw new ForbiddenException('Not an admin of this channel');
+      }
     }
 
     await this.chatGateway.sendChannelUnavailability(channel);
@@ -217,11 +220,24 @@ export class ChannelService {
       throw new ForbiddenException('User is not in channel');
     }
 
-    return await Promise.all(
-      channel.messages?.map((message) => {
-        return MessageDto.transform(message);
-      }),
-    );
+    const user = await this.userService.findOneWithRelations(userId, [
+      'blockedUsers',
+    ]);
+    if (!user) {
+      this.logger.error('User not found after authentication');
+      throw new InternalServerErrorException();
+    }
+
+    return channel.messages?.reduce(async (accumulatorPromise, message) => {
+      const accumulator = await accumulatorPromise;
+
+      if (!userIdInList(user.blockedUsers, message.sender.id)) {
+        const transformedMessage = MessageDto.transform(message);
+        accumulator.push(transformedMessage);
+      }
+
+      return accumulator;
+    }, Promise.resolve([]));
   }
 
   // ---------------------- User Management ----------------------
@@ -273,13 +289,13 @@ export class ChannelService {
 
     await this.channelRepository.save(channel);
 
-    this.chatGateway.sendEvent(user, ChatEvent.NOTIFICATION, {
+    this.chatGateway.sendEvent(user, ServerChatEvent.Notification, {
       content: `You joined the channel ${channel.name}`,
     });
 
     this.chatGateway.sendEvent(
       channel.users,
-      ChatEvent.CHANNEL_SERVER_MESSAGE,
+      ServerChatEvent.ChannelServerMessage,
       {
         channelId: channel.id,
         content: `${user.name} joined the channel`,
@@ -306,7 +322,7 @@ export class ChannelService {
       throw new ForbiddenException('Not in this channel');
     }
 
-    this.chatGateway.sendEvent(user.id, ChatEvent.NOTIFICATION, {
+    this.chatGateway.sendEvent(user.id, ServerChatEvent.Notification, {
       content: `You left the channel ${channel.name}`,
     });
 
@@ -336,7 +352,7 @@ export class ChannelService {
 
       this.chatGateway.sendEvent(
         channel.users,
-        ChatEvent.CHANNEL_SERVER_MESSAGE,
+        ServerChatEvent.ChannelServerMessage,
         {
           channelId: channel.id,
           content: `${user.name} left the channel`,
@@ -346,13 +362,13 @@ export class ChannelService {
       // Send channel avaibility event to the user
       const channelDto = ChannelDto.transform(channel, user.id);
       if (channelDto === null) {
-        this.chatGateway.sendEvent(user, ChatEvent.CHANNEL_UNAVAILABLE, {
+        this.chatGateway.sendEvent(user, ServerChatEvent.ChannelUnavailable, {
           channelId: channel.id,
         });
       } else {
         this.chatGateway.sendEvent(
           user,
-          ChatEvent.CHANNEL_AVAILABLE,
+          ServerChatEvent.ChannelAvailable,
           channelDto,
         );
       }

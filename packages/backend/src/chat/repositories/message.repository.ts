@@ -12,7 +12,7 @@ import { MessageEntity } from '../entities/message.entity';
 
 @Injectable()
 export class MessageRepository {
-  private readonly logger = new Logger(MessageRepository.name);
+  private readonly logger: Logger = new Logger(MessageRepository.name);
 
   constructor(
     @InjectRepository(MessageEntity)
@@ -20,9 +20,9 @@ export class MessageRepository {
   ) {}
 
   async create(
-    content: string,
     sender: UserEntity,
     channel: ChannelEntity,
+    content: string,
   ): Promise<MessageEntity> {
     const message = new MessageEntity();
     message.content = content;

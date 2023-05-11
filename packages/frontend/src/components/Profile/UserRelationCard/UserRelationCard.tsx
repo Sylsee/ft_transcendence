@@ -3,7 +3,10 @@ import { UserList } from "components/Profile/UserRelationCard/UserList/UserList"
 import { useFetchBlockedUsers } from "hooks/userRelations/useFetchBlockedUsers";
 import { useFetchFriends } from "hooks/userRelations/useFetchFriends";
 import { useFetchFriendsRequests } from "hooks/userRelations/useFetchFriendsRequests";
-import { UserListType } from "types/user/user";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+import { UserListType } from "../../../types/userRelations/userRelations";
 
 interface UserRelationCardProps {
 	id: string;
@@ -14,23 +17,42 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 	id,
 	isConnectedUser,
 }) => {
+	// react-router
+	const location = useLocation();
+
+	// custom hooks for fetching data
 	const {
 		data: FriendsListData,
 		status: FriendsListStatus,
 		error: FriendsListError,
+		refetch: refetchFriendsList,
 	} = useFetchFriends(id);
 
 	const {
 		data: FriendsRequestsData,
 		status: FriendsRequestsStatus,
 		error: FriendsRequestsError,
+		refetch: refetchFriendsRequests,
 	} = useFetchFriendsRequests(isConnectedUser);
 
 	const {
 		data: BlockedUsersData,
 		status: BlockedUsersStatus,
 		error: BlockedUsersError,
+		refetch: refetchBlockedUsers,
 	} = useFetchBlockedUsers();
+
+	// hooks
+	useEffect(() => {
+		refetchFriendsList();
+		refetchFriendsRequests();
+		refetchBlockedUsers();
+	}, [
+		location,
+		refetchBlockedUsers,
+		refetchFriendsList,
+		refetchFriendsRequests,
+	]);
 
 	return (
 		<div className="flex flex-col w-full">

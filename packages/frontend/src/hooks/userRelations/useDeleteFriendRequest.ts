@@ -14,7 +14,8 @@ import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { ApiErrorResponse, RootState } from "types/global/global";
-import { FriendRequestType, MutationContextIdType } from "types/user/user";
+import { MutationContextIdType } from "../../types/userRelations/api";
+import { FriendRequestType } from "../../types/userRelations/userRelations";
 
 const useDeleteFriendRequest = (): UseMutationResult<
 	void,

@@ -4,12 +4,15 @@ import { ApiProperty } from '@nestjs/swagger';
 // Third-party imports
 import { IsBoolean, IsNotEmpty } from 'class-validator';
 
-export class UpdateFriendRequestDto {
+// Local imports
+import { UserDto } from 'src/user/dto/user.dto';
+
+export class UserWithReadyStatusDto extends UserDto {
   @ApiProperty({
-    description: 'The status of the friend request',
+    description: 'Whether or not the user is ready',
     example: true,
   })
   @IsNotEmpty()
   @IsBoolean()
-  status: boolean;
+  isReady: boolean;
 }

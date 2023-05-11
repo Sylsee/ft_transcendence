@@ -5,7 +5,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { MuteUserService } from 'src/chat/services/mute-user.service';
 import { userIdInList } from 'src/shared/list';
@@ -14,7 +14,7 @@ import { Command } from '../command.interface';
 
 @Injectable()
 export default class UnMuteCommand implements Command {
-  private readonly logger = new Logger(UnMuteCommand.name);
+  private readonly logger: Logger = new Logger(UnMuteCommand.name);
 
   constructor(
     private channelService: ChannelService,
@@ -83,12 +83,16 @@ export default class UnMuteCommand implements Command {
 
     await this.muteUserService.delete(user);
 
-    this.chatGateway.sendEvent(unMuteUser, ChatEvent.CHANNEL_SERVER_MESSAGE, {
-      channelId: channel.id,
-      content: `You have been unmuted from ${channel.name}`,
-    });
+    this.chatGateway.sendEvent(
+      unMuteUser,
+      ServerChatEvent.ChannelServerMessage,
+      {
+        channelId: channel.id,
+        content: `You have been unmuted from ${channel.name}`,
+      },
+    );
 
-    this.chatGateway.sendEvent(sender, ChatEvent.CHANNEL_SERVER_MESSAGE, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `${unMuteUser.name} has been unmuted`,
     });
