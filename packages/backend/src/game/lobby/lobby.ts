@@ -1,12 +1,12 @@
 // NestJS imports
 import { Logger } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 // Third-party imports
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 
 // Local imports
-import { WsException } from '@nestjs/websockets';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { UserDto } from 'src/user/dto/user.dto';
