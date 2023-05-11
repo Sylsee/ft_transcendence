@@ -46,7 +46,7 @@ export class UserDto {
   @ApiProperty({
     type: 'enum',
     description: 'User status',
-    example: UserStatus.active,
+    example: UserStatus.Online,
     required: false,
   })
   @IsOptional()

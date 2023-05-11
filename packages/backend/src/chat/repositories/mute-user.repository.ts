@@ -12,7 +12,7 @@ import { MuteUserEntity } from '../entities/mute-user.entity';
 
 @Injectable()
 export class MuteUserRepository {
-  private readonly logger = new Logger(MuteUserRepository.name);
+  private readonly logger: Logger = new Logger(MuteUserRepository.name);
 
   constructor(
     @InjectRepository(MuteUserEntity)

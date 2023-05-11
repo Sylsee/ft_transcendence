@@ -17,7 +17,7 @@ import { Jwt2faStrategy } from './strategy/jwt-2fa.strategy';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new Logger(AuthService.name);
+  private readonly logger: Logger = new Logger(AuthService.name);
 
   constructor(
     private jwtService: JwtService,

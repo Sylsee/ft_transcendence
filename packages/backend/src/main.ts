@@ -18,7 +18,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Configure Logger (see https://docs.nestjs.com/techniques/logger)
-  const logger = new Logger();
+  const logger: Logger = new Logger();
 
   // Configure config service (see https://docs.nestjs.com/techniques/configuration)
   const configService = app.get(ConfigService);

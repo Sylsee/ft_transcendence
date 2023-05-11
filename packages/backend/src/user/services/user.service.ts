@@ -29,7 +29,7 @@ import { FriendRequestService } from './friend_request.service';
 
 @Injectable()
 export class UserService {
-  private readonly logger = new Logger(UserService.name);
+  private readonly logger: Logger = new Logger(UserService.name);
 
   private socketUserMap = new Map<string, string>(); // socketId -> userId
 
@@ -500,7 +500,7 @@ export class UserService {
     return this.socketUserMap.get(socketId);
   }
 
-  async getSocketID(userId: string): Promise<string | undefined> {
+  async getSocketId(userId: string): Promise<string | undefined> {
     for (const [socketId, id] of this.socketUserMap.entries()) {
       if (id === userId) {
         return socketId;

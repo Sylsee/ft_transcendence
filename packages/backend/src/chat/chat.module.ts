@@ -4,16 +4,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Local imports
 import { AuthModule } from 'src/auth/auth.module';
+import { GameModule } from 'src/game/game.module';
 import { UserModule } from 'src/user/user.module';
 import { ChannelController } from './channel.controller';
 import { ChatGateway } from './chat.gateway';
 import { CommandMapProvider } from './command/command.provider';
 import BanCommand from './command/commands/ban.command';
 import DeOpCommand from './command/commands/deop.command';
+import HelpCommand from './command/commands/help.command';
 import InviteCommand from './command/commands/invite.command';
 import KickCommand from './command/commands/kick.command';
 import MuteCommand from './command/commands/mute.command';
 import OpCommand from './command/commands/op.command';
+import PongCommand from './command/commands/pong.command';
 import UnBanCommand from './command/commands/unban.command';
 import UnInviteCommand from './command/commands/uninvite.command';
 import UnMuteCommand from './command/commands/unmute.command';
@@ -33,6 +36,7 @@ import { MuteUserService } from './services/mute-user.service';
     TypeOrmModule.forFeature([ChannelEntity, MessageEntity, MuteUserEntity]),
     UserModule,
     AuthModule,
+    GameModule,
   ],
   providers: [
     /* Gateway */
@@ -57,7 +61,10 @@ import { MuteUserService } from './services/mute-user.service';
     UnBanCommand,
     OpCommand,
     DeOpCommand,
+    HelpCommand,
+    PongCommand,
   ],
   controllers: [ChannelController],
+  exports: [ChatGateway],
 })
 export class ChatModule {}

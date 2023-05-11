@@ -42,7 +42,7 @@ export class UserEntity {
   @Column({
     type: 'enum',
     enum: UserStatus,
-    default: UserStatus.inactive,
+    default: UserStatus.Offline,
   })
   status: UserStatus;
 

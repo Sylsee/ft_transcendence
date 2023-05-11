@@ -33,7 +33,7 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 @ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
-  private readonly logger = new Logger(AuthController.name);
+  private readonly logger: Logger = new Logger(AuthController.name);
 
   constructor(
     private authService: AuthService,

@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { removeUserFromList, userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
@@ -85,17 +85,17 @@ export default class BanCommand implements Command {
     await this.channelService.save(channel);
 
     // Send events to the banned user
-    const socketID = await this.userService.getSocketID(banUser.id);
+    const socketID = await this.userService.getSocketId(banUser.id);
     if (socketID) {
-      this.chatGateway.sendEvent(socketID, ChatEvent.ChannelUnavailable, {
+      this.chatGateway.sendEvent(socketID, ServerChatEvent.ChannelUnavailable, {
         channelId: channel.id,
       });
-      this.chatGateway.sendEvent(socketID, ChatEvent.Notification, {
+      this.chatGateway.sendEvent(socketID, ServerChatEvent.Notification, {
         content: `You have been banned from ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `User ${banUser.name} has been banned`,
     });

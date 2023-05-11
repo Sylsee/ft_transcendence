@@ -1,4 +1,4 @@
-export enum ChatEvent {
+export enum ServerChatEvent {
   ChannelServerMessage = 'channel:server_message',
   /*
     channelId: string
@@ -29,5 +29,10 @@ export enum ChatEvent {
   /*
     id: string
     status: UserStatus
+  */
+  InviteToLobby = 'server.lobby.invite',
+  /*
+    lobbyId: string
+    content: `${sender.name} invited you to play a pong match`,
   */
 }

@@ -12,7 +12,7 @@ import { UserEntity } from '../entities/user.entity';
 
 @Injectable()
 export class UserRepository {
-  private readonly logger = new Logger(UserRepository.name);
+  private readonly logger: Logger = new Logger(UserRepository.name);
 
   constructor(
     @InjectRepository(UserEntity)

@@ -5,7 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { ChannelType } from 'src/chat/enum/channel-type.enum';
-import { ChatEvent } from 'src/chat/enum/chat-event.enum';
+import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { ChannelService } from 'src/chat/services/channel.service';
 import { userIdInList } from 'src/shared/list';
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -27,10 +27,6 @@ export default class InviteCommand implements Command {
   ): Promise<void> {
     if (channel.type === ChannelType.DIRECT_MESSAGE) {
       throw new Error('You cannot invite users to a direct message channel');
-    }
-
-    if (!userIdInList(channel.admins, sender.id)) {
-      throw new Error('Not an admin of this channel');
     }
 
     if (!userIdInList(channel.users, sender.id)) {
@@ -85,7 +81,7 @@ export default class InviteCommand implements Command {
     await this.channelService.save(channel);
 
     // Notify invited user
-    const socketID = await this.userService.getSocketID(invitedUser.id);
+    const socketID = await this.userService.getSocketId(invitedUser.id);
     if (socketID) {
       if (channel.type === ChannelType.PRIVATE) {
         this.chatGateway.sendChannelAvailableEvent(
@@ -94,13 +90,13 @@ export default class InviteCommand implements Command {
           socketID,
         );
       }
-      this.chatGateway.sendEvent(socketID, ChatEvent.NotificationInvite, {
+      this.chatGateway.sendEvent(socketID, ServerChatEvent.NotificationInvite, {
         channelId: channel.id,
         content: `${sender.name} invited you to ${channel.name}`,
       });
     }
 
-    this.chatGateway.sendEvent(sender, ChatEvent.ChannelServerMessage, {
+    this.chatGateway.sendEvent(sender, ServerChatEvent.ChannelServerMessage, {
       channelId: channel.id,
       content: `Invited ${invitedUser.name} to ${channel.name}`,
     });
