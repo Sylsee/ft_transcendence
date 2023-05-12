@@ -109,7 +109,7 @@ export class ChatGateway
 
         this.sendEvent(userWithFriends.friends, ServerChatEvent.UserStatus, {
           id: userWithFriends.id,
-          status: userWithFriends.status,
+          status: UserStatus.Online,
         });
       }
     } catch (error) {

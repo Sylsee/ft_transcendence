@@ -179,22 +179,31 @@ export class LobbyManager {
       throw new WsException('User already invited');
     }
 
-    const user = await this.userService.findOneWithRelations(inviteDto.userId, [
-      'blockedUsers',
-    ]);
-    if (!user) {
+    const invitedUser = await this.userService.findOneWithRelations(
+      inviteDto.userId,
+      ['blockedUsers'],
+    );
+    if (!invitedUser) {
       throw new WsException('User not found');
     }
 
-    if (userIdInList(user.blockedUsers, client.data.id)) {
+    if (userIdInList(invitedUser.blockedUsers, client.data.id)) {
       throw new WsException('You cannot invite this user');
     }
 
-    client.data.lobby.invitedPlayers.push(user.id);
+    const currentUser = await this.userService.findOneById(client.data.id);
+    if (!currentUser) {
+      this.logger.error(
+        `User not found ${client.data.id} after authentication`,
+      );
+      throw new WsException('Internal server error');
+    }
 
-    this.chatGateway.sendEvent(user, ServerChatEvent.InviteToLobby, {
-      userId: client.data.id,
+    client.data.lobby.invitedPlayers.push(invitedUser.id);
+
+    this.chatGateway.sendEvent(invitedUser, ServerChatEvent.InviteToLobby, {
       lobbyId: client.data.lobby.id,
+      content: `${currentUser.name} invited you to play a game of pong`,
     });
   }
 
