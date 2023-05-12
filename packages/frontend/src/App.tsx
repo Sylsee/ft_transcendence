@@ -17,13 +17,24 @@ import {
 	socketChatListeners,
 } from "sockets/listeners/chatListeners";
 import {
+	removeSocketGameListeners,
+	socketGameListeners,
+} from "sockets/listeners/gameListeners";
+import {
+	removeSocketLobbyListeners,
+	socketLobbyListeners,
+} from "sockets/listeners/lobbyListeners";
+import {
 	removeSocketUserListeners,
 	socketUserListeners,
 } from "sockets/listeners/userListeners";
 import {
 	connectChatSocket,
+	connectGameSocket,
 	disconnectChatSocket,
+	disconnectGameSocket,
 	initializeChatSocket,
+	initializeGameSocket,
 } from "sockets/socket";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
@@ -75,25 +86,45 @@ const App: React.FC = () => {
 		(state: RootState) => state.USER.user?.id
 	);
 	const chatSocket = initializeChatSocket();
+	const gameSocket = initializeGameSocket();
 
 	useEffect(() => {
-		if (!chatSocket || !connectedUserId) return;
+		if (!chatSocket || !connectedUserId || !gameSocket) return;
 		if (isAuth !== AuthStatus.Authenticated) {
-			disconnectChatSocket();
 			removeSocketChatListeners();
 			removeSocketUserListeners();
+			disconnectChatSocket();
+
+			removeSocketLobbyListeners();
+			removeSocketGameListeners();
+			disconnectGameSocket();
 		}
 		if (isAuth === AuthStatus.Authenticated) {
 			connectChatSocket();
 			socketChatListeners(dispatch);
 			socketUserListeners(queryClient, connectedUserId);
+
+			connectGameSocket();
+			socketLobbyListeners(dispatch);
+			socketGameListeners(dispatch);
 		}
 		return () => {
-			disconnectChatSocket();
 			removeSocketChatListeners();
 			removeSocketUserListeners();
+			disconnectChatSocket();
+
+			removeSocketGameListeners();
+			removeSocketLobbyListeners();
+			disconnectGameSocket();
 		};
-	}, [chatSocket, dispatch, isAuth, queryClient, connectedUserId]);
+	}, [
+		chatSocket,
+		dispatch,
+		isAuth,
+		queryClient,
+		connectedUserId,
+		gameSocket,
+	]);
 
 	return (
 		<>

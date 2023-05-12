@@ -5,8 +5,14 @@ import { useDeleteFriend } from "hooks/userRelations/useDeleteFriend";
 import { useDeleteFriendRequest } from "hooks/userRelations/useDeleteFriendRequest";
 import { useRejectFriendRequest } from "hooks/userRelations/useRejectFriendRequest";
 import { useUnblockUser } from "hooks/userRelations/useUnblockUser";
+import { toast } from "react-toastify";
+import { emitLobbySocketEvent } from "sockets/socket";
+import { LobbySendEvent } from "types/game/lobby";
 import { ApiErrorResponse } from "types/global/global";
-import { FriendRequest, UserListType } from "../../../../types/userRelations/userRelations";
+import {
+	FriendRequest,
+	UserListType,
+} from "../../../../types/userRelations/userRelations";
 
 interface UserListProps {
 	type: UserListType;
@@ -39,6 +45,8 @@ const UserList: React.FC<UserListProps> = ({
 				return "Friends Requests Sent";
 			case UserListType.BlockedUsers:
 				return "Blocked Users";
+			case UserListType.InviteToLobby:
+				return "Invite Friends";
 			default:
 				return "";
 		}
@@ -103,6 +111,22 @@ const UserList: React.FC<UserListProps> = ({
 						},
 					],
 				};
+			case UserListType.InviteToLobby:
+				return {
+					buttons: [
+						{
+							name: "Invite",
+							color: "silver-tree",
+							handleClick: (id: string) => {
+								emitLobbySocketEvent(
+									LobbySendEvent.InviteToLobby,
+									{ userId: id }
+								);
+								toast.info("Invitation sent");
+							},
+						},
+					],
+				};
 			default:
 				return {};
 		}
@@ -118,7 +142,6 @@ const UserList: React.FC<UserListProps> = ({
 				</div>
 			</div>
 			<div className="flex flex-col max-h-32 overflow-y-auto">
-				{/* {status === "loading" && <Loader />} */}
 				{status === "error" && <ErrorItem error={error} />}
 				{status === "success" &&
 					users?.map((user: FriendRequest) => (

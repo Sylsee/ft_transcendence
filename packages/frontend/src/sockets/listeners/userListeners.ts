@@ -12,7 +12,6 @@ export const socketUserListeners = (
 	if (!socket) return;
 
 	socket.on(UserEvent.Status, (data: any) => {
-		console.log(UserEvent.Status, data);
 		updateUserStatusFromQuery(
 			queryClient,
 			data.id,

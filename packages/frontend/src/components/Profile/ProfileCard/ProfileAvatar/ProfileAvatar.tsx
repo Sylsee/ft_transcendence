@@ -1,5 +1,6 @@
 import { faCamera } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { UserStatusIcon } from "components/Profile/UserStatusIcon/UserStatusIcon";
 import { useUploadProfilePicture } from "hooks/user/useUploadProfilePicture";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
@@ -47,22 +48,14 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 
 	return (
 		<div className="relative mx-auto">
-			<div className="relative">
+			<div className="relative flex items-center">
 				<img
 					src={`${profilePictureUrl}?cb${cacheBusterCounter}`}
 					referrerPolicy="no-referrer"
 					alt="Avatar"
-					className=" object-cover rounded-full border-solid border-white border-2 w-32 h-32"
+					className="object-cover rounded-full border-solid border-white border-2 w-32 h-32"
 				/>
-				{status !== undefined && (
-					<span
-						className={`bottom-1 right-6 absolute w-3.5 h-3.5 ${
-							status === UserStatus.Active
-								? "bg-silver-tree"
-								: "bg-gray-500"
-						} border-2 border-white dark:border-gray-800 rounded-full`}
-					></span>
-				)}
+				<UserStatusIcon status={status} />
 			</div>
 			{isConnectedUser && (
 				<div

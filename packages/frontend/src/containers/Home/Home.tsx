@@ -35,7 +35,7 @@ const Home: React.FC = () => {
 				</div>
 			)}
 			{isAuth === AuthStatus.Authenticated && (
-				<Link to="/game">
+				<Link to="/lobby">
 					<IconButton url="" name="Play" logo={pong_logo()} />
 				</Link>
 			)}

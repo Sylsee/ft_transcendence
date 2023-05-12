@@ -1,8 +1,8 @@
 import { UserRowButton } from "components/Profile/UserRelationCard/UserList/UserRow/Buttons/UserRowButton";
+import { UserStatusIcon } from "components/Profile/UserStatusIcon/UserStatusIcon";
 import { Link } from "react-router-dom";
-import { UserStatus } from "types/user/user";
-import { FriendRequest } from "../../../../../types/userRelations/userRelations";
 import { ButtonPropsList } from "../../../../../types/button/button";
+import { FriendRequest } from "../../../../../types/userRelations/userRelations";
 
 interface UserRowProps {
 	user: FriendRequest;
@@ -23,15 +23,11 @@ const UserRow: React.FC<UserRowProps> = ({ user, buttonPropsList }) => {
 							src={user.profilePictureUrl}
 							alt=""
 						/>
-						{user.status !== undefined && (
-							<div
-								className={`absolute bottom-0 right-0 w-3 h-3 ${
-									user.status === UserStatus.Active
-										? "bg-silver-tree"
-										: "bg-gray-500"
-								} border-2 border-white rounded-full`}
-							></div>
-						)}
+						<UserStatusIcon
+							status={user.status}
+							customStatusStyles={"bottom-0 right-0"}
+							customControllerStyles={"bottom-0 right-1"}
+						/>
 					</div>
 				</Link>
 				{/* <div> */}

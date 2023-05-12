@@ -12,8 +12,9 @@ export interface Match {
 
 // user
 export enum UserStatus {
-	Active = "active",
-	Inactive = "inactive",
+	Online = "online",
+	InGame = "inGame",
+	Offline = "offline",
 }
 
 export interface User {
@@ -21,6 +22,4 @@ export interface User {
 	name: string;
 	profilePictureUrl: string;
 	status?: UserStatus;
-	isTwoFactorAuthEnabled?: boolean;
 }
-

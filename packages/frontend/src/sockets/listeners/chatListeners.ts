@@ -17,9 +17,14 @@ import {
 	ServerMessages,
 } from "types/chat/chat";
 import {
-	ChannelNotifications,
+	ChannelNotification,
 	CustomNotificationType,
+	LobbyNotification,
 } from "types/customNotification/customNotification";
+import {
+	LobbyReceiveEvent,
+	LOBBY_RECEIVE_EVENT_BASE_URL,
+} from "types/game/lobby";
 import { ChannelIdPayload, ChannelPayload } from "types/socket/socket";
 
 export const socketChatListeners = (dispatch: Dispatch) => {
@@ -54,7 +59,7 @@ export const socketChatListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		ChatEvent.NotificationInvite,
-		(notification: Omit<ChannelNotifications, "type">) => {
+		(notification: Omit<ChannelNotification, "type">) => {
 			console.log(ChatEvent.Notification, notification);
 			dispatch(
 				addCustomNotification({
@@ -83,6 +88,19 @@ export const socketChatListeners = (dispatch: Dispatch) => {
 		console.log(ChatEvent.ChannelUnavailability, id);
 		dispatch(removeChannel(id));
 	});
+
+	socket.on(
+		`${LOBBY_RECEIVE_EVENT_BASE_URL}${LobbyReceiveEvent.Invite}`,
+		(notification: Omit<LobbyNotification, "type">) => {
+			console.log(LobbyReceiveEvent.Invite, notification);
+			dispatch(
+				addCustomNotification({
+					...notification,
+					type: CustomNotificationType.LobbyInvitation,
+				})
+			);
+		}
+	);
 };
 
 export const removeSocketChatListeners = () => {
@@ -96,4 +114,5 @@ export const removeSocketChatListeners = () => {
 	socket.off(ChatEvent.ChannelAvailable);
 	socket.off(ChatEvent.ChannelUnavailability);
 	socket.off(ChatEvent.Exception);
+	socket.off(`${LOBBY_RECEIVE_EVENT_BASE_URL}${LobbyReceiveEvent.Invite}`);
 };

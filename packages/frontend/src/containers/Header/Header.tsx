@@ -7,8 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "store/auth-slice/auth-slice";
 import { AuthStatus } from "types/auth/auth";
+import { LobbyState } from "types/game/lobby";
 import { RootState } from "types/global/global";
-
 import styles from "./Header.module.css";
 
 const Header: React.FC = () => {
@@ -19,7 +19,9 @@ const Header: React.FC = () => {
 	const id = useSelector((store: RootState) => store.USER.user?.id);
 	const dispatch = useDispatch();
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-
+	const lobbyStatus = useSelector(
+		(store: RootState) => store.GAME.lobbyStatus
+	);
 	// handlers
 	const logoutHandler = () => {
 		dispatch(logout());
@@ -36,9 +38,11 @@ const Header: React.FC = () => {
 						>
 							Ft_transcendence
 						</Link>
-						<Link to="/lobby">
-							<div className={`${styles.loader}`}></div>
-						</Link>
+						{lobbyStatus === LobbyState.Searching && (
+							<Link to="/lobby">
+								<div className={`${styles.loader}`}></div>
+							</Link>
+						)}
 					</div>
 					{isAuth === AuthStatus.Authenticated && (
 						<button
