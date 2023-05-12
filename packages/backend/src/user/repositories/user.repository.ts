@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party imports
 import { Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 // Local imports
 import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
@@ -35,7 +36,10 @@ export class UserRepository {
     return this.userRepository.save(newUser);
   }
 
-  async update(userId: string, content: object): Promise<void> {
+  async update(
+    userId: UserEntity['id'],
+    content: QueryDeepPartialEntity<UserEntity>,
+  ): Promise<void> {
     this.userRepository.update({ id: userId }, content);
   }
 

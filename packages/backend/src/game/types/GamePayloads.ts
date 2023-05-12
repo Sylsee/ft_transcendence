@@ -1,4 +1,5 @@
 // Local imports
+import { UserDto } from 'src/user/dto/user.dto';
 import { UserWithReadyStatusDto } from '../dto/user-with-ready-status.dto';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { Ball } from '../game/types/ball';
@@ -11,7 +12,8 @@ export type GamePayloads = {
     hasStarted: boolean;
     hasFinished: boolean;
     currentRound: number;
-    scores: Record<string, number>;
+    player1Score: number;
+    player2Score: number;
   };
 
   [ServerGameEvents.GameMessage]: {
@@ -21,8 +23,9 @@ export type GamePayloads = {
   [ServerGameEvents.GameStart];
 
   [ServerGameEvents.GameFinish]: {
-    message?: string;
-    scores: Record<string, number>;
+    winner: UserDto;
+    player1Score: number;
+    player2Score: number;
   };
 
   [ServerGameEvents.GameState]: {
@@ -33,5 +36,10 @@ export type GamePayloads = {
 
   [ServerGameEvents.GameCountdown]: {
     seconds: number;
+  };
+
+  [ServerGameEvents.GameScore]: {
+    player1Score: number;
+    player2Score: number;
   };
 };

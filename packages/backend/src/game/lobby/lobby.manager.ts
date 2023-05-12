@@ -19,6 +19,7 @@ import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { MovePaddleDto } from '../dto/move-paddle.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
+import { MatchRepository } from '../repository/match.repository';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
 import { GamePayloads } from '../types/GamePayloads';
 import { Lobby } from './lobby';
@@ -40,6 +41,7 @@ export class LobbyManager {
   constructor(
     private chatGateway: ChatGateway,
     private userService: UserService,
+    private matchRepository: MatchRepository,
   ) {}
 
   public async createLobby(client: AuthenticatedSocket): Promise<Lobby> {
@@ -55,11 +57,12 @@ export class LobbyManager {
       this.server,
       this.userService,
       this.chatGateway,
+      this.matchRepository,
       LobbyMode.Custom,
     );
     this.lobbies.set(lobby.id, lobby);
 
-    lobby.addPlayer(client);
+    await lobby.addPlayer(client);
 
     return lobby;
   }
@@ -97,7 +100,7 @@ export class LobbyManager {
       throw new WsException('You are already in this lobby');
     }
 
-    lobby.addPlayer(client);
+    await lobby.addPlayer(client);
   }
 
   public async leaveLobbyOrThrow(client: AuthenticatedSocket): Promise<void> {
@@ -114,14 +117,9 @@ export class LobbyManager {
       throw new WsException('You are not in this lobby');
     }
 
-    lobby.removePlayer(client);
-
-    const socketsIds = Array.from(lobby.players.keys());
-    this.sendEvent(socketsIds, ServerGameEvents.GameMessage, {
-      message: `${client.data.username} left the lobby`,
-    });
-
     lobby.instance.triggerFinish();
+
+    lobby.removePlayer(client);
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
@@ -142,14 +140,8 @@ export class LobbyManager {
       return;
     }
 
-    lobby.removePlayer(client);
-
-    const socketsIds = Array.from(lobby.players.keys());
-    this.sendEvent(socketsIds, ServerGameEvents.GameMessage, {
-      message: `${client.data.username} left the lobby`,
-    });
-
-    lobby.instance.triggerFinish();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    lobby.removePlayer(client).catch(() => {});
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
@@ -180,22 +172,31 @@ export class LobbyManager {
       throw new WsException('User already invited');
     }
 
-    const user = await this.userService.findOneWithRelations(inviteDto.userId, [
-      'blockedUsers',
-    ]);
-    if (!user) {
+    const invitedUser = await this.userService.findOneWithRelations(
+      inviteDto.userId,
+      ['blockedUsers'],
+    );
+    if (!invitedUser) {
       throw new WsException('User not found');
     }
 
-    if (userIdInList(user.blockedUsers, client.data.id)) {
+    if (userIdInList(invitedUser.blockedUsers, client.data.id)) {
       throw new WsException('You cannot invite this user');
     }
 
-    client.data.lobby.invitedPlayers.push(user.id);
+    const currentUser = await this.userService.findOneById(client.data.id);
+    if (!currentUser) {
+      this.logger.error(
+        `User not found ${client.data.id} after authentication`,
+      );
+      throw new WsException('Internal server error');
+    }
 
-    this.chatGateway.sendEvent(user, ServerChatEvent.InviteToLobby, {
-      userId: client.data.id,
+    client.data.lobby.invitedPlayers.push(invitedUser.id);
+
+    this.chatGateway.sendEvent(invitedUser, ServerChatEvent.InviteToLobby, {
       lobbyId: client.data.lobby.id,
+      content: `${currentUser.name} invited you to play a game of pong`,
     });
   }
 
@@ -300,11 +301,16 @@ export class LobbyManager {
       return;
     }
 
-    const lobby = new Lobby(this.server, this.userService, this.chatGateway);
+    const lobby = new Lobby(
+      this.server,
+      this.userService,
+      this.chatGateway,
+      this.matchRepository,
+    );
     this.lobbies.set(lobby.id, lobby);
 
     this.playerQueue.splice(0, MAX_PLAYERS).forEach(async (client) => {
-      lobby.addPlayer(client);
+      await lobby.addPlayer(client);
     });
   }
 
@@ -336,7 +342,7 @@ export class LobbyManager {
       const lobbyLifetime = now - lobbyCreatedAt;
 
       if (lobbyLifetime > LOBBY_MAX_LIFETIME) {
-        lobby.dispatchToLobby<GamePayloads[ServerGameEvents.GameMessage]>(
+        lobby.dispatchToLobby<ServerGameEvents.GameMessage>(
           ServerGameEvents.GameMessage,
           {
             message: 'Game timed out',

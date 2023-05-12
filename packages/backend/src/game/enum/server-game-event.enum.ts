@@ -5,4 +5,5 @@ export enum ServerGameEvents {
   GameFinish = 'server.game.finish',
   GameCountdown = 'server.game.countdown',
   GameState = 'server.game.state',
+  GameScore = 'server.game.score',
 }
