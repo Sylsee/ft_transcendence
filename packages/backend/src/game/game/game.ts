@@ -43,84 +43,16 @@ export class Game {
     private readonly userService: UserService,
   ) {}
 
-  public async triggerStart(): Promise<void> {
-    try {
-      await this.initializeMatch();
-      this.initializeGameObjects();
-
-      this.playersReady.clear();
-
-      this.lobby.players.forEach((player) => {
-        this.scores[player.id] = 0;
-      });
-
-      await this.countDown(3);
-
-      this.hasStarted = true;
-      this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
-        ServerGameEvents.GameStart,
-        {},
-      );
-
-      this.roundManager();
-    } catch (error) {
-      throw new WsException(error.message);
-    }
-  }
-
-  public triggerFinish(): void {
-    this.hasFinished = true;
-    this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
-      ServerGameEvents.GameFinish,
-      {
-        winner: UserDto.transform(this.match.winner),
-        player1Score: this.scores[this.lobby.player1?.id],
-        player2Score: this.scores[this.lobby.player2?.id],
-      },
-    );
-  }
-
-  public async setLoser(playerId: UserEntity['id']): Promise<void> {
-    const player = Array.from(this.lobby.players.values()).find(
-      (player) => player.data.id !== playerId,
-    );
-    if (!player) {
-      this.logger.error("Canno't set loser, player not found");
-      throw new WsException('Internal server error');
-    }
-
-    const winner = await this.userService.findOneById(player.data.id);
-    if (!winner) {
-      this.logger.error('Winner not found after authentication');
-      throw new WsException('Internal server error');
-    }
-
-    this.matchRepository.update(this.match.id, { winner: winner });
-  }
-
   public async initializeMatch(): Promise<void> {
-    const player1 = await this.userService.findOneById(
-      this.lobby.player1?.data.id,
-    );
-    if (!player1) {
-      this.logger.error('Player 1 not found after authentication');
-      throw new WsException('Internal server error');
-    }
-
-    const player2 = await this.userService.findOneById(
-      this.lobby.player2?.data.id,
-    );
-    if (!player2) {
-      this.logger.error('Player 2 not found after authentication');
-      throw new WsException('Internal server error');
-    }
+    const player1 = await this.getUserById(this.lobby.player1?.data.id);
+    const player2 = await this.getUserById(this.lobby.player2?.data.id);
 
     this.match = await this.matchRepository.create(player1, player2);
   }
 
   public initializeGameObjects(): void {
     this.paddle1 = {
-      x: 30,
+      x: gameConfig.paddleDistanceFromWall,
       y: gameConfig.height / 2 - gameConfig.paddleHeight / 2,
       width: gameConfig.paddleWidth,
       height: gameConfig.paddleHeight,
@@ -130,7 +62,10 @@ export class Game {
       direction: PaddleDirection.NONE,
     };
     this.paddle2 = {
-      x: gameConfig.width - 30 - gameConfig.paddleWidth,
+      x:
+        gameConfig.width -
+        gameConfig.paddleDistanceFromWall -
+        gameConfig.paddleWidth,
       y: gameConfig.height / 2 - gameConfig.paddleHeight / 2,
       width: gameConfig.paddleWidth,
       height: gameConfig.paddleHeight,
@@ -157,11 +92,50 @@ export class Game {
     this.ballDirection *= -1;
   }
 
+  public async triggerStart(): Promise<void> {
+    try {
+      await this.initializeMatch();
+      this.initializeGameObjects();
+
+      this.playersReady.clear();
+
+      this.lobby.players.forEach((player) => {
+        this.scores[player.id] = 0;
+      });
+
+      await this.countDown(gameConfig.countDownTime);
+
+      this.hasStarted = true;
+      this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
+        ServerGameEvents.GameStart,
+        {},
+      );
+
+      this.roundManager();
+    } catch (error) {
+      throw new WsException(error.message);
+    }
+  }
+
+  public triggerFinish(): void {
+    this.hasFinished = true;
+    this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
+      ServerGameEvents.GameFinish,
+      {
+        winner: UserDto.transform(this.match.winner),
+        player1Score: this.scores[this.lobby.player1?.id],
+        player2Score: this.scores[this.lobby.player2?.id],
+      },
+    );
+  }
+
   private roundManager(): void {
     let accumulator = 0;
     let previousTime = performance.now();
 
-    const gameLoop = () => {
+    const gameLoop = async () => {
+      await this.checkGameFinish();
+
       if (this.hasFinished) {
         return;
       }
@@ -178,10 +152,90 @@ export class Game {
         accumulator -= gameConfig.timeStep;
       }
 
-      setImmediate(gameLoop);
+      if (this.hasFinished === false) {
+        setImmediate(gameLoop);
+      }
     };
 
     setImmediate(gameLoop);
+  }
+
+  private updateGameState(timeStep: number): void {
+    this.updatePaddlePosition(timeStep);
+    this.updateBallPosition(timeStep);
+    this.handleCollisions();
+  }
+
+  private updatePaddlePosition(timeStep: number): void {
+    if (this.paddle1.direction === PaddleDirection.UP) {
+      this.paddle1.y -= gameConfig.paddleSpeedPerSecond * timeStep;
+    } else if (this.paddle1.direction === PaddleDirection.DOWN) {
+      this.paddle1.y += gameConfig.paddleSpeedPerSecond * timeStep;
+    }
+
+    if (this.paddle2.direction === PaddleDirection.UP) {
+      this.paddle2.y -= gameConfig.paddleSpeedPerSecond * timeStep;
+    } else if (this.paddle2.direction === PaddleDirection.DOWN) {
+      this.paddle2.y += gameConfig.paddleSpeedPerSecond * timeStep;
+    }
+  }
+
+  private updateBallPosition(timeStep: number): void {
+    this.ball.x += this.ball.velocity.x * timeStep;
+    this.ball.y += this.ball.velocity.y * timeStep;
+  }
+
+  private handleCollisions(): void {
+    if (this.ballCollidesWithPaddle(this.paddle1)) {
+      this.handlePaddleCollision(this.paddle1);
+    } else if (this.ballCollidesWithPaddle(this.paddle2)) {
+      this.handlePaddleCollision(this.paddle2);
+    }
+
+    if (this.ball.y <= 0 || this.ball.y >= gameConfig.height) {
+      this.ball.velocity.y = -this.ball.velocity.y;
+    } else if (this.ball.x <= 0 || this.ball.x >= gameConfig.width) {
+      this.handleScreenBoundsCollision();
+    }
+  }
+
+  private handlePaddleCollision(paddle: Paddle): void {
+    const normalizedIntersectionY =
+      (this.ball.y - (paddle.y + paddle.height / 2)) / paddle.height / 2;
+
+    this.ball.velocity.x = -this.ball.velocity.x;
+    this.ball.velocity.y =
+      normalizedIntersectionY * gameConfig.ballSpeedPerSecond;
+  }
+
+  private ballCollidesWithScreenBounds(): boolean {
+    return (
+      this.ball.x <= 0 ||
+      this.ball.x >= gameConfig.width - gameConfig.ballRadius ||
+      this.ball.y <= 0 ||
+      this.ball.y >= gameConfig.height - gameConfig.ballRadius
+    );
+  }
+
+  private handleScreenBoundsCollision(): void {
+    // Update scores, reinitialize game objects, and dispatch score
+    if (this.ball.x <= 0) {
+      const score = ++this.scores[this.lobby.player1.id];
+
+      this.matchRepository.update(this.match.id, { player1Score: score });
+      this.match.player1Score = score;
+    } else {
+      const score = ++this.scores[this.lobby.player2.id];
+
+      this.matchRepository.update(this.match.id, { player2Score: score });
+      this.match.player2Score = score;
+    }
+    this.initializeGameObjects();
+    this.dispatchScore();
+    this.sendGameState();
+
+    // Reflect the ball's horizontal direction
+    this.ball.velocity.x = -this.ball.velocity.x;
   }
 
   private sendGameState(): void {
@@ -207,69 +261,7 @@ export class Game {
     );
   }
 
-  private updateGameState(timeStep: number): void {
-    // Update paddle positions
-    if (this.paddle1.direction === PaddleDirection.UP) {
-      this.paddle1.y -= gameConfig.paddleSpeedPerSecond * timeStep;
-    } else if (this.paddle1.direction === PaddleDirection.DOWN) {
-      this.paddle1.y += gameConfig.paddleSpeedPerSecond * timeStep;
-    }
-
-    if (this.paddle2.direction === PaddleDirection.UP) {
-      this.paddle2.y -= gameConfig.paddleSpeedPerSecond * timeStep;
-    } else if (this.paddle2.direction === PaddleDirection.DOWN) {
-      this.paddle2.y += gameConfig.paddleSpeedPerSecond * timeStep;
-    }
-
-    // Update ball position
-    this.ball.x += this.ball.velocity.x * timeStep;
-    this.ball.y += this.ball.velocity.y * timeStep;
-
-    // Check ball collisions with top and bottom of the screen
-    if (this.ball.y <= 0 || this.ball.y >= gameConfig.height) {
-      this.ball.velocity.y = -this.ball.velocity.y;
-    }
-
-    // Check ball collisions with paddles
-    // TODO: Change the ball direction based on the paddle's angle
-    if (
-      this.checkPaddleBallCollision(this.paddle1) ||
-      this.checkPaddleBallCollision(this.paddle2)
-    ) {
-      this.ball.velocity.x = -this.ball.velocity.x;
-    }
-
-    // Check ball collisions with left and right of the screen
-    if (this.ball.x <= 0) {
-      const score = ++this.scores[this.lobby.player1.id];
-      this.matchRepository.update(this.match.id, { player1Score: score });
-
-      this.initializeGameObjects();
-
-      this.dispatchScore();
-      this.sendGameState();
-    } else if (this.ball.x >= gameConfig.width) {
-      const score = ++this.scores[this.lobby.player2.id];
-      this.matchRepository.update(this.match.id, { player2Score: score });
-
-      this.initializeGameObjects();
-
-      this.dispatchScore();
-      this.sendGameState();
-    }
-  }
-
-  private dispatchScore(): void {
-    this.lobby.dispatchToLobby<ServerGameEvents.GameScore>(
-      ServerGameEvents.GameScore,
-      {
-        player1Score: this.scores[this.lobby.player1?.id],
-        player2Score: this.scores[this.lobby.player2?.id],
-      },
-    );
-  }
-
-  private checkPaddleBallCollision(paddle: Paddle): boolean {
+  private ballCollidesWithPaddle(paddle: Paddle): boolean {
     const ballBounds = {
       left: this.ball.x - gameConfig.ballRadius,
       right: this.ball.x + gameConfig.ballRadius,
@@ -292,25 +284,73 @@ export class Game {
     );
   }
 
+  private dispatchScore(): void {
+    this.lobby.dispatchToLobby<ServerGameEvents.GameScore>(
+      ServerGameEvents.GameScore,
+      {
+        player1Score: this.scores[this.lobby.player1?.id],
+        player2Score: this.scores[this.lobby.player2?.id],
+      },
+    );
+  }
+
+  private async checkGameFinish(): Promise<void> {
+    if (this.scores[this.lobby.player1.id] === gameConfig.maxScore) {
+      await this.setLoser(this.lobby.player2.id);
+      this.triggerFinish();
+    } else if (this.scores[this.lobby.player2.id] === gameConfig.maxScore) {
+      await this.setLoser(this.lobby.player1.id);
+      this.triggerFinish();
+    }
+  }
+
   public movePaddle(
     client: AuthenticatedSocket,
     movePaddleDto: MovePaddleDto,
   ): void {
     const paddle = this.getPaddle(client.id);
-    if (!paddle) {
-      this.logger.error('Paddle not found');
-      throw new WsException('Internal server error');
-    }
-
     paddle.direction = movePaddleDto.direction;
   }
 
-  private getPaddle(playerId: string): Paddle | void {
+  private getPaddle(playerId: string): Paddle {
     if (playerId === this.lobby.player1.id) {
       return this.paddle1;
     } else if (playerId === this.lobby.player2.id) {
       return this.paddle2;
     }
+
+    this.logger.error(`Paddle not found for player with id: ${playerId}`);
+    throw new WsException(`Paddle not found for player with id: ${playerId}`);
+  }
+
+  private async getUserById(id: UserEntity['id']): Promise<UserEntity> {
+    const user = await this.userService.findOneById(id);
+    if (!user) {
+      this.logger.error(`User not found with id: ${id}`);
+      throw new WsException(`User not found with id: ${id}`);
+    }
+    return user;
+  }
+
+  public async setLoser(playerId: UserEntity['id']): Promise<void> {
+    const player = Array.from(this.lobby.players.values()).find(
+      (player) => player.data.id !== playerId,
+    );
+    if (!player) {
+      this.logger.error(
+        `Cannot set loser, player not found with id: ${playerId}`,
+      );
+      throw new WsException(
+        `Internal server error. Cannot set loser, player not found with id: ${playerId}`,
+      );
+    }
+
+    const winner = await this.getUserById(player.data.id);
+
+    this.matchRepository.update(this.match.id, { winner: winner });
+    this.match.winner = winner;
+
+    this.logger.debug(`match: ${JSON.stringify(this.match, null, 2)}`);
   }
 
   private countDown(seconds: number, sendEach = 1000): Promise<void> {

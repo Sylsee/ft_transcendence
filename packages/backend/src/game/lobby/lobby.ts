@@ -92,8 +92,6 @@ export class Lobby {
     client.data.lobby = null;
 
     this.dispatchLobbyState();
-
-    this.instance.triggerFinish();
   }
 
   public async setPlayerReady(
@@ -158,8 +156,6 @@ export class Lobby {
 
   public async dispatchLobbyState(): Promise<void> {
     const players = await this.fetchUserDtoFromPlayers();
-
-    // TODO: If spectators maybe send the lobby state anyway ?
     if (players.length === 0) {
       return;
     }

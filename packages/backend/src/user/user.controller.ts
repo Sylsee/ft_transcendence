@@ -33,6 +33,7 @@ import { Request } from 'express';
 // Local imports
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
 import { multerConfig } from 'src/config/multer.config';
+import { MatchDto } from 'src/game/dto/game-dto';
 import { getProfilePictureUrl } from 'src/shared/profile-picture';
 import { FriendRequestsDto } from './dto/relationship/friend-requests.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -317,5 +318,23 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async unblockUser(@Req() req, @Param('id') id: string) {
     await this.userService.unblockUserById(req.user.id, id);
+  }
+
+  // ------------------------------------------------------------
+  // ---------------------- Match Endpoints ---------------------
+  // ------------------------------------------------------------
+
+  @Get('match-history/:id')
+  @UseGuards(Jwt2faAuthGuard)
+  @ApiOperation({
+    summary: 'Get user game history',
+    description: 'Retrieve the list of game matches for the specified user.',
+  })
+  @ApiUserIdParam
+  @ApiOkResponse({ description: 'User game history found', type: [MatchDto] })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getUserGameHistory(@Param('id') id: string) {
+    return await this.userService.getUserGameHistory(id);
   }
 }

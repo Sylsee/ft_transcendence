@@ -117,12 +117,12 @@ export class LobbyManager {
       throw new WsException('You are not in this lobby');
     }
 
-    lobby.instance.triggerFinish();
-
-    lobby.removePlayer(client);
+    await lobby.removePlayer(client);
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
+    } else {
+      lobby.instance.triggerFinish();
     }
   }
 
@@ -145,6 +145,8 @@ export class LobbyManager {
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
+    } else {
+      lobby.instance.triggerFinish();
     }
   }
 

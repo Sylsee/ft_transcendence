@@ -11,6 +11,7 @@ import {
 
 // Local imports
 import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
+import { MatchDto } from 'src/game/dto/game-dto';
 import { userIdInList } from 'src/shared/list';
 import {
   downloadProfilePicture,
@@ -471,6 +472,25 @@ export class UserService {
     user.twoFactorAuthSecret = null;
     user.isTwoFactorAuthEnabled = false;
     return this.userRepository.save(user);
+  }
+
+  // -----------------------------------------------------------
+  // ------------------------- Game ----------------------------
+  // -----------------------------------------------------------
+
+  async getUserGameHistory(id: UserEntity['id']): Promise<MatchDto[]> {
+    // TODO: do we want to make the history only visible to friends?
+    const user = await this.userRepository.findOneByIdWithRelations(id, [
+      'matches',
+      'matches.winner',
+      'matches.player1',
+      'matches.player2',
+    ]);
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+
+    return user.matches.map((match) => MatchDto.transform(match));
   }
 
   // -----------------------------------------------------------
