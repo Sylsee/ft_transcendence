@@ -93,6 +93,20 @@ export class UserRepository {
     });
   }
 
+  async findOneByNameWithRelations(
+    username: string,
+    relations: Array<string>,
+  ): Promise<UserEntity | void> {
+    return this.userRepository
+      .findOne({ where: { name: username }, relations: relations })
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding user with name: ${username}`,
+          err,
+        );
+      });
+  }
+
   async findUsersBlocking(
     userId: string,
     userIds: string[],

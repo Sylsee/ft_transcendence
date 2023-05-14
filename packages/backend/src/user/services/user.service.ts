@@ -79,6 +79,13 @@ export class UserService {
     return this.userRepository.findOneByName(username);
   }
 
+  async findOneByNameWithRelations(
+    username: string,
+    relations: Array<string>,
+  ): Promise<UserEntity | void> {
+    return this.userRepository.findOneByNameWithRelations(username, relations);
+  }
+
   async findUserByProviderIDAndProvider(
     providerId: string,
     provider: AuthProvider,

@@ -91,7 +91,6 @@ export class LobbyManager {
       throw new WsException('You are not invited to this lobby');
     }
 
-    // TODO: If we make the spectator feature then add the user as spectator
     if (lobby.players.size >= MAX_PLAYERS) {
       throw new WsException('Lobby already full');
     }
@@ -204,9 +203,9 @@ export class LobbyManager {
 
   public async inviteToLobbyThroughChat(
     user: UserEntity,
-    invitedUserId: string,
+    invitedUser: UserEntity,
   ): Promise<string> {
-    if (user.id === invitedUserId) {
+    if (user.id === invitedUser.id) {
       throw new WsException('You cannot invite yourself');
     }
 
@@ -227,21 +226,19 @@ export class LobbyManager {
       throw new WsException('Lobby already full');
     }
 
-    if (lobby.players.has(invitedUserId)) {
+    if (lobby.players.has(invitedUser.id)) {
       throw new WsException('User already in this lobby');
     }
 
-    if (lobby.invitedPlayers.includes(invitedUserId)) {
+    if (lobby.invitedPlayers.includes(invitedUser.id)) {
       throw new WsException('User already invited');
     }
 
-    // TODO: see if we really want to block invitations from blocked users
-    // If so we need to find the user with the blocked users relations
-    if (userIdInList(user.blockedUsers, user.id)) {
+    if (userIdInList(invitedUser.blockedUsers, user.id)) {
       throw new WsException('You cannot invite this user');
     }
 
-    lobby.invitedPlayers.push(user.id);
+    lobby.invitedPlayers.push(invitedUser.id);
 
     return lobby.id;
   }
