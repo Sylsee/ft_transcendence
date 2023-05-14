@@ -14,6 +14,7 @@ import { ChatModule } from './chat/chat.module';
 import { TypeOrmConfigService } from './config/type-orm.config';
 import { GameModule } from './game/game.module';
 import { StaticModule } from './static/static.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { StaticModule } from './static/static.module';
       useClass: TypeOrmConfigService,
     }),
     PassportModule.register({ session: true }),
+    ScheduleModule.forRoot(),
     AuthModule,
     UserModule,
     ChatModule,

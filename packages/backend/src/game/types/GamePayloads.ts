@@ -11,9 +11,6 @@ export type GamePayloads = {
     players: UserWithReadyStatusDto[];
     hasStarted: boolean;
     hasFinished: boolean;
-    currentRound: number;
-    player1Score: number;
-    player2Score: number;
   };
 
   [ServerGameEvents.GameMessage]: {

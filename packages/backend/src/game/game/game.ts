@@ -24,9 +24,11 @@ export class Game {
   private readonly logger: Logger = new Logger(Game.name);
 
   public playersReady = new Map<string, boolean>();
+
   public hasStarted = false;
   public hasFinished = false;
-  public currentRound = 1;
+  public stop = false;
+
   public scores: Record<string, number> = {};
 
   private paddle1: Paddle;
@@ -42,13 +44,6 @@ export class Game {
     private readonly matchRepository: MatchRepository,
     private readonly userService: UserService,
   ) {}
-
-  public async initializeMatch(): Promise<void> {
-    const player1 = await this.getUserById(this.lobby.player1?.data.id);
-    const player2 = await this.getUserById(this.lobby.player2?.data.id);
-
-    this.match = await this.matchRepository.create(player1, player2);
-  }
 
   public initializeGameObjects(): void {
     this.paddle1 = {
@@ -94,7 +89,6 @@ export class Game {
 
   public async triggerStart(): Promise<void> {
     try {
-      await this.initializeMatch();
       this.initializeGameObjects();
 
       this.playersReady.clear();
@@ -104,6 +98,10 @@ export class Game {
       });
 
       await this.countDown(gameConfig.countDownTime);
+
+      if (this.stop) {
+        return;
+      }
 
       this.hasStarted = true;
       this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
@@ -119,14 +117,52 @@ export class Game {
 
   public triggerFinish(): void {
     this.hasFinished = true;
+    const winner = this.match?.winner?.id
+      ? UserDto.transform(this.match.winner)
+      : null;
+
     this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
       ServerGameEvents.GameFinish,
       {
-        winner: UserDto.transform(this.match.winner),
+        winner: winner,
         player1Score: this.scores[this.lobby.player1?.id],
         player2Score: this.scores[this.lobby.player2?.id],
       },
     );
+  }
+
+  public async setLoser(playerId?: UserEntity['id']): Promise<UserEntity> {
+    const player1 = await this.getUserById(this.lobby.player1?.data.id);
+    const player2 = await this.getUserById(this.lobby.player2?.data.id);
+
+    const player1Score = this.scores[this.lobby.player1?.id];
+    const player2Score = this.scores[this.lobby.player2?.id];
+
+    const winner = playerId
+      ? playerId === player1.id
+        ? player2
+        : player1
+      : null;
+
+    this.match = await this.matchRepository.create(
+      player1,
+      player2,
+      player1Score,
+      player2Score,
+      winner,
+    );
+
+    this.hasFinished = true;
+
+    return playerId ? (playerId === player1.id ? player1 : player2) : null;
+  }
+
+  public movePaddle(
+    client: AuthenticatedSocket,
+    movePaddleDto: MovePaddleDto,
+  ): void {
+    const paddle = this.getPaddle(client.id);
+    paddle.direction = movePaddleDto.direction;
   }
 
   private roundManager(): void {
@@ -136,7 +172,7 @@ export class Game {
     const gameLoop = async () => {
       await this.checkGameFinish();
 
-      if (this.hasFinished) {
+      if (this.hasFinished || this.stop) {
         return;
       }
 
@@ -208,27 +244,12 @@ export class Game {
       normalizedIntersectionY * gameConfig.ballSpeedPerSecond;
   }
 
-  private ballCollidesWithScreenBounds(): boolean {
-    return (
-      this.ball.x <= 0 ||
-      this.ball.x >= gameConfig.width - gameConfig.ballRadius ||
-      this.ball.y <= 0 ||
-      this.ball.y >= gameConfig.height - gameConfig.ballRadius
-    );
-  }
-
   private handleScreenBoundsCollision(): void {
     // Update scores, reinitialize game objects, and dispatch score
     if (this.ball.x <= 0) {
-      const score = ++this.scores[this.lobby.player1.id];
-
-      this.matchRepository.update(this.match.id, { player1Score: score });
-      this.match.player1Score = score;
+      this.scores[this.lobby.player1.id]++;
     } else {
-      const score = ++this.scores[this.lobby.player2.id];
-
-      this.matchRepository.update(this.match.id, { player2Score: score });
-      this.match.player2Score = score;
+      this.scores[this.lobby.player2.id]++;
     }
     this.initializeGameObjects();
     this.dispatchScore();
@@ -304,14 +325,6 @@ export class Game {
     }
   }
 
-  public movePaddle(
-    client: AuthenticatedSocket,
-    movePaddleDto: MovePaddleDto,
-  ): void {
-    const paddle = this.getPaddle(client.id);
-    paddle.direction = movePaddleDto.direction;
-  }
-
   private getPaddle(playerId: string): Paddle {
     if (playerId === this.lobby.player1.id) {
       return this.paddle1;
@@ -320,37 +333,16 @@ export class Game {
     }
 
     this.logger.error(`Paddle not found for player with id: ${playerId}`);
-    throw new WsException(`Paddle not found for player with id: ${playerId}`);
+    throw new WsException(`Paddle not found`);
   }
 
   private async getUserById(id: UserEntity['id']): Promise<UserEntity> {
     const user = await this.userService.findOneById(id);
     if (!user) {
       this.logger.error(`User not found with id: ${id}`);
-      throw new WsException(`User not found with id: ${id}`);
+      throw new WsException(`User not found`);
     }
     return user;
-  }
-
-  public async setLoser(playerId: UserEntity['id']): Promise<void> {
-    const player = Array.from(this.lobby.players.values()).find(
-      (player) => player.data.id !== playerId,
-    );
-    if (!player) {
-      this.logger.error(
-        `Cannot set loser, player not found with id: ${playerId}`,
-      );
-      throw new WsException(
-        `Internal server error. Cannot set loser, player not found with id: ${playerId}`,
-      );
-    }
-
-    const winner = await this.getUserById(player.data.id);
-
-    this.matchRepository.update(this.match.id, { winner: winner });
-    this.match.winner = winner;
-
-    this.logger.debug(`match: ${JSON.stringify(this.match, null, 2)}`);
   }
 
   private countDown(seconds: number, sendEach = 1000): Promise<void> {
@@ -362,6 +354,11 @@ export class Game {
           clearInterval(countdownInterval);
           resolve();
         } else {
+          if (this.stop) {
+            clearInterval(countdownInterval);
+            resolve();
+          }
+
           this.lobby.players.forEach((player) => {
             player.emit(ServerGameEvents.GameCountdown, {
               seconds: remainingSeconds,

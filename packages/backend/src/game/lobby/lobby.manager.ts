@@ -120,8 +120,15 @@ export class LobbyManager {
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
-    } else {
+    } else if (lobby.instance.hasStarted === true) {
       lobby.instance.triggerFinish();
+    } else {
+      lobby.instance.stop = true;
+      lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
+        winner: null,
+        player1Score: 0,
+        player2Score: 0,
+      });
     }
   }
 
@@ -140,12 +147,19 @@ export class LobbyManager {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    lobby.removePlayer(client).catch(() => {});
+    await lobby.removePlayer(client).catch(() => {});
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
-    } else {
+    } else if (lobby.instance.hasStarted === true) {
       lobby.instance.triggerFinish();
+    } else {
+      lobby.instance.stop = true;
+      lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
+        winner: null,
+        player1Score: 0,
+        player2Score: 0,
+      });
     }
   }
 
@@ -309,7 +323,9 @@ export class LobbyManager {
     this.lobbies.set(lobby.id, lobby);
 
     this.playerQueue.splice(0, MAX_PLAYERS).forEach(async (client) => {
-      await lobby.addPlayer(client);
+      await lobby.addPlayer(client).catch((error) => {
+        throw new WsException(error.message);
+      });
     });
   }
 
@@ -332,8 +348,8 @@ export class LobbyManager {
 
   // -------------------- Utils --------------------
 
-  @Cron('*/5 * * * * *')
-  public cleanUpLobbies(): void {
+  @Cron('*/30 * * * * *')
+  public async cleanUpLobbies(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_lobbyId, lobby] of this.lobbies) {
       const now = new Date().getTime();
@@ -348,6 +364,8 @@ export class LobbyManager {
           },
         );
 
+        // TODO: Do we want to set winner the player with the most points ?
+        await lobby.instance.setLoser();
         lobby.instance.triggerFinish();
 
         this.lobbies.delete(lobby.id);

@@ -134,7 +134,6 @@ export class ChannelDto {
           isOwner ||
           (!channel.owner && isAdmin),
       },
-      // TODO: transform to dto
       ...(user && { user: user }),
     };
   }

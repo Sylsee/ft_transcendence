@@ -4,7 +4,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party imports
 import { Repository } from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 // Local imports
 import { UserEntity } from 'src/user/entities/user.entity';
@@ -19,18 +18,20 @@ export class MatchRepository {
     private matchRepository: Repository<MatchEntity>,
   ) {}
 
-  async create(player1: UserEntity, player2: UserEntity): Promise<MatchEntity> {
+  async create(
+    player1: UserEntity,
+    player2: UserEntity,
+    player1Score: number,
+    player2Score: number,
+    winner?: UserEntity,
+  ): Promise<MatchEntity> {
     const newMatch = new MatchEntity();
     newMatch.player1 = player1;
     newMatch.player2 = player2;
+    newMatch.player1Score = player1Score;
+    newMatch.player2Score = player2Score;
+    if (winner) newMatch.winner = winner;
 
     return this.matchRepository.save(newMatch);
-  }
-
-  async update(
-    matchId: MatchEntity['id'],
-    content: QueryDeepPartialEntity<MatchEntity>,
-  ): Promise<void> {
-    this.matchRepository.update({ id: matchId }, content);
   }
 }

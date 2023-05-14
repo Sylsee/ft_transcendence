@@ -60,15 +60,15 @@ export class Lobby {
     client.join(this.id);
     client.data.lobby = this;
 
+    this.dispatchLobbyState();
+
     if (
       this.players.size === MAX_PLAYERS &&
-      !this.instance.hasStarted &&
+      this.instance.hasStarted === false &&
       this.mode === LobbyMode.QuickPlay
     ) {
       await this.triggerStart();
     }
-
-    this.dispatchLobbyState();
   }
 
   public get player1(): AuthenticatedSocket {
@@ -84,14 +84,18 @@ export class Lobby {
       this.instance.hasStarted === true &&
       this.instance.hasFinished === false
     ) {
-      await this.instance.setLoser(client.data.id);
+      const loser = await this.instance.setLoser(client.data.id);
+
+      this.dispatchToLobby<ServerGameEvents.GameMessage>(
+        ServerGameEvents.GameMessage,
+        {
+          message: `${loser.name} give up !`,
+        },
+      );
     }
 
-    this.players.delete(client.id);
     client.leave(this.id);
     client.data.lobby = null;
-
-    this.dispatchLobbyState();
   }
 
   public async setPlayerReady(
@@ -155,6 +159,10 @@ export class Lobby {
   // -------------------- Dispatchers --------------------
 
   public async dispatchLobbyState(): Promise<void> {
+    if (this.mode === LobbyMode.QuickPlay && this.players.size < MAX_PLAYERS) {
+      return;
+    }
+
     const players = await this.fetchUserDtoFromPlayers();
     if (players.length === 0) {
       return;
@@ -165,9 +173,6 @@ export class Lobby {
       players: players,
       hasStarted: this.instance.hasStarted,
       hasFinished: this.instance.hasFinished,
-      currentRound: this.instance.currentRound,
-      player1Score: this.instance.scores[this.player1?.id],
-      player2Score: this.instance.scores[this.player2?.id],
     };
 
     this.dispatchToLobby(ServerGameEvents.LobbyState, payload);
