@@ -173,6 +173,7 @@ export class Game {
       : null;
 
     this.match = await this.matchRepository.create(
+      this.lobby.mode,
       player1,
       player2,
       player1Score,

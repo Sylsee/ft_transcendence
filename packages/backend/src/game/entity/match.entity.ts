@@ -9,6 +9,7 @@ import {
 
 // Local imports
 import { UserEntity } from 'src/user/entities/user.entity';
+import { LobbyMode } from '../enum/lobby-mode.enum';
 
 @Entity('matches')
 export class MatchEntity {
@@ -17,6 +18,9 @@ export class MatchEntity {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ type: 'enum', enum: LobbyMode })
+  mode: LobbyMode;
 
   @ManyToOne(() => UserEntity, (user) => user.matches, {
     nullable: true,

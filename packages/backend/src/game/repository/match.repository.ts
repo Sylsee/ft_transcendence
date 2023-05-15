@@ -8,6 +8,7 @@ import { Repository } from 'typeorm';
 // Local imports
 import { UserEntity } from 'src/user/entities/user.entity';
 import { MatchEntity } from '../entity/match.entity';
+import { LobbyMode } from '../enum/lobby-mode.enum';
 
 @Injectable()
 export class MatchRepository {
@@ -19,6 +20,7 @@ export class MatchRepository {
   ) {}
 
   async create(
+    mode: LobbyMode,
     player1: UserEntity,
     player2: UserEntity,
     player1Score: number,
@@ -26,6 +28,7 @@ export class MatchRepository {
     winner?: UserEntity,
   ): Promise<MatchEntity> {
     const newMatch = new MatchEntity();
+    newMatch.mode = mode;
     newMatch.player1 = player1;
     newMatch.player2 = player2;
     newMatch.player1Score = player1Score;

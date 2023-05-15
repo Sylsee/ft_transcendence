@@ -2,11 +2,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 // Third-party imports
-import { IsDate, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 // Local imports
 import { UserDto } from 'src/user/dto/user.dto';
 import { MatchEntity } from '../entity/match.entity';
+import { LobbyMode } from '../enum/lobby-mode.enum';
 
 export class MatchDto {
   @ApiProperty({
@@ -26,6 +27,18 @@ export class MatchDto {
   @IsNotEmpty()
   @IsDate()
   createdAt: Date;
+
+  @ApiProperty({
+    type: 'enum',
+    isArray: false,
+    description: 'Match mode',
+    example: LobbyMode.QuickPlay,
+    enum: LobbyMode,
+    required: true,
+  })
+  @IsNotEmpty()
+  @IsEnum(LobbyMode)
+  mode: LobbyMode;
 
   @ApiProperty({
     description: 'Match winner',
@@ -73,6 +86,7 @@ export class MatchDto {
     return {
       id: match.id,
       createdAt: match.createdAt,
+      mode: match.mode,
       winner: UserDto.transform(match.winner),
       player1: UserDto.transform(match.player1),
       player2: UserDto.transform(match.player2),
