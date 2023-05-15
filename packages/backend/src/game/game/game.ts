@@ -208,7 +208,7 @@ export class Game {
       accumulator += elapsedTime;
 
       while (accumulator >= gameConfig.timeStep) {
-        this.updateGameState(gameConfig.timeStep);
+        await this.updateGameState(gameConfig.timeStep);
 
         if (this.gamePaused) {
           await this.countDown(gameConfig.pointCountDownDuration);
@@ -232,10 +232,10 @@ export class Game {
     setImmediate(gameLoop);
   }
 
-  private updateGameState(timeStep: number): void {
+  private async updateGameState(timeStep: number): Promise<void> {
     this.updatePaddlePosition(timeStep);
     this.updateBallPosition(timeStep);
-    this.handleCollisions();
+    await this.handleCollisions();
   }
 
   private updatePaddlePosition(timeStep: number): void {
@@ -270,7 +270,7 @@ export class Game {
     this.ball.y += this.ball.velocity.y * timeStep;
   }
 
-  private handleCollisions(): void {
+  private async handleCollisions(): Promise<void> {
     if (this.ballCollidesWithPaddle(this.paddle1)) {
       this.handlePaddleCollision(this.paddle1);
     } else if (this.ballCollidesWithPaddle(this.paddle2)) {
@@ -280,7 +280,7 @@ export class Game {
     if (this.ball.y <= 0 || this.ball.y >= gameConfig.height) {
       this.ball.velocity.y = -this.ball.velocity.y;
     } else if (this.ball.x <= 0 || this.ball.x >= gameConfig.width) {
-      this.handleScreenBoundsCollision();
+      await this.handleScreenBoundsCollision();
     }
   }
 
@@ -293,7 +293,7 @@ export class Game {
       normalizedIntersectionY * gameConfig.ballSpeedPerSecond;
   }
 
-  private handleScreenBoundsCollision(): void {
+  private async handleScreenBoundsCollision(): Promise<void> {
     // Update scores, reinitialize game objects, and dispatch score
     if (this.ball.x <= 0) {
       this.scores[this.lobby.player1.id]++;
@@ -304,7 +304,7 @@ export class Game {
     this.initializeGameObjects();
     this.dispatchScore();
 
-    this.checkGameFinish();
+    await this.checkGameFinish();
     if (this.hasFinished) {
       return;
     }
@@ -368,22 +368,16 @@ export class Game {
     );
   }
 
-  private checkGameFinish(): void {
+  private async checkGameFinish(): Promise<void> {
     if (this.scores[this.lobby.player1.id] === gameConfig.maxScore) {
       this.hasFinished = true;
 
-      this.setLoser(this.lobby.player2.id).catch(() => {
-        // This would never happen, but we need to catch it anyway
-        return;
-      });
+      await this.setLoser(this.lobby.player2.id);
       this.triggerFinish();
     } else if (this.scores[this.lobby.player2.id] === gameConfig.maxScore) {
       this.hasFinished = true;
 
-      this.setLoser(this.lobby.player1.id).catch(() => {
-        // This would never happen, but we need to catch it anyway
-        return;
-      });
+      await this.setLoser(this.lobby.player1.id);
       this.triggerFinish();
     }
   }
