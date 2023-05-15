@@ -6,4 +6,5 @@ export interface GameState {
 	lobby: LobbyData | null;
 	isLobbyOwner: boolean;
 	game: GameData | null;
+	countDown: number;
 }

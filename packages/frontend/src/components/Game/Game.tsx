@@ -9,7 +9,7 @@ interface GameProps {}
 const Game: React.FC<GameProps> = ({}) => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const game = useSelector((state: RootState) => state.GAME.game);
-
+	const countDown = useSelector((state: RootState) => state.GAME.countDown);
 	useEffect(() => {
 		if (!game) return;
 		const canvas = canvasRef.current;
@@ -39,6 +39,14 @@ const Game: React.FC<GameProps> = ({}) => {
 		context.arc(game.ball.x, game.ball.y, game.ball.radius, 0, Math.PI * 2); // Balle
 		context.fill();
 	}, [game]);
+
+	if (countDown > 0) {
+		return (
+			<div className="flex flex-col justify-center items-center">
+				<div className="text-9xl">{countDown}</div>
+			</div>
+		);
+	}
 
 	if (!game) return null;
 	return (

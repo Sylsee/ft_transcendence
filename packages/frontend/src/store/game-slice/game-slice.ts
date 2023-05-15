@@ -8,6 +8,7 @@ const initialState: GameState = {
 	lobby: null,
 	isLobbyOwner: false,
 	game: null,
+	countDown: 0,
 };
 
 export const gameSlice = createSlice({
@@ -25,12 +26,16 @@ export const gameSlice = createSlice({
 			state.lobbyStatus = LobbyState.Idle;
 			state.isLobbyOwner = false;
 			state.game = null;
+			state.countDown = 0;
 		},
 		setIsLobbyOwner: (state, action: PayloadAction<boolean>) => {
 			state.isLobbyOwner = action.payload;
 		},
 		setGame: (state, action: PayloadAction<GameData>) => {
 			state.game = action.payload;
+		},
+		setCountDown: (state, action: PayloadAction<number>) => {
+			state.countDown = action.payload;
 		},
 	},
 });
@@ -41,4 +46,5 @@ export const {
 	cleanLobby,
 	setIsLobbyOwner,
 	setGame,
+	setCountDown,
 } = gameSlice.actions;

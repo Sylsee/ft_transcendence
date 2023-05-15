@@ -27,7 +27,6 @@ const Lobby: React.FC<LobbyProps> = () => {
 				<LobbySearchGame gameSocket={gameSocket} />
 			)}
 			{LobbyStatus === LobbyState.Found && <LobbyFound />}
-			{LobbyStatus === LobbyState.Countdown && <div>CountDown</div>}
 			{LobbyStatus === LobbyState.Start && <Game />}
 			{LobbyStatus === LobbyState.Finish && <div>Finish</div>}
 		</div>

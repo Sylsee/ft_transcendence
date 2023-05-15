@@ -1,7 +1,11 @@
 import { Dispatch } from "@reduxjs/toolkit";
 import { Socket } from "socket.io-client";
 import { getChatSocket, getGameSocket } from "sockets/socket";
-import { setGame, setLobbyStatus } from "store/game-slice/game-slice";
+import {
+	setCountDown,
+	setGame,
+	setLobbyStatus,
+} from "store/game-slice/game-slice";
 import {
 	GameData,
 	GameReceiveEvent,
@@ -41,7 +45,7 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameCountdown}`,
 		(data: any) => {
 			console.log(GameReceiveEvent.GameCountdown, data);
-			dispatch(setLobbyStatus(LobbyState.Countdown));
+			dispatch(setCountDown(data.seconds));
 		}
 	);
 
