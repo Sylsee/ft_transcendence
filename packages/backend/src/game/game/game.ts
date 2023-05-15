@@ -10,6 +10,7 @@ import { gameConfig } from 'src/config/game.config';
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';
+import { COUNT_DOWN_TIME } from '../constants';
 import { MovePaddleDto } from '../dto/move-paddle.dto';
 import { MatchEntity } from '../entity/match.entity';
 import { PaddleDirection } from '../enum/paddle-direction.enum';
@@ -28,6 +29,7 @@ export class Game {
   public hasStarted = false;
   public hasFinished = false;
   public stop = false;
+  private gamePaused = false;
 
   public scores: Record<string, number> = {};
 
@@ -94,17 +96,44 @@ export class Game {
         this.scores[player.id] = 0;
       });
 
-      await this.countDown(gameConfig.countDownTime);
+      this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
+        ServerGameEvents.GameStart,
+        {
+          player1: this.lobby.player1.data.id,
+          player2: this.lobby.player2.data.id,
+          width: gameConfig.width,
+          height: gameConfig.height,
+          paddleWidth: gameConfig.paddleWidth,
+          paddleHeight: gameConfig.paddleHeight,
+          paddleSpeedPerSecond: gameConfig.paddleSpeedPerSecond,
+          paddleCoordinates: {
+            paddle1: {
+              x: this.paddle1.x,
+              y: this.paddle1.y,
+            },
+            paddle2: {
+              x: this.paddle2.x,
+              y: this.paddle2.y,
+            },
+          },
+          ballRadius: gameConfig.ballRadius,
+          ballSpeedPerSecond: gameConfig.ballSpeedPerSecond,
+          ballCoordinates: {
+            x: this.ball.x,
+            y: this.ball.y,
+          },
+          timeStep: gameConfig.timeStep,
+          maxScore: gameConfig.maxScore,
+        },
+      );
+
+      await this.countDown(COUNT_DOWN_TIME);
 
       if (this.stop) {
         return;
       }
 
       this.hasStarted = true;
-      this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
-        ServerGameEvents.GameStart,
-        {},
-      );
 
       this.roundManager();
     } catch (error) {
@@ -114,9 +143,11 @@ export class Game {
 
   public triggerFinish(): void {
     this.hasFinished = true;
-    const winner = this.match?.winner?.id
+
+    const winner = this.match?.winner
       ? UserDto.transform(this.match.winner)
       : null;
+    this.logger.debug(`winner: ${JSON.stringify(winner, null, 2)}`);
 
     this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
       ServerGameEvents.GameFinish,
@@ -149,8 +180,6 @@ export class Game {
       winner,
     );
 
-    this.hasFinished = true;
-
     return playerId ? (playerId === player1.id ? player1 : player2) : null;
   }
 
@@ -167,8 +196,6 @@ export class Game {
     let previousTime = performance.now();
 
     const gameLoop = async () => {
-      await this.checkGameFinish();
-
       if (this.hasFinished || this.stop) {
         return;
       }
@@ -181,11 +208,22 @@ export class Game {
 
       while (accumulator >= gameConfig.timeStep) {
         this.updateGameState(gameConfig.timeStep);
+
+        if (this.gamePaused) {
+          await this.countDown(gameConfig.pointCountDownDuration);
+          this.gamePaused = false;
+          previousTime = performance.now();
+        }
+
+        if (this.hasFinished) {
+          return;
+        }
+
         this.sendGameState();
         accumulator -= gameConfig.timeStep;
       }
 
-      if (this.hasFinished === false) {
+      if (this.hasFinished === false && this.stop === false) {
         setImmediate(gameLoop);
       }
     };
@@ -261,12 +299,16 @@ export class Game {
     } else {
       this.scores[this.lobby.player2.id]++;
     }
+
     this.initializeGameObjects();
     this.dispatchScore();
-    this.sendGameState();
 
-    // Reflect the ball's horizontal direction
-    this.ball.velocity.x = -this.ball.velocity.x;
+    this.checkGameFinish();
+    if (this.hasFinished) {
+      return;
+    }
+
+    this.gamePaused = true;
   }
 
   private sendGameState(): void {
@@ -325,12 +367,22 @@ export class Game {
     );
   }
 
-  private async checkGameFinish(): Promise<void> {
+  private checkGameFinish(): void {
     if (this.scores[this.lobby.player1.id] === gameConfig.maxScore) {
-      await this.setLoser(this.lobby.player2.id);
+      this.hasFinished = true;
+
+      this.setLoser(this.lobby.player2.id).catch(() => {
+        // This would never happen, but we need to catch it anyway
+        return;
+      });
       this.triggerFinish();
     } else if (this.scores[this.lobby.player2.id] === gameConfig.maxScore) {
-      await this.setLoser(this.lobby.player1.id);
+      this.hasFinished = true;
+
+      this.setLoser(this.lobby.player1.id).catch(() => {
+        // This would never happen, but we need to catch it anyway
+        return;
+      });
       this.triggerFinish();
     }
   }
@@ -361,6 +413,12 @@ export class Game {
 
       const countdownInterval = setInterval(() => {
         if (remainingSeconds <= 0) {
+          this.lobby.players.forEach((player) => {
+            player.emit(ServerGameEvents.GameCountdown, {
+              seconds: 0,
+            });
+          });
+
           clearInterval(countdownInterval);
           resolve();
         } else {

@@ -109,7 +109,7 @@ export class ChatGateway
 
         this.sendEvent(userWithFriends.friends, ServerChatEvent.UserStatus, {
           id: userWithFriends.id,
-          status: userWithFriends.status,
+          status: UserStatus.Online,
         });
       }
     } catch (error) {
@@ -118,30 +118,38 @@ export class ChatGateway
         message: error.message,
       });
 
-      this.logger.warn(`Unable to verify token: ${token}`);
+      this.logger.warn(
+        `Unable to connect client with id ${client.id} to namespace ${client.nsp.name}`,
+      );
 
       client.disconnect();
     }
   }
 
   async handleDisconnect(client: Socket): Promise<void> {
-    try {
-      const userId = client.data.id;
+    if (client.data.id === undefined) {
+      this.logger.warn(`Client with id ${client.id} disconnected without id`);
+      return;
+    }
 
+    try {
       // Disconnect from game namespace
       this.gameGateway.disconnectAuthenticatedSocket(client.data.id);
 
+      // Remove user from socket list
       this.userService.removeSocketUser(client.id);
 
       // Update user status
-      this.userService.update(userId, { status: UserStatus.Offline });
+      this.userService.update(client.data.id, { status: UserStatus.Offline });
 
       // Send user status to friends
-      const user = await this.userService.findOneWithRelations(userId, [
+      const user = await this.userService.findOneWithRelations(client.data.id, [
         'friends',
       ]);
       if (!user) {
-        this.logger.error('User not found after authentication');
+        this.logger.error(
+          'User not found after authentication when disconnecting',
+        );
         return;
       }
 
@@ -151,10 +159,12 @@ export class ChatGateway
       });
 
       this.logger.verbose(
-        `User ${userId} disconnected with socket ${client.id} from namespace ${client.nsp.name}`,
+        `User ${client.data.id} disconnected with socket ${client.id} from namespace ${client.nsp.name}`,
       );
     } catch (error) {
-      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+      this.logger.warn(
+        `Unable to correctly disconnect client with id: ${client.id}`,
+      );
     }
   }
 

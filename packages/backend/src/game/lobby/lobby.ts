@@ -170,6 +170,7 @@ export class Lobby {
 
     const payload: GamePayloads[ServerGameEvents.LobbyState] = {
       lobbyId: this.id,
+      mode: this.mode,
       players: players,
       hasStarted: this.instance.hasStarted,
       hasFinished: this.instance.hasFinished,

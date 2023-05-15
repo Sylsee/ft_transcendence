@@ -88,7 +88,9 @@ export class GameGateway
         message: error.message,
       });
 
-      this.logger.warn(`Unable to verify token: ${token}`);
+      this.logger.warn(
+        `Unable to connect client with id ${client.id} to namespace ${client.nsp.name}`,
+      );
 
       client.disconnect();
     }
@@ -104,7 +106,9 @@ export class GameGateway
         `User ${client.data.id} disconnected with socket ${client.id} from namespace ${client.nsp.name}`,
       );
     } catch (error) {
-      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+      this.logger.warn(
+        `Unable to correctly disconnect client with id: ${client.id}`,
+      );
       this.logger.error(error);
     }
   }

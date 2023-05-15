@@ -4,10 +4,10 @@ export const gameConfig = {
   paddleWidth: 6,
   paddleHeight: 150,
   paddleMargin: 30,
+  paddleSpeedPerSecond: 400,
   ballRadius: 12.5,
   ballSpeedPerSecond: 300,
-  paddleSpeedPerSecond: 400,
   timeStep: 1 / 60, // Fixed time step in seconds
   maxScore: 5,
-  countDownTime: 3,
+  pointCountDownDuration: 2, // seconds
 };
