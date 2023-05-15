@@ -6,7 +6,7 @@ import { RootState } from "types/global/global";
 
 interface GameProps {}
 
-const Game: React.FC<GameProps> = ({}) => {
+const Game: React.FC<GameProps> = () => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const game = useSelector((state: RootState) => state.GAME.game);
 	const countDown = useSelector((state: RootState) => state.GAME.countDown);
@@ -20,6 +20,8 @@ const Game: React.FC<GameProps> = ({}) => {
 
 		canvas.width = 1400;
 		canvas.height = 1000;
+
+		context.fillStyle = "white";
 
 		context.fillRect(
 			game.paddle1.x,
