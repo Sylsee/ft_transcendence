@@ -3,7 +3,7 @@ export const gameConfig = {
   height: 1000,
   paddleWidth: 6,
   paddleHeight: 150,
-  paddleDistanceFromWall: 30,
+  paddleMargin: 30,
   ballRadius: 12.5,
   ballSpeedPerSecond: 300,
   paddleSpeedPerSecond: 400,

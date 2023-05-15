@@ -47,7 +47,7 @@ export class Game {
 
   public initializeGameObjects(): void {
     this.paddle1 = {
-      x: gameConfig.paddleDistanceFromWall,
+      x: gameConfig.paddleMargin,
       y: gameConfig.height / 2 - gameConfig.paddleHeight / 2,
       width: gameConfig.paddleWidth,
       height: gameConfig.paddleHeight,
@@ -57,10 +57,7 @@ export class Game {
       direction: PaddleDirection.NONE,
     };
     this.paddle2 = {
-      x:
-        gameConfig.width -
-        gameConfig.paddleDistanceFromWall -
-        gameConfig.paddleWidth,
+      x: gameConfig.width - gameConfig.paddleMargin - gameConfig.paddleWidth,
       y: gameConfig.height / 2 - gameConfig.paddleHeight / 2,
       width: gameConfig.paddleWidth,
       height: gameConfig.paddleHeight,
@@ -208,11 +205,24 @@ export class Game {
     } else if (this.paddle1.direction === PaddleDirection.DOWN) {
       this.paddle1.y += gameConfig.paddleSpeedPerSecond * timeStep;
     }
+    this.checkPaddleBounds(this.paddle1);
 
     if (this.paddle2.direction === PaddleDirection.UP) {
       this.paddle2.y -= gameConfig.paddleSpeedPerSecond * timeStep;
     } else if (this.paddle2.direction === PaddleDirection.DOWN) {
       this.paddle2.y += gameConfig.paddleSpeedPerSecond * timeStep;
+    }
+    this.checkPaddleBounds(this.paddle2);
+  }
+
+  private checkPaddleBounds(paddle: Paddle): void {
+    if (paddle.y <= gameConfig.paddleMargin) {
+      paddle.y = gameConfig.paddleMargin;
+    } else if (
+      paddle.y >=
+      gameConfig.height - paddle.height - gameConfig.paddleMargin
+    ) {
+      paddle.y = gameConfig.height - paddle.height - gameConfig.paddleMargin;
     }
   }
 
