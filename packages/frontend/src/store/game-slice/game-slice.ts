@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GameData } from "types/game/game";
 import { LobbyData, LobbyState } from "types/game/lobby";
 import { GameState } from "types/game/reducer";
 
@@ -6,6 +7,7 @@ const initialState: GameState = {
 	lobbyStatus: LobbyState.Idle,
 	lobby: null,
 	isLobbyOwner: false,
+	game: null,
 };
 
 export const gameSlice = createSlice({
@@ -22,12 +24,21 @@ export const gameSlice = createSlice({
 			state.lobby = null;
 			state.lobbyStatus = LobbyState.Idle;
 			state.isLobbyOwner = false;
+			state.game = null;
 		},
 		setIsLobbyOwner: (state, action: PayloadAction<boolean>) => {
 			state.isLobbyOwner = action.payload;
 		},
+		setGame: (state, action: PayloadAction<GameData>) => {
+			state.game = action.payload;
+		},
 	},
 });
 
-export const { setLobbyStatus, setLobby, cleanLobby, setIsLobbyOwner } =
-	gameSlice.actions;
+export const {
+	setLobbyStatus,
+	setLobby,
+	cleanLobby,
+	setIsLobbyOwner,
+	setGame,
+} = gameSlice.actions;

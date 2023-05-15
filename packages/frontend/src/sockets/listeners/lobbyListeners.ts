@@ -3,11 +3,10 @@ import { ChatEvent } from "config";
 import { toast } from "react-toastify";
 import { Socket } from "socket.io-client";
 import { getChatSocket, getGameSocket } from "sockets/socket";
-import { setLobby, setLobbyStatus } from "store/game-slice/game-slice";
+import { setLobby } from "store/game-slice/game-slice";
 import {
 	LobbyData,
 	LobbyReceiveEvent,
-	LobbyState,
 	LOBBY_RECEIVE_EVENT_BASE_URL,
 } from "types/game/lobby";
 
@@ -21,7 +20,6 @@ export const socketLobbyListeners = (dispatch: Dispatch) => {
 		`${LOBBY_RECEIVE_EVENT_BASE_URL}${LobbyReceiveEvent.State}`,
 		(data: LobbyData) => {
 			console.log(LobbyReceiveEvent.State, data);
-			dispatch(setLobbyStatus(LobbyState.Found));
 			dispatch(setLobby(data));
 		}
 	);

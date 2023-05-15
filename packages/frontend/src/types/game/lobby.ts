@@ -4,17 +4,24 @@ export enum LobbyState {
 	Idle,
 	Searching,
 	Found,
+	Countdown,
+	Start,
+	Finish,
+}
+
+export enum LobbyMode {
+	QuickPlay = "quick-play",
+	Custom = "custom",
 }
 
 export type LobbyUser = Omit<User, "status"> & { isReady: boolean };
 
 export interface LobbyData {
 	lobbyId: string;
-	currentRound: number;
+	mode: LobbyMode;
 	hasFinished: false;
 	hasStarted: false;
 	players: LobbyUser[];
-	scores: undefined;
 }
 
 export const LOBBY_SEND_EVENT_BASE_URL: string = "client.lobby.";
