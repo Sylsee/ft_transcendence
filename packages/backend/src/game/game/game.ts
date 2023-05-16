@@ -257,10 +257,10 @@ export class Game {
   }
 
   private checkPaddleBounds(paddle: Paddle): void {
-    if (paddle.y <= gameConfig.paddleMargin) {
+    if (paddle.y < gameConfig.paddleMargin) {
       paddle.y = gameConfig.paddleMargin;
     } else if (
-      paddle.y >=
+      paddle.y >
       gameConfig.height - paddle.height - gameConfig.paddleMargin
     ) {
       paddle.y = gameConfig.height - paddle.height - gameConfig.paddleMargin;
@@ -273,9 +273,16 @@ export class Game {
   }
 
   private async handleCollisions(): Promise<void> {
-    if (this.ballCollidesWithPaddle(this.paddle1)) {
+    // prettier-ignore
+    if (
+      this.ball.velocity.x < 0 &&
+      this.ballCollidesWithPaddle(this.paddle1)
+    ) {
       this.handlePaddleCollision(this.paddle1);
-    } else if (this.ballCollidesWithPaddle(this.paddle2)) {
+    } else if (
+      this.ball.velocity.x > 0 &&
+      this.ballCollidesWithPaddle(this.paddle2)
+    ) {
       this.handlePaddleCollision(this.paddle2);
     }
 
@@ -286,9 +293,46 @@ export class Game {
     }
   }
 
+  private ballCollidesWithPaddle(paddle: Paddle): boolean {
+    const halfPaddleWidth = paddle.width / 2;
+    const halfPaddleHeight = paddle.height / 2;
+    const ballRadius_sq = this.ball.radius * this.ball.radius;
+
+    const distX = this.ball.x - (paddle.x + halfPaddleWidth);
+    const distY = this.ball.y - (paddle.y + halfPaddleHeight);
+
+    const distX_sq = distX * distX;
+    const distY_sq = distY * distY;
+
+    const distWidthRadius = halfPaddleWidth + this.ball.radius;
+    const distHeightRadius = halfPaddleHeight + this.ball.radius;
+
+    if (
+      distX_sq > distWidthRadius * distWidthRadius ||
+      distY_sq > distHeightRadius * distHeightRadius
+    ) {
+      return false;
+    }
+
+    if (
+      distX_sq <= halfPaddleWidth * halfPaddleWidth ||
+      distY_sq <= halfPaddleHeight * halfPaddleHeight
+    ) {
+      return true;
+    }
+
+    const cornerDistance_sq =
+      distX_sq +
+      distY_sq -
+      halfPaddleWidth * halfPaddleWidth -
+      halfPaddleHeight * halfPaddleHeight;
+
+    return cornerDistance_sq <= ballRadius_sq;
+  }
+
   private handlePaddleCollision(paddle: Paddle): void {
     const normalizedIntersectionY =
-      (this.ball.y - (paddle.y + paddle.height / 2)) / paddle.height / 2;
+      (this.ball.y - (paddle.y + paddle.height)) / paddle.height;
 
     this.ball.velocity.x = -this.ball.velocity.x;
     this.ball.velocity.y = normalizedIntersectionY * this.ballSpeedPerSecond;
@@ -333,29 +377,6 @@ export class Game {
         },
         ball: this.ball,
       },
-    );
-  }
-
-  private ballCollidesWithPaddle(paddle: Paddle): boolean {
-    const ballBounds = {
-      left: this.ball.x - gameConfig.ballRadius,
-      right: this.ball.x + gameConfig.ballRadius,
-      top: this.ball.y - gameConfig.ballRadius,
-      bottom: this.ball.y + gameConfig.ballRadius,
-    };
-
-    const paddleBounds = {
-      left: paddle.x - paddle.width / 2,
-      right: paddle.x + paddle.width / 2,
-      top: paddle.y - paddle.height / 2,
-      bottom: paddle.y + paddle.height / 2,
-    };
-
-    return (
-      ballBounds.left < paddleBounds.right &&
-      ballBounds.right > paddleBounds.left &&
-      ballBounds.top < paddleBounds.bottom &&
-      ballBounds.bottom > paddleBounds.top
     );
   }
 
