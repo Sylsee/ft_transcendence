@@ -1,8 +1,9 @@
 // NestJS imports
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Local imports
+import { GameModule } from 'src/game/game.module';
 import { FriendRequest } from './entities/friend_request.entity';
 import { UserEntity } from './entities/user.entity';
 import { FriendRequestRepository } from './repositories/friend_request.repository';
@@ -12,7 +13,10 @@ import { UserService } from './services/user.service';
 import { UserController } from './user.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, FriendRequest])],
+  imports: [
+    TypeOrmModule.forFeature([UserEntity, FriendRequest]),
+    forwardRef(() => GameModule),
+  ],
   controllers: [UserController],
   providers: [
     UserService,

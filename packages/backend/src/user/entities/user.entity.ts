@@ -100,8 +100,13 @@ export class UserEntity {
   muteChannels: MuteUserEntity[];
 
   // Game
-  @OneToMany(() => MatchEntity, (match) => match.player1, {
+  @OneToMany(() => MatchEntity, (match) => match.winner, {
     nullable: true,
   })
-  matches: MatchEntity[];
+  matchesWon: MatchEntity[];
+
+  @OneToMany(() => MatchEntity, (match) => match.loser, {
+    nullable: true,
+  })
+  matchesLost: MatchEntity[];
 }

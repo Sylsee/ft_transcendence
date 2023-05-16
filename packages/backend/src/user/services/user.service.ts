@@ -12,6 +12,7 @@ import {
 // Local imports
 import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
 import { MatchDto } from 'src/game/dto/game-dto';
+import { MatchRepository } from 'src/game/repository/match.repository';
 import { userIdInList } from 'src/shared/list';
 import {
   downloadProfilePicture,
@@ -22,6 +23,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { FriendRequestsDto } from '../dto/relationship/friend-requests.dto';
 import { UserRelationshipDto } from '../dto/relationship/user-relationship.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserGameStatsDto } from '../dto/user-game-stats.dto';
 import { UserDto } from '../dto/user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UserRelationship } from '../enum/user-relationship.enum';
@@ -37,6 +39,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private friendRequestService: FriendRequestService,
+    private matchRepository: MatchRepository,
   ) {}
 
   // TODO: Remove this method
@@ -486,18 +489,21 @@ export class UserService {
   // -----------------------------------------------------------
 
   async getUserGameHistory(id: UserEntity['id']): Promise<MatchDto[]> {
-    // TODO: do we want to make the history only visible to friends?
-    const user = await this.userRepository.findOneByIdWithRelations(id, [
-      'matches',
-      'matches.winner',
-      'matches.player1',
-      'matches.player2',
-    ]);
-    if (!user) {
-      throw new NotFoundException(`User not found`);
+    const matches = await this.matchRepository.getUserMatches(id);
+    if (!matches) {
+      throw new NotFoundException(`Matchs not found`);
     }
 
-    return user.matches.map((match) => MatchDto.transform(match));
+    return matches.map((match) => MatchDto.transform(match));
+  }
+
+  async getUserGameStats(id: UserEntity['id']): Promise<UserGameStatsDto> {
+    const stats = await this.matchRepository.getUserStats(id);
+    if (!stats) {
+      throw new NotFoundException(`Matchs not found`);
+    }
+
+    return stats;
   }
 
   // -----------------------------------------------------------

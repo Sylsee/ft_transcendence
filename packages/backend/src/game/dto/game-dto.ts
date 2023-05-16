@@ -49,20 +49,12 @@ export class MatchDto {
   winner: UserDto;
 
   @ApiProperty({
-    description: 'Player 1',
+    description: 'Match loser',
     type: UserDto,
     required: true,
   })
   @IsNotEmpty()
-  player1: UserDto;
-
-  @ApiProperty({
-    description: 'Player 2',
-    type: UserDto,
-    required: true,
-  })
-  @IsNotEmpty()
-  player2: UserDto;
+  loser: UserDto;
 
   @ApiProperty({
     description: 'Player 1 score',
@@ -71,7 +63,7 @@ export class MatchDto {
   })
   @IsNotEmpty()
   @IsNumber()
-  player1Score: number;
+  winnerPoints: number;
 
   @ApiProperty({
     description: 'Player 2 score',
@@ -80,7 +72,7 @@ export class MatchDto {
   })
   @IsNotEmpty()
   @IsNumber()
-  player2Score: number;
+  loserPoints: number;
 
   static transform(match: MatchEntity): MatchDto {
     return {
@@ -88,10 +80,9 @@ export class MatchDto {
       createdAt: match.createdAt,
       mode: match.mode,
       winner: UserDto.transform(match.winner),
-      player1: UserDto.transform(match.player1),
-      player2: UserDto.transform(match.player2),
-      player1Score: match.player1Score,
-      player2Score: match.player2Score,
+      loser: UserDto.transform(match.loser),
+      winnerPoints: match.winnerPoints,
+      loserPoints: match.loserPoints,
     };
   }
 }

@@ -22,24 +22,19 @@ export class MatchEntity {
   @Column({ type: 'enum', enum: LobbyMode })
   mode: LobbyMode;
 
-  @ManyToOne(() => UserEntity, (user) => user.matches, {
+  @ManyToOne(() => UserEntity, (user) => user.matchesWon, {
     nullable: true,
   })
-  winner?: UserEntity;
+  winner: UserEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.matches, {
+  @ManyToOne(() => UserEntity, (user) => user.matchesLost, {
     nullable: false,
   })
-  player1: UserEntity;
+  loser: UserEntity;
 
-  @ManyToOne(() => UserEntity, (user) => user.matches, {
-    nullable: false,
-  })
-  player2: UserEntity;
+  @Column()
+  winnerPoints: number;
 
-  @Column({ default: 0 })
-  player1Score: number;
-
-  @Column({ default: 0 })
-  player2Score: number;
+  @Column()
+  loserPoints: number;
 }

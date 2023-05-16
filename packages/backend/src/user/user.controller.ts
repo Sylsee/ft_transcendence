@@ -41,6 +41,7 @@ import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { FriendRequestService } from './services/friend_request.service';
 import { UserService } from './services/user.service';
+import { UserGameStatsDto } from './dto/user-game-stats.dto';
 
 const ApiUserIdParam = ApiParam({
   name: 'id',
@@ -336,5 +337,22 @@ export class UserController {
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   async getUserGameHistory(@Param('id') id: string) {
     return await this.userService.getUserGameHistory(id);
+  }
+
+  @Get('match-stats/:id')
+  @UseGuards(Jwt2faAuthGuard)
+  @ApiOperation({
+    summary: 'Get user game statistics',
+    description: 'Retrieve the game statistics for the specified user.',
+  })
+  @ApiUserIdParam
+  @ApiOkResponse({
+    description: 'User game statistics found',
+    type: UserGameStatsDto,
+  })
+  @ApiNotFoundResponse({ description: 'User not found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getUserGameStats(@Param('id') id: string) {
+    return await this.userService.getUserGameStats(id);
   }
 }

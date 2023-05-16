@@ -13,9 +13,9 @@ import { MatchRepository } from './repository/match.repository';
 
 @Module({
   imports: [
-    UserModule,
-    AuthModule,
+    forwardRef(() => UserModule),
     forwardRef(() => ChatModule),
+    forwardRef(() => AuthModule),
     TypeOrmModule.forFeature([MatchEntity]),
   ],
   providers: [
@@ -26,6 +26,6 @@ import { MatchRepository } from './repository/match.repository';
     /* Repositories */
     MatchRepository,
   ],
-  exports: [LobbyManager, GameGateway],
+  exports: [LobbyManager, GameGateway, MatchRepository],
 })
 export class GameModule {}

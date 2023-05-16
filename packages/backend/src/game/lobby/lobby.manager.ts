@@ -1,5 +1,5 @@
 // NestJS imports
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { WsException } from '@nestjs/websockets';
 
@@ -39,6 +39,7 @@ export class LobbyManager {
   >();
 
   constructor(
+    @Inject(forwardRef(() => ChatGateway))
     private chatGateway: ChatGateway,
     private userService: UserService,
     private matchRepository: MatchRepository,
@@ -364,8 +365,6 @@ export class LobbyManager {
           },
         );
 
-        // TODO: Do we want to set winner the player with the most points ?
-        await lobby.instance.setLoser();
         lobby.instance.triggerFinish();
 
         this.lobbies.delete(lobby.id);

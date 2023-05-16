@@ -31,7 +31,7 @@ export class Game {
   public stop = false;
   private gamePaused = false;
 
-  public scores: Record<string, number> = {};
+  public scores: Record<UserEntity['id'], number> = {};
 
   private paddle1: Paddle;
   private paddle2: Paddle;
@@ -96,7 +96,7 @@ export class Game {
       this.playersReady.clear();
 
       this.lobby.players.forEach((player) => {
-        this.scores[player.id] = 0;
+        this.scores[player.data.id] = 0;
       });
 
       this.lobby.dispatchToLobby<ServerGameEvents.GameStart>(
@@ -154,35 +154,29 @@ export class Game {
       ServerGameEvents.GameFinish,
       {
         winner: winner,
-        player1Score: this.scores[this.lobby.player1?.id],
-        player2Score: this.scores[this.lobby.player2?.id],
+        player1Score: this.scores[this.lobby.player1?.data.id],
+        player2Score: this.scores[this.lobby.player2?.data.id],
       },
     );
   }
 
-  public async setLoser(playerId?: UserEntity['id']): Promise<UserEntity> {
-    const player1 = await this.getUserById(this.lobby.player1?.data.id);
-    const player2 = await this.getUserById(this.lobby.player2?.data.id);
-
-    const player1Score = this.scores[this.lobby.player1?.id];
-    const player2Score = this.scores[this.lobby.player2?.id];
-
-    const winner = playerId
-      ? playerId === player1.id
-        ? player2
-        : player1
-      : null;
+  public async setLoser(playerId: UserEntity['id']): Promise<UserEntity> {
+    const winner = await this.getUserById(
+      playerId === this.lobby.player1?.data.id
+        ? this.lobby.player2?.data.id
+        : this.lobby.player1?.data.id,
+    );
+    const loser = await this.getUserById(playerId);
 
     this.match = await this.matchRepository.create(
       this.lobby.mode,
-      player1,
-      player2,
-      player1Score,
-      player2Score,
       winner,
+      loser,
+      this.scores[winner.id],
+      this.scores[loser.id],
     );
 
-    return playerId ? (playerId === player1.id ? player1 : player2) : null;
+    return loser;
   }
 
   public movePaddle(
@@ -347,9 +341,9 @@ export class Game {
   private async handleScreenBoundsCollision(): Promise<void> {
     // Update scores, reinitialize game objects, and dispatch score
     if (this.ball.x <= this.ball.radius) {
-      this.scores[this.lobby.player1.id]++;
+      this.scores[this.lobby.player2.data.id]++;
     } else {
-      this.scores[this.lobby.player2.id]++;
+      this.scores[this.lobby.player1.data.id]++;
     }
 
     this.initializeGameObjects();
@@ -390,19 +384,21 @@ export class Game {
     this.lobby.dispatchToLobby<ServerGameEvents.GameScore>(
       ServerGameEvents.GameScore,
       {
-        player1Score: this.scores[this.lobby.player1?.id],
-        player2Score: this.scores[this.lobby.player2?.id],
+        player1Score: this.scores[this.lobby.player1?.data.id],
+        player2Score: this.scores[this.lobby.player2?.data.id],
       },
     );
   }
 
   private async checkGameFinish(): Promise<void> {
-    if (this.scores[this.lobby.player1.id] === gameConfig.maxScore) {
+    if (this.scores[this.lobby.player1.data.id] === gameConfig.maxScore) {
       this.hasFinished = true;
-      await this.setLoser(this.lobby.player2.id);
-    } else if (this.scores[this.lobby.player2.id] === gameConfig.maxScore) {
+      await this.setLoser(this.lobby.player2.data.id);
+    } else if (
+      this.scores[this.lobby.player2.data.id] === gameConfig.maxScore
+    ) {
       this.hasFinished = true;
-      await this.setLoser(this.lobby.player1.id);
+      await this.setLoser(this.lobby.player1.data.id);
     }
   }
 
