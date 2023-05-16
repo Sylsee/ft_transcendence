@@ -286,9 +286,15 @@ export class Game {
       this.handlePaddleCollision(this.paddle2);
     }
 
-    if (this.ball.y <= 0 || this.ball.y >= gameConfig.height) {
+    if (
+      this.ball.y <= this.ball.radius ||
+      this.ball.y >= gameConfig.height - this.ball.radius
+    ) {
       this.ball.velocity.y = -this.ball.velocity.y;
-    } else if (this.ball.x <= 0 || this.ball.x >= gameConfig.width) {
+    } else if (
+      this.ball.x <= this.ball.radius ||
+      this.ball.x >= gameConfig.width - this.ball.radius
+    ) {
       await this.handleScreenBoundsCollision();
     }
   }
@@ -340,7 +346,7 @@ export class Game {
 
   private async handleScreenBoundsCollision(): Promise<void> {
     // Update scores, reinitialize game objects, and dispatch score
-    if (this.ball.x <= 0) {
+    if (this.ball.x <= this.ball.radius) {
       this.scores[this.lobby.player1.id]++;
     } else {
       this.scores[this.lobby.player2.id]++;
