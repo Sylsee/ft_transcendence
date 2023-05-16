@@ -37,6 +37,7 @@ export class Game {
   private paddle2: Paddle;
   private ball: Ball;
 
+  private ballSpeedPerSecond = gameConfig.ballSpeedPerSecond;
   private ballDirection: 1 | -1 = Math.random() > 0.5 ? 1 : -1;
 
   private match: MatchEntity;
@@ -77,13 +78,15 @@ export class Game {
       y: gameConfig.height / 2 - gameConfig.ballRadius / 2,
       radius: gameConfig.ballRadius,
       velocity: {
-        x: Math.cos(angle) * gameConfig.ballSpeedPerSecond * this.ballDirection,
-        y: Math.sin(angle) * gameConfig.ballSpeedPerSecond,
+        x: Math.cos(angle) * this.ballSpeedPerSecond * this.ballDirection,
+        y: Math.sin(angle) * this.ballSpeedPerSecond,
       },
     };
 
     // Reverse the ball's horizontal direction for the next reset
     this.ballDirection *= -1;
+    // Increase the ball's speed for the next reset
+    this.ballSpeedPerSecond += gameConfig.speedUp;
   }
 
   public async triggerStart(): Promise<void> {
@@ -117,7 +120,6 @@ export class Game {
             },
           },
           ballRadius: gameConfig.ballRadius,
-          ballSpeedPerSecond: gameConfig.ballSpeedPerSecond,
           ballCoordinates: {
             x: this.ball.x,
             y: this.ball.y,
@@ -289,8 +291,7 @@ export class Game {
       (this.ball.y - (paddle.y + paddle.height / 2)) / paddle.height / 2;
 
     this.ball.velocity.x = -this.ball.velocity.x;
-    this.ball.velocity.y =
-      normalizedIntersectionY * gameConfig.ballSpeedPerSecond;
+    this.ball.velocity.y = normalizedIntersectionY * this.ballSpeedPerSecond;
   }
 
   private async handleScreenBoundsCollision(): Promise<void> {

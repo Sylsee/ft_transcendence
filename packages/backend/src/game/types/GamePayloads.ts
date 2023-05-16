@@ -38,7 +38,6 @@ export type GamePayloads = {
       };
     };
     ballRadius: number;
-    ballSpeedPerSecond: number;
     ballCoordinates: {
       x: number;
       y: number;
