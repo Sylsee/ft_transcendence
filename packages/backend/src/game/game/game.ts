@@ -149,7 +149,6 @@ export class Game {
     const winner = this.match?.winner
       ? UserDto.transform(this.match.winner)
       : null;
-    this.logger.debug(`winner: ${JSON.stringify(winner, null, 2)}`);
 
     this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
       ServerGameEvents.GameFinish,
@@ -219,6 +218,7 @@ export class Game {
         }
 
         if (this.hasFinished) {
+          this.triggerFinish();
           return;
         }
 
@@ -372,14 +372,10 @@ export class Game {
   private async checkGameFinish(): Promise<void> {
     if (this.scores[this.lobby.player1.id] === gameConfig.maxScore) {
       this.hasFinished = true;
-
       await this.setLoser(this.lobby.player2.id);
-      this.triggerFinish();
     } else if (this.scores[this.lobby.player2.id] === gameConfig.maxScore) {
       this.hasFinished = true;
-
       await this.setLoser(this.lobby.player1.id);
-      this.triggerFinish();
     }
   }
 
@@ -405,7 +401,13 @@ export class Game {
 
   private countDown(seconds: number, sendEach = 1000): Promise<void> {
     return new Promise((resolve) => {
-      let remainingSeconds = seconds;
+      let remainingSeconds = seconds - 1;
+
+      this.lobby.players.forEach((player) => {
+        player.emit(ServerGameEvents.GameCountdown, {
+          seconds: seconds,
+        });
+      });
 
       const countdownInterval = setInterval(() => {
         if (remainingSeconds <= 0) {
