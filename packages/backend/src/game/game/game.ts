@@ -74,8 +74,8 @@ export class Game {
     const angle = (Math.random() * Math.PI) / 4 - Math.PI / 8;
 
     this.ball = {
-      x: gameConfig.width / 2 - gameConfig.ballRadius / 2,
-      y: gameConfig.height / 2 - gameConfig.ballRadius / 2,
+      x: gameConfig.width / 2,
+      y: gameConfig.height / 2,
       radius: gameConfig.ballRadius,
       velocity: {
         x: Math.cos(angle) * this.ballSpeedPerSecond * this.ballDirection,
