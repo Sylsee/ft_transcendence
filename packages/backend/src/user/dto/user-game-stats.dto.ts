@@ -1,4 +1,7 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
+
+// Third-party imports
 import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class UserGameStatsDto {
@@ -47,4 +50,3 @@ export class UserGameStatsDto {
   @IsNumber()
   pointsAgainst: number;
 }
-

@@ -272,12 +272,12 @@ export class Game {
       this.ball.velocity.x < 0 &&
       this.ballCollidesWithPaddle(this.paddle1)
     ) {
-      this.handlePaddleCollision(this.paddle1);
+      this.handleBallPaddleCollision(this.paddle1);
     } else if (
       this.ball.velocity.x > 0 &&
       this.ballCollidesWithPaddle(this.paddle2)
     ) {
-      this.handlePaddleCollision(this.paddle2);
+      this.handleBallPaddleCollision(this.paddle2);
     }
 
     if (
@@ -330,7 +330,7 @@ export class Game {
     return cornerDistance_sq <= ballRadius_sq;
   }
 
-  private handlePaddleCollision(paddle: Paddle): void {
+  private handleBallPaddleCollision(paddle: Paddle): void {
     const normalizedIntersectionY =
       (this.ball.y - (paddle.y + paddle.height)) / paddle.height;
 

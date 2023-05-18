@@ -335,7 +335,7 @@ export class UserController {
   @ApiOkResponse({ description: 'User game history found', type: [MatchDto] })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async getUserGameHistory(@Param('id') id: string) {
+  async getUserGameHistory(@Param('id') id: string): Promise<MatchDto[]> {
     return await this.userService.getUserGameHistory(id);
   }
 
@@ -352,7 +352,7 @@ export class UserController {
   })
   @ApiNotFoundResponse({ description: 'User not found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async getUserGameStats(@Param('id') id: string) {
+  async getUserGameStats(@Param('id') id: string): Promise<UserGameStatsDto> {
     return await this.userService.getUserGameStats(id);
   }
 }
