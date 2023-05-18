@@ -9,7 +9,7 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "find-deadcode": "ts-prune -s '*.test.ts?'",
+    "find-deadcode": "ts-prune -s '\\.test\\.ts(x)?$'",
     "start": "node_modules/.bin/nest start",
     "start:dev": "nest build --webpack --webpackPath webpack-hmr.config.js --watch",
     "start:debug": "node_modules/.bin/nest start --debug --watch",
