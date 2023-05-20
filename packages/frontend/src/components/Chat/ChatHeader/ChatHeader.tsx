@@ -1,10 +1,9 @@
-import { faBars, faXmark } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faEllipsis, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 import { useSelector } from "react-redux";
 import { selectActiveChannel } from "store/chat-slice/chat-slice";
 import { ChannelType } from "types/chat/chat";
-import { RootState } from "types/global/global";
 
 interface ChatHeaderProps {
 	handleCloseChat: () => void;
@@ -17,34 +16,56 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 	handleCloseChatModal,
 	toggleMenu,
 }) => {
-	const isMenuOpen = useSelector((store: RootState) => store.CHAT.isMenuOpen);
 	const activeChannel = useSelector(selectActiveChannel);
 
 	return (
-		<div className="flex">
-			<div className="w-4">
+		<div className="flex items-center">
+			<div>
 				<button className="" onClick={toggleMenu}>
-					<FontAwesomeIcon
-						fixedWidth
-						icon={isMenuOpen ? faXmark : faBars}
-					/>
+					<FontAwesomeIcon fixedWidth icon={faBars} size="xl" />
 				</button>
 			</div>
 			<div className="flex-auto flex-grow flex justify-center items-center cursor-default">
 				{activeChannel && (
-					<div className="">
-						{activeChannel.type === ChannelType.Direct_message
-							? activeChannel?.user?.name
-							: activeChannel.name}
+					<div>
+						<div className="text-center text-2xl hidden 2xl:block">
+							{activeChannel.type === ChannelType.Direct_message
+								? activeChannel?.user?.name.replace(
+										/(.{15})..+/,
+										"$1…"
+								  )
+								: activeChannel.name.replace(
+										/(.{15})..+/,
+										"$1…"
+								  )}
+						</div>
+						<div className="text-center text-2xl 2xl:hidden">
+							{activeChannel.type === ChannelType.Direct_message
+								? activeChannel?.user?.name.replace(
+										/(.{7})..+/,
+										"$1…"
+								  )
+								: activeChannel.name.replace(
+										/(.{7})..+/,
+										"$1…"
+								  )}
+						</div>
+					</div>
+				)}
+				{activeChannel && (
+					<div className="flex justify-end items-center">
+						<button className="ml-2">
+							<FontAwesomeIcon icon={faEllipsis} size="lg" />
+						</button>
 					</div>
 				)}
 			</div>
 			<div>
 				<button onClick={handleCloseChatModal} className="lg:hidden">
-					<FontAwesomeIcon fixedWidth icon={faXmark} />
+					<FontAwesomeIcon fixedWidth icon={faXmark} size="xl" />
 				</button>
 				<button onClick={handleCloseChat} className="hidden lg:block">
-					<FontAwesomeIcon fixedWidth icon={faXmark} />
+					<FontAwesomeIcon fixedWidth icon={faXmark} size="xl" />
 				</button>
 			</div>
 		</div>

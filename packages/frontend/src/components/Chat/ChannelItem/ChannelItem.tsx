@@ -1,8 +1,8 @@
-import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
+import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useDeleteChannel } from "hooks/chat/useDeleteChannel";
-import { useLeaveChannel } from "hooks/chat/useLeaveChannel";
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Channel, ChannelType } from "types/chat/chat";
 
 interface ChannelItemProps {
@@ -12,6 +12,7 @@ interface ChannelItemProps {
 	openedMenuId: string | null;
 	setOpenedMenuId: (id: string | null) => void;
 	handleEditChannel: (channel: Channel) => void;
+	handleLeaveChannel: (channel: Channel) => void;
 }
 
 const ChannelItem: React.FC<ChannelItemProps> = ({
@@ -21,13 +22,16 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 	openedMenuId,
 	setOpenedMenuId,
 	handleEditChannel,
+	handleLeaveChannel,
 }) => {
 	// states
 	const [hover, setHover] = useState(false);
 	const [showMenu, setShowMenu] = useState(false);
 
+	// redux
+	const dispatch = useDispatch();
+
 	// mutations
-	const { mutate: leaveChannel } = useLeaveChannel(channel.id);
 	const { mutate: deleteChannel } = useDeleteChannel(channel.id);
 
 	// variables
@@ -52,10 +56,6 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 		setHover(true);
 	};
 
-	const handleLeaveChannel = () => {
-		leaveChannel();
-	};
-
 	const handleDeleteChannel = () => {
 		deleteChannel();
 	};
@@ -68,25 +68,29 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 			style={{
 				transition: "all 0.2s",
 			}}
-			className={`hover:bg-astronaut-700 px-2 py-1 ${
+			className={`flex justify-between items-center hover:bg-astronaut-700 px-2 py-1 ${
 				isActive === true ? "bg-astronaut-800" : ""
 			}`}
 		>
-			<div className="flex justify-between items-center cursor-pointer">
-				<div className="w-full" onClick={() => handleClick(channel)}>
+			<button
+				onClick={() => handleClick(channel)}
+				className="flex h-full w-full text-left cursor-pointer p-2 border-1 border-purple-600"
+			>
+				<div className="w-full text-xl">
 					{channel.type !== ChannelType.Direct_message
-						? channel.name
-						: channel.user?.name}
+						? channel.name.replace(/(.{10})..+/, "$1…")
+						: channel.user?.name.replace(/(.{10})..+/, "$1…")}
 				</div>
-				{hover && canShowMenu && (
-					<div onClick={toggleMenu} className="w-4 cursor-pointer">
-						<FontAwesomeIcon
-							icon={showMenu ? faCaretUp : faCaretDown}
-						/>
-					</div>
-				)}
-			</div>
-			{showMenu && canShowMenu && (
+			</button>
+			{(hover || isActive) && (
+				<button
+					onClick={() => handleLeaveChannel(channel)}
+					className="h-full border-1 border-pink-600"
+				>
+					<FontAwesomeIcon icon={faArrowRightFromBracket} size="lg" />
+				</button>
+			)}
+			{true && (
 				<ul className="bg-white text-black border rounded shadow-md mt-2">
 					{channel.permissions.canModify && (
 						<li
@@ -96,12 +100,6 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 							Edit
 						</li>
 					)}
-					<li
-						onClick={handleLeaveChannel}
-						className="cursor-pointer hover:bg-gray-200 px-4 py-2"
-					>
-						Leave
-					</li>
 					{channel.permissions.canDelete && (
 						<li
 							onClick={handleDeleteChannel}

@@ -40,6 +40,7 @@ export interface ChatState {
 	showChat: boolean;
 	showChannelModal: ChannelModalType;
 	isMenuOpen: boolean;
+	chatInput: string;
 }
 
 export interface SetMessagesPayload {
@@ -103,4 +104,5 @@ export enum ChannelModalType {
 	Create,
 	Join,
 	Update,
+	Leave,
 }

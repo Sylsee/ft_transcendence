@@ -1,5 +1,6 @@
 import { ErrorItem } from "components/Error/ErrorItem";
 import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
+import { UserRowButton } from "components/Profile/UserRelationCard/UserList/UserRow/Buttons/UserRowButton";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
 import { useEffect } from "react";
@@ -110,7 +111,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 					Channel type:
 				</label>
 				<select
-					className="block p-3 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+					className="cursor-pointer block p-3 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
 					id="type"
 					{...register("type")}
 					onChange={(e) => handleTypeChange(e)}
@@ -139,10 +140,38 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 				</div>
 			)}
 			{status === "error" && <ErrorItem error={error} />}
-			<ModalFooter
-				acceptValue={isUpdate ? "Update" : "Create"}
-				handleCancel={handleCloseModal}
-			/>
+
+			<div className="flex justify-between">
+				{/* <div className="flex items-center">
+					<UserRowButton
+						color={"tamarillo"}
+						name="Delete"
+						handleClick={() => {
+							alert("FDP");
+						}}
+					/>
+				</div> */}
+				<div className="flex items-center justify-end p-6 border-solid border-slate-200 rounded-b">
+					<UserRowButton
+						color={"tamarillo"}
+						name="Delete"
+						handleClick={() => {
+							alert("FDP");
+						}}
+					/>
+
+					<button
+						className="bg-tamarillo-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+						type="submit"
+					>
+						Delete
+					</button>
+				</div>
+				<ModalFooter
+					acceptValue={isUpdate ? "Update" : "Create"}
+					handleCancel={handleCloseModal}
+				/>
+			</div>
 		</form>
 	);
 };

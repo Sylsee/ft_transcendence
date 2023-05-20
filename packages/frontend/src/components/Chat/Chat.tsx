@@ -84,6 +84,11 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 		dispatch(setShowChannelModal(ChannelModalType.Create));
 	};
 
+	const handleLeaveChannel = (channel: Channel) => {
+		dispatch(setSelectedChannel(channel.id));
+		dispatch(setShowChannelModal(ChannelModalType.Leave));
+	};
+
 	const handleCloseModal = () => {
 		dispatch(setSelectedChannel(null));
 		dispatch(setShowChannelModal(ChannelModalType.None));
@@ -113,13 +118,13 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 	};
 
 	return (
-		<div className="bg-mirage h-full items-stretch  flex flex-col ">
+		<div className="relative overflow-hidden rounded-3xl bg-mirage h-full items-stretch flex flex-col pt-7 p-2 md:p-10">
 			<ChatHeader
 				toggleMenu={toggleMenu}
 				handleCloseChat={handleCloseChat}
 				handleCloseChatModal={handleCloseChatModal}
 			></ChatHeader>
-			<div className="relative h-full flex flex-col items-stretch max-h-full overflow-hidden">
+			<div className="h-full flex flex-col items-stretch max-h-full">
 				<ActiveChannel
 					messagesEndRef={messagesEndRef}
 					activeChannel={activeChannel}
@@ -128,7 +133,9 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 					handleClickChannel={handleClickChannel}
 					handleEditChannel={handleEditChannel}
 					handleCreateChannel={handleCreateChannel}
+					handleLeaveChannel={handleLeaveChannel}
 					channels={channels}
+					toggleMenu={toggleMenu}
 				/>
 			</div>
 			{activeChannel && <ChatInput channelId={activeChannel.id} />}
