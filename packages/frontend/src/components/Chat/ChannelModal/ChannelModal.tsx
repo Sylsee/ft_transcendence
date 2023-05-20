@@ -1,3 +1,5 @@
+import { ChannelDeleteConfirmationModal } from "components/Chat/ChannelModal/ChannelDeleteConfirmationModal/ChannelDeleteConfirmationModal";
+import { ChannelDeleteModal } from "components/Chat/ChannelModal/ChannelDeleteModal/ChannelDeleteModal";
 import { CreateChannelForm } from "components/Chat/ChannelModal/ChannelForm/CreateChannelForm/CreateChannelForm";
 import { JoinChannelForm } from "components/Chat/ChannelModal/ChannelForm/JoinChannelForm/JoinChannelForm";
 import { Modal } from "components/Modal/Modal";
@@ -33,6 +35,10 @@ const ChannelModal: React.FC<ChannelModalProps> = ({
 				return "Update";
 			case ChannelModalType.Leave:
 				return "Leave";
+			case ChannelModalType.Delete:
+				return "Delete";
+			case ChannelModalType.DeleteConfirmation:
+				return "Delete";
 			default:
 				return "";
 		}
@@ -66,6 +72,20 @@ const ChannelModal: React.FC<ChannelModalProps> = ({
 					{modalType === ChannelModalType.Leave &&
 						selectedChannel && (
 							<ChannelLeaveModal
+								handleCloseModal={handleCloseModal}
+								channel={selectedChannel}
+							/>
+						)}
+					{modalType === ChannelModalType.Delete &&
+						selectedChannel && (
+							<ChannelDeleteModal
+								handleCloseModal={handleCloseModal}
+								channel={selectedChannel}
+							/>
+						)}
+					{modalType === ChannelModalType.DeleteConfirmation &&
+						selectedChannel && (
+							<ChannelDeleteConfirmationModal
 								handleCloseModal={handleCloseModal}
 								channel={selectedChannel}
 							/>

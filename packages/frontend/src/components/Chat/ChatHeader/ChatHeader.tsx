@@ -12,14 +12,12 @@ import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 interface ChatHeaderProps {
 	handleCloseChat: () => void;
 	handleCloseChatModal: () => void;
-	handleEditChannel: () => void;
 	toggleMenu: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
 	handleCloseChat,
 	handleCloseChatModal,
-	handleEditChannel,
 	toggleMenu,
 }) => {
 	const activeChannel = useSelector(selectActiveChannel);
@@ -27,7 +25,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 
 	const handleEditChannel = (channel: Channel) => {
 		dispatch(setSelectedChannel(channel.id));
-		dispatch(setShowChannelModal(ChannelModalType.Update));
+
+		if (channel.type === ChannelType.Direct_message) {
+			dispatch(setShowChannelModal(ChannelModalType.Delete));
+		} else {
+			dispatch(setShowChannelModal(ChannelModalType.Update));
+		}
 	};
 
 	return (

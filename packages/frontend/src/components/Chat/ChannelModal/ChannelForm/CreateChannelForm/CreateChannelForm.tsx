@@ -2,10 +2,11 @@ import { ErrorItem } from "components/Error/ErrorItem";
 import { ModalButton } from "components/Modal/ModalButton/ModalButton";
 import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
-import { useDeleteChannel } from "hooks/chat/useDeleteChannel";
 import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { setShowChannelModal } from "store/chat-slice/chat-slice";
 import { ModalButtonType } from "types/button/button";
 import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
@@ -22,10 +23,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 }) => {
 	const isUpdate = !!channel && formType === ChannelModalType.Update;
 
+	// redux
+	const dispatch = useDispatch();
+
 	// mutations
 	const updateMutation = useUpdateChannel(channel?.id);
 	const createMutation = useCreateChannel();
-	const deleteMutation = useDeleteChannel();
 
 	const { mutate, status, error } = isUpdate
 		? updateMutation
@@ -54,12 +57,6 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			handleCloseModal();
 		}
 	}, [status, handleCloseModal]);
-
-	useEffect(() => {
-		if (deleteMutation.status === "success") {
-			handleCloseModal();
-		}
-	}, [deleteMutation.status, handleCloseModal]);
 
 	useEffect(() => {
 		if (isUpdate && !channel) handleCloseModal();
@@ -97,7 +94,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 	const handleDeleteClick = () => {
 		if (!channel) return;
 
-		deleteMutation.mutate(channel.id);
+		dispatch(setShowChannelModal(ChannelModalType.DeleteConfirmation));
 	};
 
 	const onFormSubmit = isUpdate ? onUpdateFormSubmit : onCreateFormSubmit;
@@ -158,11 +155,13 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 
 			<div className="flex justify-between">
 				<div className="flex items-center justify-end p-6 border-solid border-slate-200 rounded-b">
-					<ModalButton
-						name="Delete"
-						buttonType={ModalButtonType.Critical}
-						handleClick={handleDeleteClick}
-					/>
+					{isUpdate && (
+						<ModalButton
+							name="Delete"
+							buttonType={ModalButtonType.Critical}
+							handleClick={handleDeleteClick}
+						/>
+					)}
 				</div>
 				<ModalFooter
 					acceptValue={isUpdate ? "Update" : "Create"}

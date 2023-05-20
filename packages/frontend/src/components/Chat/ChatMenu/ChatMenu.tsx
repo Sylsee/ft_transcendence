@@ -1,6 +1,7 @@
-import { faClose, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChannelList } from "components/Chat/ChannelList/ChannelList";
+import { AddChannelItem } from "components/Chat/ChatMenu/AddChannelItem/AddChannelItem";
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectActiveChannel } from "store/chat-slice/chat-slice";
@@ -10,14 +11,12 @@ import { ChatMenuButton } from "./ChatMenuButton/ChatMenuButton";
 
 interface ChatMenuProps {
 	handleClickChannel: (channel: Channel) => void;
-	handleCreateChannel: () => void;
 	channels: Channel[];
 	toggleMenu: () => void;
 }
 
 const ChatMenu: React.FC<ChatMenuProps> = ({
 	handleClickChannel,
-	handleCreateChannel,
 	channels,
 	toggleMenu,
 }) => {
@@ -68,20 +67,7 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 					handleClickChannel={handleClickChannel}
 				/>
 			</div>
-			<div className="flex justify-center items-center">
-				<button
-					onClick={handleCreateChannel}
-					className="w-full bg-mirage-900 text-white rounded-b-3xl py-2 px-4"
-				>
-					<FontAwesomeIcon
-						fixedWidth
-						icon={faPlus}
-						size="lg"
-						className="mr-1"
-					/>
-					New Channel
-				</button>
-			</div>
+			<AddChannelItem />
 		</div>
 	);
 };

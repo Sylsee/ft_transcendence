@@ -105,4 +105,6 @@ export enum ChannelModalType {
 	Join,
 	Update,
 	Leave,
+	Delete,
+	DeleteConfirmation,
 }

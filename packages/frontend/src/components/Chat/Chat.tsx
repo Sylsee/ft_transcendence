@@ -74,11 +74,6 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 		dispatch(toggleChatMenu());
 	};
 
-	const handleCreateChannel = () => {
-		dispatch(setSelectedChannel(null));
-		dispatch(setShowChannelModal(ChannelModalType.Create));
-	};
-
 	const handleCloseModal = () => {
 		dispatch(setSelectedChannel(null));
 		dispatch(setShowChannelModal(ChannelModalType.None));
@@ -94,7 +89,6 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 
 	const handleClickChannel = (channel: Channel) => {
 		if (channel.permissions.isMember) {
-			console.log("is member");
 			dispatch(setActiveChannel(channel.id));
 			dispatch(setIsMenuOpen(false));
 		} else if (
@@ -114,7 +108,6 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 				toggleMenu={toggleMenu}
 				handleCloseChat={handleCloseChat}
 				handleCloseChatModal={handleCloseChatModal}
-				handleEditChannel={handleEditChannel}
 			></ChatHeader>
 			<div className="h-full flex flex-col items-stretch max-h-full">
 				<ActiveChannel
@@ -123,7 +116,6 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 				/>
 				<ChatMenu
 					handleClickChannel={handleClickChannel}
-					handleCreateChannel={handleCreateChannel}
 					channels={channels}
 					toggleMenu={toggleMenu}
 				/>
