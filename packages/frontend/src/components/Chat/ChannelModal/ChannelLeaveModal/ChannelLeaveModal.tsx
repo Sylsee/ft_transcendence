@@ -21,7 +21,8 @@ const ChannelLeaveModal: React.FC<ChannelLeaveModalProps> = ({
 		}
 	}, [status, handleCloseModal]);
 
-	const handleLeaveChannel = () => {
+	const handleLeaveChannel = (e: any) => {
+		e.preventDefault();
 		mutate(channel.id);
 	};
 

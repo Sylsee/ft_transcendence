@@ -1,9 +1,13 @@
 import { faBars, faEllipsis, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
-import { useSelector } from "react-redux";
-import { selectActiveChannel } from "store/chat-slice/chat-slice";
-import { ChannelType } from "types/chat/chat";
+import { useDispatch, useSelector } from "react-redux";
+import {
+	selectActiveChannel,
+	setSelectedChannel,
+	setShowChannelModal,
+} from "store/chat-slice/chat-slice";
+import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
 interface ChatHeaderProps {
 	handleCloseChat: () => void;
@@ -19,6 +23,12 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 	toggleMenu,
 }) => {
 	const activeChannel = useSelector(selectActiveChannel);
+	const dispatch = useDispatch();
+
+	const handleEditChannel = (channel: Channel) => {
+		dispatch(setSelectedChannel(channel.id));
+		dispatch(setShowChannelModal(ChannelModalType.Update));
+	};
 
 	return (
 		<div className="flex items-center">
@@ -59,7 +69,7 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 						activeChannel.permissions.canDelete) && (
 						<div className="flex justify-center items-center">
 							<button
-								onClick={handleEditChannel}
+								onClick={() => handleEditChannel(activeChannel)}
 								className="ml-3"
 							>
 								<FontAwesomeIcon icon={faEllipsis} size="lg" />

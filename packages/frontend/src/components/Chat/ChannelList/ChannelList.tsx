@@ -5,14 +5,12 @@ interface ChannelListProps {
 	channels: Channel[];
 	activeChannel: Channel | null;
 	handleClickChannel: (channel: Channel) => void;
-	handleLeaveChannel: (channel: Channel) => void;
 }
 
 const ChannelList: React.FC<ChannelListProps> = ({
 	channels,
 	activeChannel,
 	handleClickChannel,
-	handleLeaveChannel,
 }) => {
 	return (
 		<div className="h-full flex flex-col">
@@ -22,7 +20,6 @@ const ChannelList: React.FC<ChannelListProps> = ({
 						key={channel.id}
 						channel={channel}
 						handleClick={handleClickChannel}
-						handleLeaveChannel={handleLeaveChannel}
 						isActive={activeChannel?.id === channel.id}
 					/>
 				))}

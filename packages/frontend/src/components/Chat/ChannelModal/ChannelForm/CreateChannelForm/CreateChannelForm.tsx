@@ -1,10 +1,12 @@
 import { ErrorItem } from "components/Error/ErrorItem";
+import { ModalButton } from "components/Modal/ModalButton/ModalButton";
 import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
-import { UserRowButton } from "components/Profile/UserRelationCard/UserList/UserRow/Buttons/UserRowButton";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
+import { useDeleteChannel } from "hooks/chat/useDeleteChannel";
 import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { ModalButtonType } from "types/button/button";
 import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
 interface CreateChannelFormProps {
@@ -23,6 +25,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 	// mutations
 	const updateMutation = useUpdateChannel(channel?.id);
 	const createMutation = useCreateChannel();
+	const deleteMutation = useDeleteChannel();
 
 	const { mutate, status, error } = isUpdate
 		? updateMutation
@@ -51,6 +54,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			handleCloseModal();
 		}
 	}, [status, handleCloseModal]);
+
+	useEffect(() => {
+		if (deleteMutation.status === "success") {
+			handleCloseModal();
+		}
+	}, [deleteMutation.status, handleCloseModal]);
 
 	useEffect(() => {
 		if (isUpdate && !channel) handleCloseModal();
@@ -83,6 +92,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			setValue("type", ChannelType.Password_protected);
 		else if (e.target.value === ChannelType.Private)
 			setValue("type", ChannelType.Private);
+	};
+
+	const handleDeleteClick = () => {
+		if (!channel) return;
+
+		deleteMutation.mutate(channel.id);
 	};
 
 	const onFormSubmit = isUpdate ? onUpdateFormSubmit : onCreateFormSubmit;
@@ -142,30 +157,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			{status === "error" && <ErrorItem error={error} />}
 
 			<div className="flex justify-between">
-				{/* <div className="flex items-center">
-					<UserRowButton
-						color={"tamarillo"}
-						name="Delete"
-						handleClick={() => {
-							alert("FDP");
-						}}
-					/>
-				</div> */}
 				<div className="flex items-center justify-end p-6 border-solid border-slate-200 rounded-b">
-					<UserRowButton
-						color={"tamarillo"}
+					<ModalButton
 						name="Delete"
-						handleClick={() => {
-							alert("FDP");
-						}}
+						buttonType={ModalButtonType.Critical}
+						handleClick={handleDeleteClick}
 					/>
-
-					<button
-						className="bg-tamarillo-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-						type="submit"
-					>
-						Delete
-					</button>
 				</div>
 				<ModalFooter
 					acceptValue={isUpdate ? "Update" : "Create"}

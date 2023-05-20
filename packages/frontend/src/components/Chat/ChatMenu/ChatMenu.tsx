@@ -11,7 +11,6 @@ import { ChatMenuButton } from "./ChatMenuButton/ChatMenuButton";
 interface ChatMenuProps {
 	handleClickChannel: (channel: Channel) => void;
 	handleCreateChannel: () => void;
-	handleLeaveChannel: (channel: Channel) => void;
 	channels: Channel[];
 	toggleMenu: () => void;
 }
@@ -19,7 +18,6 @@ interface ChatMenuProps {
 const ChatMenu: React.FC<ChatMenuProps> = ({
 	handleClickChannel,
 	handleCreateChannel,
-	handleLeaveChannel,
 	channels,
 	toggleMenu,
 }) => {
@@ -61,7 +59,6 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 			</div>
 			<div className="overflow-auto flex-grow">
 				<ChannelList
-					handleLeaveChannel={handleLeaveChannel}
 					channels={channels.filter(
 						(channel) =>
 							channelsIsJoinedFilter ===

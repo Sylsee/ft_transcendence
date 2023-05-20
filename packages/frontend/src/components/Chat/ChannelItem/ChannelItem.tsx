@@ -1,27 +1,43 @@
 import { faArrowRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Channel, ChannelType } from "types/chat/chat";
+import { useDispatch } from "react-redux";
+import {
+	setSelectedChannel,
+	setShowChannelModal,
+} from "store/chat-slice/chat-slice";
+import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
 interface ChannelItemProps {
 	channel: Channel;
 	handleClick: (channel: Channel) => void;
 	isActive: boolean;
-	handleLeaveChannel: (channel: Channel) => void;
 }
 
 const ChannelItem: React.FC<ChannelItemProps> = ({
 	channel,
 	handleClick,
 	isActive,
-	handleLeaveChannel,
 }) => {
 	// states
 	const [hover, setHover] = useState(false);
 
+	// redux
+	const dispatch = useDispatch();
+
+	// variables
+	const canLeave =
+		channel.permissions.isMember &&
+		channel.type !== ChannelType.Direct_message;
+
 	// handlers
 	const handleTouchStart = () => {
 		setHover(true);
+	};
+
+	const handleLeaveChannel = (channel: Channel) => {
+		dispatch(setSelectedChannel(channel.id));
+		dispatch(setShowChannelModal(ChannelModalType.Leave));
 	};
 
 	return (
@@ -46,7 +62,7 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 						: channel.user?.name.replace(/(.{10})..+/, "$1…")}
 				</div>
 			</button>
-			{(hover || isActive) && (
+			{canLeave && (hover || isActive) && (
 				<button
 					onClick={() => handleLeaveChannel(channel)}
 					className="h-full border-1 border-pink-600"
