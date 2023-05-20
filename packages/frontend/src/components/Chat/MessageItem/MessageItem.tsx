@@ -16,9 +16,13 @@ import { RootState } from "types/global/global";
 
 interface MessageItemProps {
 	message: Message;
+	isConnectedUser: boolean;
 }
 
-const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
+const MessageItem: React.FC<MessageItemProps> = ({
+	message,
+	isConnectedUser,
+}) => {
 	// states
 	const [referenceElement, setReferenceElement] =
 		useState<HTMLSpanElement | null>(null);

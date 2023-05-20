@@ -1,7 +1,9 @@
 import { MessageItem } from "components/Chat/MessageItem/MessageItem";
 import { ServerMessageItem } from "components/Chat/ServerMessageItem/ServerMessageItem";
 import React from "react";
+import { useSelector } from "react-redux";
 import { Channel, MessageType } from "types/chat/chat";
+import { RootState } from "types/global/global";
 
 interface ActiveChannelProps {
 	activeChannel: Channel | null;
@@ -12,6 +14,11 @@ const ActiveChannel: React.FC<ActiveChannelProps> = ({
 	activeChannel,
 	messagesEndRef,
 }) => {
+	const connectedUserId = useSelector(
+		(store: RootState) => store.USER.user?.id
+	);
+
+	if (!connectedUserId) return null;
 	return (
 		<div className="flex flex-col items-stretch h-full">
 			{activeChannel != null ? (
@@ -19,7 +26,13 @@ const ActiveChannel: React.FC<ActiveChannelProps> = ({
 					{activeChannel.messages.map((message, index) => {
 						if (message.type === MessageType.Normal)
 							return (
-								<MessageItem key={index} message={message} />
+								<MessageItem
+									key={index}
+									message={message}
+									isConnectedUser={
+										message.sender.id === connectedUserId
+									}
+								/>
 							);
 						else if (message.type === MessageType.Special)
 							return (
