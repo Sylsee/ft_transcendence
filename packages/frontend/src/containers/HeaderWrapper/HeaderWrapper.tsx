@@ -49,7 +49,7 @@ const HeaderWrapper: React.FC = () => {
 				<Header />
 			</div>
 			<div className="flex justify-center h-full w-full">
-				<div className="flex justify-between py-10  max-w-[2000px] mx-0 md:mx-10 items-stretch overflow-auto h-full border-2 border-red-500 w-full lg:relative">
+				<div className="flex justify-between py-10  max-w-[2000px] mx-0 md:mx-10 items-stretch overflow-auto h-full w-full lg:relative">
 					<div className="flex-grow">
 						{loading ? <Loader /> : <Outlet />}
 					</div>

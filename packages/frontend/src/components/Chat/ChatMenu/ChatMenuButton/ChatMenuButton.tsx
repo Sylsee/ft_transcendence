@@ -14,7 +14,7 @@ const ChatMenuButton: React.FC<ChatMenuButtonProps> = ({
 	return (
 		<button
 			onClick={handleClick}
-			className="flex flex-col w-1/2 justify-center pb-1 items-center md:text-2xl"
+			className="flex flex-col w-1/2 justify-center pb-1 items-center text-lg md:text-2xl"
 		>
 			{name}
 			<div className={`h-[2px] w-2/5 ${isSelected && "bg-white"}`}></div>

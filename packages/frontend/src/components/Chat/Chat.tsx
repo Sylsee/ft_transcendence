@@ -74,8 +74,8 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 		dispatch(toggleChatMenu());
 	};
 
-	const handleEditChannel = (channel: Channel) => {
-		dispatch(setSelectedChannel(channel.id));
+	const handleEditChannel = () => {
+		dispatch(setSelectedChannel(activeChannelId));
 		dispatch(setShowChannelModal(ChannelModalType.Update));
 	};
 
@@ -123,6 +123,7 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 				toggleMenu={toggleMenu}
 				handleCloseChat={handleCloseChat}
 				handleCloseChatModal={handleCloseChatModal}
+				handleEditChannel={handleEditChannel}
 			></ChatHeader>
 			<div className="h-full flex flex-col items-stretch max-h-full">
 				<ActiveChannel
@@ -131,7 +132,6 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 				/>
 				<ChatMenu
 					handleClickChannel={handleClickChannel}
-					handleEditChannel={handleEditChannel}
 					handleCreateChannel={handleCreateChannel}
 					handleLeaveChannel={handleLeaveChannel}
 					channels={channels}

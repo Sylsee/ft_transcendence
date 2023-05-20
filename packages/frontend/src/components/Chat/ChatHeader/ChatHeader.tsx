@@ -8,12 +8,14 @@ import { ChannelType } from "types/chat/chat";
 interface ChatHeaderProps {
 	handleCloseChat: () => void;
 	handleCloseChatModal: () => void;
+	handleEditChannel: () => void;
 	toggleMenu: () => void;
 }
 
 const ChatHeader: React.FC<ChatHeaderProps> = ({
 	handleCloseChat,
 	handleCloseChatModal,
+	handleEditChannel,
 	toggleMenu,
 }) => {
 	const activeChannel = useSelector(selectActiveChannel);
@@ -52,13 +54,18 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 						</div>
 					</div>
 				)}
-				{activeChannel && (
-					<div className="flex justify-end items-center">
-						<button className="ml-2">
-							<FontAwesomeIcon icon={faEllipsis} size="lg" />
-						</button>
-					</div>
-				)}
+				{activeChannel &&
+					(activeChannel.permissions.canModify ||
+						activeChannel.permissions.canDelete) && (
+						<div className="flex justify-center items-center">
+							<button
+								onClick={handleEditChannel}
+								className="ml-3"
+							>
+								<FontAwesomeIcon icon={faEllipsis} size="lg" />
+							</button>
+						</div>
+					)}
 			</div>
 			<div>
 				<button onClick={handleCloseChatModal} className="lg:hidden">

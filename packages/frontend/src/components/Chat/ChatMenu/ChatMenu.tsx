@@ -1,4 +1,4 @@
-import { faClose } from "@fortawesome/free-solid-svg-icons";
+import { faClose, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChannelList } from "components/Chat/ChannelList/ChannelList";
 import React, { useState } from "react";
@@ -11,7 +11,6 @@ import { ChatMenuButton } from "./ChatMenuButton/ChatMenuButton";
 interface ChatMenuProps {
 	handleClickChannel: (channel: Channel) => void;
 	handleCreateChannel: () => void;
-	handleEditChannel: (channel: Channel) => void;
 	handleLeaveChannel: (channel: Channel) => void;
 	channels: Channel[];
 	toggleMenu: () => void;
@@ -20,7 +19,6 @@ interface ChatMenuProps {
 const ChatMenu: React.FC<ChatMenuProps> = ({
 	handleClickChannel,
 	handleCreateChannel,
-	handleEditChannel,
 	handleLeaveChannel,
 	channels,
 	toggleMenu,
@@ -40,12 +38,12 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 
 	return (
 		<div
-			className={`flex flex-col bg-mirage-950 absolute h-full top-0 left-0 w-64 md:w-96 p-4  transform transition-transform duration-300 ${
+			className={`flex flex-col bg-mirage-950 absolute h-full top-0 left-0 w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
 				isMenuOpen ? "translate-x-0" : "-translate-x-full"
 			} rounded-3xl`}
 		>
-			<div className="flex justify-center items-center pt-3 md:pl-5 md:pt-6 pb-2">
-				<button onClick={toggleMenu}>
+			<div className="flex justify-center items-center pt-3 pb-2 md:px-9 md:pt-8 md:pb-3">
+				<button onClick={toggleMenu} className="h-full md:mr-1">
 					<FontAwesomeIcon fixedWidth icon={faClose} size="xl" />
 				</button>
 				<div className="flex flex-grow justify-center items-center">
@@ -63,7 +61,6 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 			</div>
 			<div className="overflow-auto flex-grow">
 				<ChannelList
-					handleEditChannel={handleEditChannel}
 					handleLeaveChannel={handleLeaveChannel}
 					channels={channels.filter(
 						(channel) =>
@@ -73,6 +70,20 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 					activeChannel={activeChannel}
 					handleClickChannel={handleClickChannel}
 				/>
+			</div>
+			<div className="flex justify-center items-center">
+				<button
+					onClick={handleCreateChannel}
+					className="w-full bg-mirage-900 text-white rounded-b-3xl py-2 px-4"
+				>
+					<FontAwesomeIcon
+						fixedWidth
+						icon={faPlus}
+						size="lg"
+						className="mr-1"
+					/>
+					New Channel
+				</button>
 			</div>
 		</div>
 	);
