@@ -38,20 +38,6 @@ const useDeleteChannel = (): UseMutationResult<
 	};
 
 	const mutation = useMutation(options);
-
-	// const mutation = useMutation<void, ApiErrorResponse, string>(
-	// 	(id: string) => deleteChannel(id),
-	// 	{
-	// 		onSuccess: () => {
-	// 			dispatch(removeChannelById(id));
-	// 			toast.success("Channel deleted");
-	// 		},
-	// 		onError: (error: ApiErrorResponse) => {
-	// 			toast.error(error.message);
-	// 		},
-	// 	}
-	// );
-
 	return mutation;
 };
 
