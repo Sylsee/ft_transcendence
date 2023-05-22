@@ -81,10 +81,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 					)}
 			</div>
 			<div>
-				<button onClick={handleCloseChatModal} className="lg:hidden">
+				<button onClick={handleCloseChatModal} className="xl:hidden">
 					<FontAwesomeIcon fixedWidth icon={faXmark} size="xl" />
 				</button>
-				<button onClick={handleCloseChat} className="hidden lg:block">
+				<button onClick={handleCloseChat} className="hidden xl:block">
 					<FontAwesomeIcon fixedWidth icon={faXmark} size="xl" />
 				</button>
 			</div>
