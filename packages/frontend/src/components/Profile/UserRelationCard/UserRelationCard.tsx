@@ -1,9 +1,9 @@
-import { FriendStatus } from "components/Profile/UserRelationCard/FriendStatus/FriendStatus";
 import { UserList } from "components/Profile/UserRelationCard/UserList/UserList";
+import { UserRelationCardHeader } from "components/Profile/UserRelationCard/UserRelationCardHeader/UserRelationCardHeader";
 import { useFetchBlockedUsers } from "hooks/userRelations/useFetchBlockedUsers";
 import { useFetchFriends } from "hooks/userRelations/useFetchFriends";
 import { useFetchFriendsRequests } from "hooks/userRelations/useFetchFriendsRequests";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 
 import { UserListType } from "../../../types/userRelations/userRelations";
@@ -17,6 +17,11 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 	id,
 	isConnectedUser,
 }) => {
+	// state
+	const [userListType, setUserListType] = useState<UserListType>(
+		UserListType.FriendList
+	);
+
 	// react-router
 	const location = useLocation();
 
@@ -40,13 +45,15 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 		status: BlockedUsersStatus,
 		error: BlockedUsersError,
 		refetch: refetchBlockedUsers,
-	} = useFetchBlockedUsers();
+	} = useFetchBlockedUsers(isConnectedUser);
 
 	// hooks
 	useEffect(() => {
+		if (isConnectedUser) {
+			refetchFriendsRequests();
+			refetchBlockedUsers();
+		}
 		refetchFriendsList();
-		refetchFriendsRequests();
-		refetchBlockedUsers();
 	}, [
 		location,
 		refetchBlockedUsers,
@@ -55,32 +62,44 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 	]);
 
 	return (
-		<div className="flex flex-col w-full">
-			{!isConnectedUser && <FriendStatus id={id} />}
-			<UserList
-				type={UserListType.FriendList}
+		<div
+			className="flex flex-col w-full h-96 shadow-md rounded-lg p-6"
+			style={{ backgroundColor: "#3A425D" }}
+		>
+			<UserRelationCardHeader
 				isConnectedUser={isConnectedUser}
-				status={FriendsListStatus}
-				error={FriendsListError}
-				users={FriendsListData}
+				setUserListType={setUserListType}
+				userListType={userListType}
 			/>
-			{isConnectedUser && (
+
+			{userListType === UserListType.FriendList && (
 				<UserList
-					type={UserListType.ReceivedFriendRequests}
-					status={FriendsRequestsStatus}
-					error={FriendsRequestsError}
-					users={FriendsRequestsData?.received}
+					type={UserListType.FriendList}
+					isConnectedUser={isConnectedUser}
+					status={FriendsListStatus}
+					error={FriendsListError}
+					users={FriendsListData}
 				/>
 			)}
-			{isConnectedUser && (
-				<UserList
-					type={UserListType.SentFriendRequests}
-					status={FriendsRequestsStatus}
-					error={FriendsRequestsError}
-					users={FriendsRequestsData?.sent}
-				/>
-			)}
-			{isConnectedUser && (
+			{isConnectedUser &&
+				userListType === UserListType.ReceivedFriendRequests && (
+					<UserList
+						type={UserListType.ReceivedFriendRequests}
+						status={FriendsRequestsStatus}
+						error={FriendsRequestsError}
+						users={FriendsRequestsData?.received}
+					/>
+				)}
+			{isConnectedUser &&
+				userListType === UserListType.SentFriendRequests && (
+					<UserList
+						type={UserListType.SentFriendRequests}
+						status={FriendsRequestsStatus}
+						error={FriendsRequestsError}
+						users={FriendsRequestsData?.sent}
+					/>
+				)}
+			{isConnectedUser && userListType === UserListType.BlockedUsers && (
 				<UserList
 					type={UserListType.BlockedUsers}
 					status={BlockedUsersStatus}

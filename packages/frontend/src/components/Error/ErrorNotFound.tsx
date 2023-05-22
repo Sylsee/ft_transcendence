@@ -11,11 +11,6 @@ const ErrorNotFound: React.FC<ErrorNotFoundProps> = ({
 				<p className=" text-7xl text-center font-bold mb-6  ">
 					{message}
 				</p>
-				<img
-					className="aspect-square mt-24"
-					src="https://risibank.fr/cache/medias/0/3/361/36156/full.png"
-					alt="404 not found"
-				/>
 			</div>
 		</div>
 	);
