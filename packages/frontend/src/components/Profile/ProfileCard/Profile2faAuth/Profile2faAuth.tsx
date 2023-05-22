@@ -34,8 +34,8 @@ const Profile2faAuth: React.FC<Profile2faAuthProps> = ({
 	}, [status]);
 
 	return (
-		<div className="flex justify-start">
-			<span className="mr-4">2fa:</span>
+		<div className="flex h-1/2 justify-center items-center grow">
+			<span className="mr-4 font-bold">2fa:</span>
 			<label className="relative inline-flex items-center mr-5 cursor-pointer">
 				<input
 					type="checkbox"

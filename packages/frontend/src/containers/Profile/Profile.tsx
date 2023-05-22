@@ -54,11 +54,6 @@ const Profile = () => {
 						id={id}
 						isConnectedUser={isConnectedUser}
 					/>
-					{/* <div className="flex bg-blue-gray-400 w-full">
-						<div className="flex flex-col">
-							<p>Stats</p>
-						</div>
-					</div> */}
 				</div>
 			</div>
 		</div>
