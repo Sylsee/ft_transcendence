@@ -28,8 +28,6 @@ const FriendStatus: React.FC<FriendStatusProps> = ({ id }) => {
 	const { mutate: unBlockUserMutate } = useUnblockUser();
 	const { mutate: blockUserMutate } = useBlockUser();
 
-	console.log(data);
-
 	const getButtonsProps = () => {
 		if (!data || data.status === undefined) return {};
 		let buttons = [];
@@ -111,7 +109,7 @@ const FriendStatus: React.FC<FriendStatusProps> = ({ id }) => {
 
 	return (
 		<div
-			className="shadow-lg  rounded-xl mb-flex-wrap flex min-h-24 items-center justify-center"
+			className="flex items-center h-52 justify-center flex-wrap overflow-auto"
 			style={{ minHeight: "5rem" }}
 		>
 			{buttonPropsList.buttons?.map((button, index) => (

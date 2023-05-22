@@ -51,17 +51,6 @@ const Profile = () => {
 						user={isConnectedUser ? connected_user : userData}
 						isConnectedUser={isConnectedUser}
 					/>
-					<div className="flex flex-col lg:w-1/2 w-full mt-7 lg:mt-0 lg:ml-4">
-						<UserRelationCard
-							id={id}
-							isConnectedUser={isConnectedUser}
-						/>
-						{/* <div className="flex bg-blue-gray-400 w-full">
-						<div className="flex flex-col">
-						<p>Stats</p>
-						</div>
-					</div> */}
-					</div>
 				</div>
 				<div className="w-full">
 					<MatchHistoryCard id={id} />

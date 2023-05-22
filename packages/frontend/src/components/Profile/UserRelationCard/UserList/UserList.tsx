@@ -135,24 +135,28 @@ const UserList: React.FC<UserListProps> = ({
 	const buttonPropsList = getButtonsProps();
 
 	return (
-		<div className="shadow-lg rounded-xl mb-7 flex flex-col">
-			<div className="flex flex-col items-center h-[3rem] justify-center">
+		<>
+			<div className="flex flex-col items-center h-[3rem] justify-center ">
 				<div>
-					<p>{title()}</p>
+					<p className="font-bold text-xl">{title()}</p>
 				</div>
 			</div>
-			<div className="flex flex-col max-h-32 overflow-y-auto">
-				{status === "error" && <ErrorItem error={error} />}
-				{status === "success" &&
-					users?.map((user: FriendRequest) => (
-						<UserRow
-							key={user.id}
-							user={user}
-							buttonPropsList={buttonPropsList}
-						/>
-					))}
+			<div className="flex flex-col overflow-auto w-full grow ">
+				<div className="flex flex-col  grow">
+					{status === "error" && <ErrorItem error={error} />}
+					<div className="grow overflow-auto">
+						{status === "success" &&
+							users?.map((user: FriendRequest) => (
+								<UserRow
+									key={user.id}
+									user={user}
+									buttonPropsList={buttonPropsList}
+								/>
+							))}
+					</div>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 

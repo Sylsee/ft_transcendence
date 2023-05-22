@@ -53,13 +53,21 @@ const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
 					src={`${profilePictureUrl}?cb${cacheBusterCounter}`}
 					referrerPolicy="no-referrer"
 					alt="Avatar"
-					className="object-cover rounded-full border-solid border-white border-2 w-32 h-32"
+					className=" object-cover rounded-full border-solid border-white border-2 w-40 h-40"
 				/>
-				<UserStatusIcon status={status} />
+				{status !== undefined && (
+					<span
+						className={`bottom-3 right-6 absolute w-3.5 h-3.5 ${
+							status === UserStatus.Active
+								? "bg-silver-tree"
+								: "bg-gray-500"
+						} border-2 border-white dark:border-gray-800 rounded-full`}
+					></span>
+				)}
 			</div>
 			{isConnectedUser && (
 				<div
-					className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity duration-300 w-32 h-32 ${
+					className={`absolute inset-0 rounded-full flex items-center justify-center transition-opacity duration-300 w-40 h-40 ${
 						hover ? "bg-gray-500 bg-opacity-50" : "opacity-0"
 					}`}
 				>
