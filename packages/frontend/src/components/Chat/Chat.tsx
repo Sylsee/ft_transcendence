@@ -23,10 +23,9 @@ import { RootState } from "types/global/global";
 
 interface ChatProps {
 	channels: Channel[];
-	showChannelModal: ChannelModalType;
 }
 
-const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
+const Chat: React.FC<ChatProps> = ({ channels }) => {
 	// refs
 	const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +36,9 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 	);
 	const activeChannel = useSelector(selectActiveChannel);
 	const selectedChannel = useSelector(selectSelectedChannel);
+	const channelModalType = useSelector(
+		(store: RootState) => store.CHAT.showChannelModal
+	);
 	const { refetch: refetchMessage } = useMessageQuery(activeChannel?.id);
 
 	// mutations
@@ -106,7 +108,7 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 			channel.type === ChannelType.Password_protected
 		) {
 			dispatch(setSelectedChannel(channel.id));
-			setShowChannelModal(ChannelModalType.Join);
+			dispatch(setShowChannelModal(ChannelModalType.Join));
 		} else {
 			joinChannelMutation({ id: channel.id, data: {} });
 		}
@@ -133,7 +135,7 @@ const Chat: React.FC<ChatProps> = ({ channels, showChannelModal }) => {
 			</div>
 			{activeChannel && <ChatInput channelId={activeChannel.id} />}
 			<ChannelModal
-				modalType={showChannelModal}
+				modalType={channelModalType}
 				handleCloseModal={handleCloseModal}
 				selectedChannel={selectedChannel}
 			/>
