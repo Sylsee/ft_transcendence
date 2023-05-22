@@ -4,11 +4,15 @@ import { getChatSocket, getGameSocket } from "sockets/socket";
 import {
 	setCountDown,
 	setGame,
+	setGameConfig,
+	setGameScore,
 	setLobbyStatus,
 } from "store/game-slice/game-slice";
 import {
+	GameConfig,
 	GameData,
 	GameReceiveEvent,
+	GameScore,
 	GAME_RECEIVE_EVENT_BASE_URL,
 } from "types/game/game";
 import { LobbyState, LOBBY_RECEIVE_EVENT_BASE_URL } from "types/game/lobby";
@@ -21,9 +25,10 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.Start}`,
-		(data: any) => {
-			console.log(GameReceiveEvent.Start, JSON.stringify(data));
+		(config: GameConfig) => {
+			console.log(GameReceiveEvent.Start, JSON.stringify(config));
 			dispatch(setLobbyStatus(LobbyState.Start));
+			dispatch(setGameConfig({ ...config, isLeftPlayer: true }));
 		}
 	);
 
@@ -36,8 +41,10 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.Finish}`,
-		(data: any) => {
+		(data: GameScore) => {
 			console.log(GameReceiveEvent.Finish, data);
+			dispatch(setLobbyStatus(LobbyState.Finish));
+			dispatch(setGameScore(data));
 		}
 	);
 
@@ -52,15 +59,15 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameState}`,
 		(game: GameData) => {
-			console.log(GameReceiveEvent.GameState, game);
 			dispatch(setGame(game));
 		}
 	);
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameScore}`,
-		(data: any) => {
-			console.log(GameReceiveEvent.GameScore, data);
+		(score: Omit<GameScore, "winner">) => {
+			console.log(GameReceiveEvent.GameScore, score);
+			dispatch(setGameScore({ ...score, winner: null }));
 		}
 	);
 };

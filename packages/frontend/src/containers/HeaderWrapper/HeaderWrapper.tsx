@@ -55,7 +55,7 @@ const HeaderWrapper: React.FC = () => {
 					/>
 				)}
 			</div>
-			{!showModal && (
+			{!showModal && isAuth === AuthStatus.Authenticated && (
 				<button
 					type="button"
 					className="text-white hover:bg-astronaut-900  bg-mirage-900  font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden rounded-full p-4 shadow-lg"
@@ -64,7 +64,7 @@ const HeaderWrapper: React.FC = () => {
 					<FontAwesomeIcon icon={faMessage} />
 				</button>
 			)}
-			{!showChat && (
+			{!showChat && isAuth === AuthStatus.Authenticated && (
 				<button
 					type="button"
 					className="text-white hover:bg-astronaut-900  bg-mirage-900 font-medium text-sm text-center fixed bottom-4 right-4 hidden lg:block rounded-full p-4 shadow-lg"

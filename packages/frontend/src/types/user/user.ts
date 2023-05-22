@@ -1,3 +1,5 @@
+import { LobbyMode } from "types/game/lobby";
+
 export interface UserStats {
 	wins: number;
 	losses: number;
@@ -5,9 +7,12 @@ export interface UserStats {
 
 export interface Match {
 	id: string;
-	players: User[];
+	createdAt: Date;
+	mode: LobbyMode;
 	winner: User;
-	date: Date;
+	loser: User;
+	winnerPoints: number;
+	loserPoints: number;
 }
 
 // user

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameData } from "types/game/game";
+import { GameConfig, GameData, GameScore } from "types/game/game";
 import { LobbyData, LobbyState } from "types/game/lobby";
 import { GameState } from "types/game/reducer";
 
@@ -8,7 +8,6 @@ const initialState: GameState = {
 	lobby: null,
 	isLobbyOwner: false,
 	game: null,
-	countDown: 0,
 };
 
 export const gameSlice = createSlice({
@@ -26,16 +25,71 @@ export const gameSlice = createSlice({
 			state.lobbyStatus = LobbyState.Idle;
 			state.isLobbyOwner = false;
 			state.game = null;
-			state.countDown = 0;
 		},
 		setIsLobbyOwner: (state, action: PayloadAction<boolean>) => {
 			state.isLobbyOwner = action.payload;
 		},
 		setGame: (state, action: PayloadAction<GameData>) => {
-			state.game = action.payload;
+			state.game = { ...state.game, ...action.payload };
 		},
 		setCountDown: (state, action: PayloadAction<number>) => {
-			state.countDown = action.payload;
+			if (!state.game) return;
+			state.game.countDown = action.payload;
+		},
+		setGameConfig: (
+			state,
+			action: PayloadAction<GameConfig & { isLeftPlayer: boolean }>
+		) => {
+			state.game = {
+				paddle1: {
+					...action.payload.paddleCoordinates.paddle1,
+					width: action.payload.paddleWidth,
+					height: action.payload.paddleHeight,
+					velocity: { y: 0 },
+				},
+				paddle2: {
+					...action.payload.paddleCoordinates.paddle2,
+					width: action.payload.paddleWidth,
+					height: action.payload.paddleHeight,
+					velocity: { y: 0 },
+				},
+				ball: {
+					x: action.payload.ballCoordinates.x,
+					y: action.payload.ballCoordinates.y,
+					velocity: { x: 0, y: 0 },
+					radius: action.payload.ballRadius,
+				},
+				height: action.payload.height,
+				width: action.payload.width,
+				maxScore: action.payload.maxScore,
+				countDown: -1,
+				score: { player1Score: 0, player2Score: 0, winner: null },
+				isLeftPlayer: action.payload.isLeftPlayer,
+				defaultCoordinates: {
+					paddle1: {
+						x: action.payload.paddleCoordinates.paddle1.x,
+						y: action.payload.paddleCoordinates.paddle1.y,
+					},
+					paddle2: {
+						x: action.payload.paddleCoordinates.paddle2.x,
+						y: action.payload.paddleCoordinates.paddle2.y,
+					},
+					ball: {
+						x: action.payload.ballCoordinates.x,
+						y: action.payload.ballCoordinates.y,
+					},
+				},
+			};
+		},
+		setGameScore: (state, action: PayloadAction<GameScore>) => {
+			if (!state.game) return;
+			state.game.score = action.payload;
+			state.game.ball.x = state.game.defaultCoordinates.ball.x;
+			state.game.ball.y = state.game.defaultCoordinates.ball.y;
+			state.game.paddle1.x = state.game.defaultCoordinates.paddle1.x;
+			state.game.paddle1.y = state.game.defaultCoordinates.paddle1.y;
+			state.game.paddle2.x = state.game.defaultCoordinates.paddle2.x;
+			state.game.paddle2.y = state.game.defaultCoordinates.paddle2.y;
 		},
 	},
 });
@@ -47,4 +101,6 @@ export const {
 	setIsLobbyOwner,
 	setGame,
 	setCountDown,
+	setGameConfig,
+	setGameScore,
 } = gameSlice.actions;

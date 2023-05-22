@@ -3,17 +3,17 @@ import { API_ROUTES } from "config";
 
 import { UpdateUserRequest } from "../../types/user/api";
 
-const fetchUserById = async (userId: string) => {
+export const fetchUserById = async (userId: string) => {
 	const response = await apiClient.get(API_ROUTES.USER(userId));
 	return response.data;
 };
 
-const updateUserById = async (data: UpdateUserRequest) => {
+export const updateUserById = async (data: UpdateUserRequest) => {
 	const response = await apiClient.patch(API_ROUTES.UPDATE_USER, data);
 	return response.data;
 };
 
-const uploadProfilePicture = async (file: File) => {
+export const uploadProfilePicture = async (file: File) => {
 	const formData = new FormData();
 
 	formData.append("profile-picture", file);
@@ -30,4 +30,12 @@ const uploadProfilePicture = async (file: File) => {
 	return response.data;
 };
 
-export { fetchUserById, updateUserById, uploadProfilePicture };
+export const fetchUserMatchHistory = async (userId: string) => {
+	const response = await apiClient.get(API_ROUTES.USER_MATCH_HISTORY(userId));
+	return response.data;
+};
+
+export const fetchUserMatchStats = async (userId: string) => {
+	const response = await apiClient.get(API_ROUTES.USER_MATCH_STATS(userId));
+	return response.data;
+};

@@ -2,6 +2,7 @@ import { Game } from "components/Game/Game";
 import { LobbyFound } from "components/Lobby/LobbyFound/LobbyFound";
 import { LobbySearchGame } from "components/Lobby/LobbySearchGame/LobbySearchGame";
 import { LobbyStart } from "components/Lobby/LobbyStart/LobbyStart";
+import { ScoreBoard } from "components/ScoreBoard/ScoreBoard";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getGameSocket } from "sockets/socket";
@@ -28,7 +29,7 @@ const Lobby: React.FC<LobbyProps> = () => {
 			)}
 			{LobbyStatus === LobbyState.Found && <LobbyFound />}
 			{LobbyStatus === LobbyState.Start && <Game />}
-			{LobbyStatus === LobbyState.Finish && <div>Finish</div>}
+			{LobbyStatus === LobbyState.Finish && <ScoreBoard />}
 		</div>
 	);
 };
