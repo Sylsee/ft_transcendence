@@ -5,6 +5,9 @@ module.exports = withMT({
 	content: ["./src/**/*.{js,jsx,ts,tsx}"],
 	theme: {
 		extend: {
+			aspectRatio: {
+				"14/10": "14 / 10",
+			},
 			colors: {
 				// chat background color
 				mirage: {

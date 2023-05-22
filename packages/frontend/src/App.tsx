@@ -12,27 +12,15 @@ import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import {
-	removeSocketChatListeners,
-	socketChatListeners,
-} from "sockets/listeners/chatListeners";
-import {
-	removeSocketGameListeners,
-	socketGameListeners,
-} from "sockets/listeners/gameListeners";
-import {
-	removeSocketLobbyListeners,
-	socketLobbyListeners,
-} from "sockets/listeners/lobbyListeners";
-import {
-	removeSocketUserListeners,
-	socketUserListeners,
-} from "sockets/listeners/userListeners";
+import { socketChatListeners } from "sockets/listeners/chatListeners";
+import { socketGameListeners } from "sockets/listeners/gameListeners";
+import { socketLobbyListeners } from "sockets/listeners/lobbyListeners";
+import { socketUserListeners } from "sockets/listeners/userListeners";
 import {
 	connectChatSocket,
 	connectGameSocket,
 	disconnectChatSocket,
-	disconnectGameSocket,
+	disconnectSockets,
 	initializeChatSocket,
 	initializeGameSocket,
 } from "sockets/socket";
@@ -91,13 +79,7 @@ const App: React.FC = () => {
 	useEffect(() => {
 		if (!chatSocket || !connectedUserId || !gameSocket) return;
 		if (isAuth !== AuthStatus.Authenticated) {
-			removeSocketChatListeners();
-			removeSocketUserListeners();
 			disconnectChatSocket();
-
-			removeSocketLobbyListeners();
-			removeSocketGameListeners();
-			disconnectGameSocket();
 		}
 		if (isAuth === AuthStatus.Authenticated) {
 			connectChatSocket();
@@ -109,13 +91,7 @@ const App: React.FC = () => {
 			socketGameListeners(dispatch);
 		}
 		return () => {
-			removeSocketChatListeners();
-			removeSocketUserListeners();
-			disconnectChatSocket();
-
-			removeSocketGameListeners();
-			removeSocketLobbyListeners();
-			disconnectGameSocket();
+			disconnectSockets();
 		};
 	}, [
 		chatSocket,

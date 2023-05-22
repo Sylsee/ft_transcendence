@@ -1,4 +1,8 @@
 import { io, Socket } from "socket.io-client";
+import { removeSocketChatListeners } from "sockets/listeners/chatListeners";
+import { removeSocketGameListeners } from "sockets/listeners/gameListeners";
+import { removeSocketLobbyListeners } from "sockets/listeners/lobbyListeners";
+import { removeSocketUserListeners } from "sockets/listeners/userListeners";
 import { CHAT_EVENT_BASE_URL } from "types/chat/chat";
 import { GAME_SEND_EVENT_BASE_URL } from "types/game/game";
 import { LOBBY_SEND_EVENT_BASE_URL } from "types/game/lobby";
@@ -77,4 +81,14 @@ export const emitGameSocketEvent = (event: string, payload: any): void => {
 	if (gameSocket && gameSocket.connected) {
 		gameSocket.emit(`${GAME_SEND_EVENT_BASE_URL}${event}`, payload);
 	}
+};
+
+export const disconnectSockets = () => {
+	removeSocketChatListeners();
+	removeSocketUserListeners();
+	disconnectChatSocket();
+
+	removeSocketGameListeners();
+	removeSocketLobbyListeners();
+	disconnectGameSocket();
 };

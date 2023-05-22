@@ -7,5 +7,6 @@
 		"source.addMissingImports",
 		"source.organizeImports"
 	],
-	"docwriter.style": "JSDoc"
+	"docwriter.style": "JSDoc",
+	"debug.inlineValues": "on"
 }

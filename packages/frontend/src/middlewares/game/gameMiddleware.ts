@@ -5,7 +5,12 @@ import {
 	MiddlewareAPI,
 } from "@reduxjs/toolkit";
 import { logout } from "store/auth-slice/auth-slice";
-import { setLobby } from "store/game-slice/game-slice";
+import {
+	setGameConfig,
+	setLobby,
+	setLobbyStatus,
+} from "store/game-slice/game-slice";
+import { LobbyState } from "types/game/lobby";
 import { RootState } from "types/global/global";
 
 const actionHandlers: Record<
@@ -24,6 +29,26 @@ const actionHandlers: Record<
 		if (action.payload.players[0].id !== id) {
 			action.payload.players.reverse();
 		}
+
+		if (store.getState().GAME.lobby === null) {
+			store.dispatch(setLobbyStatus(LobbyState.Found));
+		}
+
+		if (action.payload.hasFinished) {
+			store.dispatch(setLobbyStatus(LobbyState.Finish));
+		}
+
+		return next(action);
+	},
+	[setGameConfig.type]: async (store, next, action) => {
+		const isLeftPlayer =
+			action.payload.player1 === store.getState().USER.user?.id;
+
+		action.payload = {
+			...action.payload,
+			isLeftPlayer,
+		};
+
 		return next(action);
 	},
 };

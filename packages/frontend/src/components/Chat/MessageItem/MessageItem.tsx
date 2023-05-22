@@ -13,6 +13,7 @@ import {
 import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
 import { ChannelType, Message } from "types/chat/chat";
 import { RootState } from "types/global/global";
+import { formatDate } from "utils/formatter/date";
 
 interface MessageItemProps {
 	message: Message;
@@ -107,18 +108,6 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 	const arrowStyle = state?.placement.startsWith("top")
 		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-white"
 		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-white";
-
-	// functions
-	const formatDate = (timestamp: Date): string => {
-		const date = new Date(timestamp);
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		const day = date.getDate().toString().padStart(2, "0");
-		const year = date.getFullYear();
-		const hours = date.getHours().toString().padStart(2, "0");
-		const minutes = date.getMinutes().toString().padStart(2, "0");
-
-		return `${month}/${day}/${year} ${hours}:${minutes}`;
-	};
 
 	// handlers
 	const handleClickMessage = () => {

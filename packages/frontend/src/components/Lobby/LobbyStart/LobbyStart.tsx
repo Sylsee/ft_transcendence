@@ -24,7 +24,7 @@ const LobbyStart: React.FC<LobbyStartProps> = ({ gameSocket }) => {
 	};
 
 	return (
-		<div className="w-full max-w-4xl flex flex-col justify-center  ">
+		<div className="w-full max-w-4xl flex flex-col justify-center">
 			<div className="mb-4">
 				<div className="text-xl font-bold text-center">
 					<h1>

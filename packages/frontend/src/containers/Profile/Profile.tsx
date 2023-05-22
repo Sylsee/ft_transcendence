@@ -1,5 +1,6 @@
 import { ErrorNotFound } from "components/Error/ErrorNotFound";
 import { Loader } from "components/Loader/Loader";
+import { MatchHistoryCard } from "components/Profile/MatchHistoryCard/MatchHistoryCard";
 import { ProfileCard } from "components/Profile/ProfileCard/ProfileCard";
 import { UserRelationCard } from "components/Profile/UserRelationCard/UserRelationCard";
 import { useFetchUser } from "hooks/user/useFetchUser";
@@ -43,22 +44,27 @@ const Profile = () => {
 		return <ErrorNotFound />;
 
 	return (
-		<div className="flex justify-center text-white mt-10 px-4">
-			<div className="flex flex-col lg:flex-row w-full max-w-7xl">
-				<ProfileCard
-					user={isConnectedUser ? connected_user : userData}
-					isConnectedUser={isConnectedUser}
-				/>
-				<div className="flex flex-col lg:w-1/2 w-full mt-7 lg:mt-0 lg:ml-4">
-					<UserRelationCard
-						id={id}
+		<div className="flex flex-col items-center w-full h-full text-white">
+			<div className="border-2 w-full max-w-7xl mt-10">
+				<div className="flex flex-col lg:flex-row">
+					<ProfileCard
+						user={isConnectedUser ? connected_user : userData}
 						isConnectedUser={isConnectedUser}
 					/>
-					{/* <div className="flex bg-blue-gray-400 w-full">
+					<div className="flex flex-col lg:w-1/2 w-full mt-7 lg:mt-0 lg:ml-4">
+						<UserRelationCard
+							id={id}
+							isConnectedUser={isConnectedUser}
+						/>
+						{/* <div className="flex bg-blue-gray-400 w-full">
 						<div className="flex flex-col">
-							<p>Stats</p>
+						<p>Stats</p>
 						</div>
 					</div> */}
+					</div>
+				</div>
+				<div className="w-full">
+					<MatchHistoryCard id={id} />
 				</div>
 			</div>
 		</div>

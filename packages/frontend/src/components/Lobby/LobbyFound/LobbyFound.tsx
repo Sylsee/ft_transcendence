@@ -3,6 +3,7 @@ import { LobbyLeave } from "components/Lobby/LobbyFound/LobbyLeave/LobbyLeave";
 import { LobbyUserCard } from "components/Lobby/LobbyFound/LobbyUserCard/LobbyUserCard";
 import React from "react";
 import { useSelector } from "react-redux";
+import { LobbyMode } from "types/game/lobby";
 import { RootState } from "types/global/global";
 
 interface LobbyFoundProps {}
@@ -16,7 +17,13 @@ const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
 		(state: RootState) => state.GAME.isLobbyOwner
 	);
 
-	if (!lobby || isLobbyOwner === undefined || !connectedUserId) return null;
+	if (
+		!lobby ||
+		isLobbyOwner === undefined ||
+		!connectedUserId ||
+		lobby.mode === LobbyMode.QuickPlay
+	)
+		return null;
 	return (
 		<div className="w-full max-w-4xl flex flex-col justify-center">
 			<div className="m-4 flex flex-col justify-center items-center">

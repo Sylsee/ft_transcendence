@@ -1,7 +1,9 @@
+import { Game } from "components/Game/Game";
 import { LobbyFound } from "components/Lobby/LobbyFound/LobbyFound";
 import { LobbySearchGame } from "components/Lobby/LobbySearchGame/LobbySearchGame";
 import { LobbyStart } from "components/Lobby/LobbyStart/LobbyStart";
-import React, { useEffect } from "react";
+import { ScoreBoard } from "components/ScoreBoard/ScoreBoard";
+import React from "react";
 import { useSelector } from "react-redux";
 import { getGameSocket } from "sockets/socket";
 import { LobbyState } from "types/game/lobby";
@@ -16,12 +18,7 @@ const Lobby: React.FC<LobbyProps> = () => {
 
 	const gameSocket = getGameSocket();
 
-	useEffect(() => {
-		console.log(LobbyStatus);
-	}, [LobbyStatus]);
-
 	if (!gameSocket) return null;
-
 	return (
 		<div className="h-full flex justify-center items-stretch">
 			{LobbyStatus === LobbyState.Idle && (
@@ -31,6 +28,8 @@ const Lobby: React.FC<LobbyProps> = () => {
 				<LobbySearchGame gameSocket={gameSocket} />
 			)}
 			{LobbyStatus === LobbyState.Found && <LobbyFound />}
+			{LobbyStatus === LobbyState.Start && <Game />}
+			{LobbyStatus === LobbyState.Finish && <ScoreBoard />}
 		</div>
 	);
 };

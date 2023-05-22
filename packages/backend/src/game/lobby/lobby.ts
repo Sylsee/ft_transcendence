@@ -133,6 +133,7 @@ export class Lobby {
     );
     await Promise.all(playerPromises);
 
+    console.log('triggerStart()');
     this.instance.triggerStart();
   }
 
@@ -184,3 +185,4 @@ export class Lobby {
     );
   }
 }
+
