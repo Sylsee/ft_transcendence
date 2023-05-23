@@ -25,7 +25,7 @@ export class CreateChannelDto {
     required: false,
   })
   @IsOptional()
-  @Length(3, 20)
+  @Length(3, 14)
   @IsAlphanumericWithHyphenUnderscore()
   @Transform(({ value }) => sanitizeHtml(value))
   name?: string;
