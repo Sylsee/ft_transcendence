@@ -1,8 +1,8 @@
 // NestJS imports
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 // Local imports
-import { WsException } from '@nestjs/websockets';
 import { formatTime } from 'src/shared/time';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/services/user.service';

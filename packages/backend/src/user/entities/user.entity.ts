@@ -12,6 +12,7 @@ import {
 import { ChannelEntity } from 'src/chat/entities/channel.entity';
 import { MessageEntity } from 'src/chat/entities/message.entity';
 import { MuteUserEntity } from 'src/chat/entities/mute-user.entity';
+import { MatchEntity } from 'src/game/entity/match.entity';
 import { AuthProvider } from '../../auth/enum/auth-provider.enum';
 import { UserStatus } from '../enum/user-status.enum';
 import { FriendRequest } from './friend_request.entity';
@@ -97,4 +98,15 @@ export class UserEntity {
     nullable: true,
   })
   muteChannels: MuteUserEntity[];
+
+  // Game
+  @OneToMany(() => MatchEntity, (match) => match.winner, {
+    nullable: true,
+  })
+  matchesWon: MatchEntity[];
+
+  @OneToMany(() => MatchEntity, (match) => match.loser, {
+    nullable: true,
+  })
+  matchesLost: MatchEntity[];
 }

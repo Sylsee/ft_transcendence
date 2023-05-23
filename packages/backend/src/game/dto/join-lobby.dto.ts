@@ -1,4 +1,7 @@
+// NestJS imports
 import { ApiProperty } from '@nestjs/swagger';
+
+// Third-party imports
 import { IsNotEmpty, IsUUID } from 'class-validator';
 
 export class JoinLobbyDto {

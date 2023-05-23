@@ -19,6 +19,7 @@ import { WsValidationPipe } from 'src/shared/ws.validation-pipe';
 import { UserService } from 'src/user/services/user.service';
 import { InviteToLobbyDto } from './dto/invite-lobby.dto';
 import { JoinLobbyDto } from './dto/join-lobby.dto';
+import { MovePaddleDto } from './dto/move-paddle.dto';
 import { ClientGameEvent } from './enum/client-game-event.enum';
 import { LobbyManager } from './lobby/lobby.manager';
 import { AuthenticatedSocket } from './types/AuthenticatedSocket';
@@ -87,7 +88,9 @@ export class GameGateway
         message: error.message,
       });
 
-      this.logger.warn(`Unable to verify token: ${token}`);
+      this.logger.warn(
+        `Unable to connect client with id ${client.id} to namespace ${client.nsp.name}`,
+      );
 
       client.disconnect();
     }
@@ -103,7 +106,9 @@ export class GameGateway
         `User ${client.data.id} disconnected with socket ${client.id} from namespace ${client.nsp.name}`,
       );
     } catch (error) {
-      this.logger.warn(`Unable to disconnect user: ${client.id}`);
+      this.logger.warn(
+        `Unable to correctly disconnect client with id: ${client.id}`,
+      );
       this.logger.error(error);
     }
   }
@@ -154,6 +159,16 @@ export class GameGateway
   @SubscribeMessage(ClientGameEvent.Unready)
   async handleUnready(client: AuthenticatedSocket): Promise<void> {
     await this.lobbyManager.setReady(client, false);
+  }
+
+  // ---------------------------- Game Actions ----------------------------
+
+  @SubscribeMessage(ClientGameEvent.MovePaddle)
+  async handleMove(
+    client: AuthenticatedSocket,
+    data: MovePaddleDto,
+  ): Promise<void> {
+    await this.lobbyManager.movePaddle(client, data);
   }
 
   // ---------------------------- Helpers ----------------------------
