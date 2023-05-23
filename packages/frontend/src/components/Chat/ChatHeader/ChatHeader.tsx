@@ -82,10 +82,10 @@ const ChatHeader: React.FC<ChatHeaderProps> = ({
 					)}
 			</div>
 			<div>
-				<button onClick={handleCloseChatModal} className="lg:hidden">
+				<button onClick={handleCloseChatModal} className="xl:hidden">
 					<ArrowDown className="w-6 h-6" />
 				</button>
-				<button onClick={handleCloseChat} className="hidden lg:block">
+				<button onClick={handleCloseChat} className="hidden xl:block">
 					<ArrowDown className="w-6 h-6" />
 				</button>
 			</div>

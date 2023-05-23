@@ -153,21 +153,18 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			)}
 			{status === "error" && <ErrorItem error={error} />}
 
-			<div className="flex justify-between">
-				<div className="flex items-center justify-end p-6 border-solid border-slate-200 rounded-b">
-					{isUpdate && (
-						<ModalButton
-							name="Delete"
-							buttonType={ModalButtonType.Critical}
-							handleClick={handleDeleteClick}
-						/>
-					)}
-				</div>
-				<ModalFooter
-					acceptValue={isUpdate ? "Update" : "Create"}
-					handleCancel={handleCloseModal}
-				/>
-			</div>
+			<ModalFooter
+				acceptValue={isUpdate ? "Update" : "Create"}
+				handleCancel={handleCloseModal}
+			>
+				{isUpdate && (
+					<ModalButton
+						name="Delete"
+						buttonType={ModalButtonType.Critical}
+						handleClick={handleDeleteClick}
+					/>
+				)}
+			</ModalFooter>
 		</form>
 	);
 };
