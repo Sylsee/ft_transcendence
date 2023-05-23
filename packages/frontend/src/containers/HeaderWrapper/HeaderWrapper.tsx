@@ -62,7 +62,7 @@ const HeaderWrapper: React.FC = () => {
 					{!showModal && (
 						<button
 							type="button"
-							className="text-white hover:bg-astronaut-900  bg-mirage-900  font-medium text-sm text-center fixed bottom-4 right-4 xl:hidden rounded-full p-4 shadow-lg absolute"
+							className="text-white hover:bg-chatgpt-grey-200  bg-chatgpt-grey-400  font-medium text-sm text-center bottom-4 right-4 xl:hidden rounded-full p-4 shadow-lg absolute"
 							onClick={() => handleShowChatModal(true)}
 						>
 							<FontAwesomeIcon icon={faMessage} />
@@ -71,7 +71,7 @@ const HeaderWrapper: React.FC = () => {
 					{!showChat && (
 						<button
 							type="button"
-							className="text-white hover:bg-astronaut-900  bg-mirage-900 font-medium text-sm text-center fixed bottom-4 right-4 hidden xl:block rounded-full p-4 shadow-lg  absolute"
+							className="text-white hover:bg-chatgpt-grey-200 bg-chatgpt-grey-400 font-medium text-sm text-center bottom-4 right-4 hidden xl:block rounded-full p-4 shadow-lg  absolute"
 							onClick={() => handleShowChat(true)}
 						>
 							<FontAwesomeIcon icon={faMessage} />

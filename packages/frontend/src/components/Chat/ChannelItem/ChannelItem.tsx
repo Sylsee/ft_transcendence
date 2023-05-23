@@ -48,13 +48,15 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 			style={{
 				transition: "all 0.2s",
 			}}
-			className={`flex justify-between items-center hover:bg-astronaut-700 px-2 py-1 ${
-				isActive === true ? "bg-astronaut-800" : ""
+			className={`flex justify-between items-center hover:bg-chatgpt-grey-300 ${
+				isActive === true
+					? "bg-chatgpt-grey-400 hover:bg-chatgpt-grey-400"
+					: ""
 			}`}
 		>
 			<button
 				onClick={() => handleClick(channel)}
-				className="flex h-full w-full text-left cursor-pointer p-2 border-1 border-purple-600"
+				className="flex h-full w-full text-left cursor-pointer py-3 px-4"
 			>
 				<div className="w-full text-xl">
 					{channel.type !== ChannelType.Direct_message
@@ -65,7 +67,7 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 			{canLeave && (hover || isActive) && (
 				<button
 					onClick={() => handleLeaveChannel(channel)}
-					className="h-full border-1 border-pink-600"
+					className="h-full mx-2"
 				>
 					<FontAwesomeIcon icon={faArrowRightFromBracket} size="lg" />
 				</button>

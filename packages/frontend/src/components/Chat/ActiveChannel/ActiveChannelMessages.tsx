@@ -5,12 +5,12 @@ import { useSelector } from "react-redux";
 import { Channel, MessageType } from "types/chat/chat";
 import { RootState } from "types/global/global";
 
-interface ActiveChannelProps {
+interface ActiveChannelMessagesProps {
 	activeChannel: Channel | null;
 	messagesEndRef: React.RefObject<HTMLDivElement>;
 }
 
-const ActiveChannel: React.FC<ActiveChannelProps> = ({
+const ActiveChannelMessages: React.FC<ActiveChannelMessagesProps> = ({
 	activeChannel,
 	messagesEndRef,
 }) => {
@@ -19,10 +19,11 @@ const ActiveChannel: React.FC<ActiveChannelProps> = ({
 	);
 
 	if (!connectedUserId) return null;
+
 	return (
-		<div className="flex flex-col items-stretch h-full">
+		<div className="flex flex-col h-full overflow-y-auto my-3">
 			{activeChannel != null ? (
-				<div className="w-full flex flex-col flex-grow items-stretch max-h-full overflow-y-auto overflow-x-hidden p-4 text-black">
+				<div className="w-full flex flex-col">
 					{activeChannel.messages.map((message, index) => {
 						if (message.type === MessageType.Normal)
 							return (
@@ -54,4 +55,4 @@ const ActiveChannel: React.FC<ActiveChannelProps> = ({
 	);
 };
 
-export { ActiveChannel };
+export { ActiveChannelMessages };

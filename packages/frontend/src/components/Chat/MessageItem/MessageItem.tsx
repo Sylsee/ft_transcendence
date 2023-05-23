@@ -1,5 +1,3 @@
-import { faMessage, faUser } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useEffect, useState } from "react";
 import { usePopper } from "react-popper";
@@ -141,54 +139,119 @@ const MessageItem: React.FC<MessageItemProps> = ({
 	};
 
 	return (
-		<div className="flex items-start space-x-4 p-2 break-words">
-			<div style={{ width: "calc(100% - 3rem)" }}>
-				<div className="select-none text-gray-500">
-					<span
-						ref={setReferenceElement}
-						onClick={() => toggleTooltip()}
-						style={{ color: "#c7b99b" }}
-						className=" font-semibold text-white cursor-pointer hover:underline"
-					>
-						{message.sender.name}
-					</span>
-					{showTooltip && (
-						<div
-							ref={setPopperElement}
-							style={styles.popper}
-							{...attributes.popper}
-							className="bg-white p-2 rounded shadow borde"
-						>
-							<div
-								ref={setArrowElement}
-								style={styles.arrow}
-								className={arrowStyle}
-							></div>
-							<button
-								onClick={handleClickProfile}
-								className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
-							>
-								<FontAwesomeIcon icon={faUser} />
-							</button>
-							{connected_user_id &&
-								connected_user_id !== message.sender.id && (
-									<button
-										onClick={handleClickMessage}
-										className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
-									>
-										<FontAwesomeIcon icon={faMessage} />
-									</button>
-								)}
-						</div>
-					)}
-					<span className="ml-2">
-						{formatDate(message.timestamp)}
-					</span>
+		<div className="flex justify-start items-end py-2">
+			{/* User profile picture */}
+			<img
+				src={`${message.sender.profilePictureUrl}`}
+				onClick={() => toggleTooltip()}
+				referrerPolicy="no-referrer"
+				alt="Avatar"
+				className="object-cover rounded-full w-10 h-10 mb-1 cursor-pointer hover:opacity-80"
+			/>
+
+			{/* Message */}
+			<div className="flex flex-col items-start ml-2 max-w-[calc(100%-6rem)]">
+				{/* User name */}
+				<span
+					ref={setReferenceElement}
+					onClick={() => toggleTooltip()}
+					className="text-xs font-semibold text-white cursor-pointer hover:underline pl-3 pb-1"
+				>
+					{message.sender.name}
+				</span>
+				{/* Message content */}
+				<div
+					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+					className="flex items-center justify-center bg-chatgpt-grey-50 w-full h-full rounded-2xl"
+				>
+					<p className="text-[15px] text-chatgpt-grey-100 px-3 py-1.5">
+						{message.content}
+					</p>
 				</div>
-				<div className="text-gray-200">{message.content}</div>
 			</div>
 		</div>
 	);
+
+	// return (
+	// 	<div className="flex items-start space-x-4 p-2 break-words border-2 border-purple-600">
+	// 		<div className="w-[calc(100%-0.5rem)] border-2">
+	// 			<div className="text-gray-500">
+	// 				{/* User name */}
+	// 				<span
+	// 					ref={setReferenceElement}
+	// 					onClick={() => toggleTooltip()}
+	// 					style={{ color: "#c7b99b" }}
+	// 					className="font-semibold text-white cursor-pointer hover:underline"
+	// 				>
+	// 					{message.sender.name}
+	// 				</span>
+	// 				{/* User name interaction */}
+	// 				{/* TODO: refactor it with ul li and add text to the icon */}
+
+	//				{showTooltip && (
+	//					<div
+	//						ref={setPopperElement}
+	//						style={styles.popper}
+	//						{...attributes.popper}
+	//						className="z-10 flex flex-col justify-center items-center space-y-2 bg-gray-800 rounded-md shadow-md"
+	//					>
+	//						<div className="flex flex-col justify-center items-center space-y-2">
+	//							<button
+	//								onClick={() => handleClickProfile()}
+	//								className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+	//							>
+	//								Profile
+	//							</button>
+	//							<button
+	//								onClick={() => handleClickMessage()}
+	//								className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+	//							>
+	//								Message
+	//							</button>
+	//						</div>
+	//					</div>
+	//				)}
+
+	// 				{showTooltip && (
+	// 					<div
+	// 						id="dropdown"
+	// 						ref={setPopperElement}
+	// 						style={styles.popper}
+	// 						{...attributes.popper}
+	// 						className="bg-white p-2 rounded shadow borde"
+	// 					>
+	// 						<div
+	// 							ref={setArrowElement}
+	// 							style={styles.arrow}
+	// 							className={arrowStyle}
+	// 						></div>
+	// 						<button
+	// 							onClick={handleClickProfile}
+	// 							className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+	// 						>
+	// 							<FontAwesomeIcon icon={faUser} />
+	// 						</button>
+	// 						{connected_user_id &&
+	// 							connected_user_id !== message.sender.id && (
+	// 								<button
+	// 									onClick={handleClickMessage}
+	// 									className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+	// 								>
+	// 									<FontAwesomeIcon icon={faMessage} />
+	// 								</button>
+	// 							)}
+	// 					</div>
+	// 				)}
+	// 				{/* Message time */}
+	// 				<span className="ml-2">
+	// 					{formatDate(message.timestamp)}
+	// 				</span>
+	// 			</div>
+	// 			{/* Message content */}
+	// 			<div className="text-gray-200">{message.content}</div>
+	// 		</div>
+	// 	</div>
+	// );
 };
 
 export { MessageItem };

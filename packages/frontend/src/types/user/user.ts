@@ -23,4 +23,3 @@ export interface User {
 	status?: UserStatus;
 	isTwoFactorAuthEnabled?: boolean;
 }
-

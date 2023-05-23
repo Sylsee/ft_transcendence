@@ -35,12 +35,15 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 
 	return (
 		<div
-			className={`flex flex-col bg-mirage-950 absolute h-full top-0 left-0 w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
-				isMenuOpen ? "translate-x-0" : "-translate-x-full"
+			className={`flex flex-col bg-chatgpt-grey-500 absolute h-full top-0 left-[-1px] w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
+				isMenuOpen
+					? "translate-x-[1px] shadow-right"
+					: "-translate-x-full"
 			} rounded-3xl`}
 		>
-			<div className="flex justify-center items-center pt-3 pb-2 md:px-9 md:pt-8 md:pb-3">
-				<button onClick={toggleMenu} className="h-full md:mr-1">
+			{/* ChatMenuHeader */}
+			<div className="flex justify-center items-center pt-5 px-1 pb-2 md:pl-8 md:pt-7 md:pb-4">
+				<button onClick={toggleMenu} className="h-full">
 					<FontAwesomeIcon fixedWidth icon={faClose} size="xl" />
 				</button>
 				<div className="flex flex-grow justify-center items-center">
@@ -56,6 +59,7 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 					/>
 				</div>
 			</div>
+			{/* ChatMenuBody */}
 			<div className="overflow-auto flex-grow">
 				<ChannelList
 					channels={channels.filter(
@@ -67,6 +71,7 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 					handleClickChannel={handleClickChannel}
 				/>
 			</div>
+			{/* ChatMenuFooter */}
 			<AddChannelItem />
 		</div>
 	);

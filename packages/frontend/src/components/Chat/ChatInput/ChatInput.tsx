@@ -1,5 +1,4 @@
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReactComponent as SendArrow } from "assets/icons/chat/send-arrow.svg";
 import { ChatEvent } from "config";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -39,21 +38,20 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 	};
 
 	return (
-		<form className="flex" onSubmit={(e) => handleFormSubmit(e)}>
-			<div className="flex w-full">
-				<input
-					ref={inputRef}
-					onChange={(e) => handleInputChange(e)}
-					placeholder="Write a message..."
-					value={message}
-					className="w-full p-4 text-black focus:outline-none focus:border-blue-500"
-				/>
-			</div>
-			<button
-				type="submit"
-				className="bg-white hover:text-astronaut-500  text-astronaut-400  font-bold py-2 px-4"
-			>
-				<FontAwesomeIcon icon={faPaperPlane} />
+		<form
+			className="flex flex-grow rounded-3xl items-end bg-chatgpt-grey-200"
+			onSubmit={(e) => handleFormSubmit(e)}
+		>
+			<input
+				ref={inputRef}
+				onChange={(e) => handleInputChange(e)}
+				placeholder="Write a message..."
+				value={message}
+				style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+				className="flex rounded-3xl items-center w-full py-4 pl-5 text-chatgpt-grey-100 text-[15px] focus:outline-none bg-chatgpt-grey-200"
+			/>
+			<button type="submit" className="h-full py-1.5 px-3 pr-5">
+				<SendArrow />
 			</button>
 		</form>
 	);
