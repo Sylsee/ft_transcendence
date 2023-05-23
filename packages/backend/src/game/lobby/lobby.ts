@@ -14,6 +14,7 @@ import { UserEntity } from 'src/user/entities/user.entity';
 import { UserStatus } from 'src/user/enum/user-status.enum';
 import { UserService } from 'src/user/services/user.service';
 import { MAX_PLAYERS } from '../constants';
+import { PowerUpDto } from '../dto/power-up.dto';
 import { UserWithReadyStatusDto } from '../dto/user-with-ready-status.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
@@ -28,6 +29,7 @@ export class Lobby {
   public readonly id: string = v4();
 
   public mode = LobbyMode.QuickPlay;
+  public powerUpActive = false;
   public readonly createdAt: Date = new Date();
 
   public readonly players: Map<Socket['id'], AuthenticatedSocket> = new Map<
@@ -120,6 +122,21 @@ export class Lobby {
     if (this.readyPlayerCount === MAX_PLAYERS) {
       await this.triggerStart();
     }
+  }
+
+  public async setPowerUpActive(powerUp: PowerUpDto) {
+    if (powerUp.active === this.powerUpActive) {
+      return;
+    }
+
+    this.powerUpActive = powerUp.active;
+
+    this.dispatchToLobby<ServerGameEvents.GameIsPowerUpActive>(
+      ServerGameEvents.GameIsPowerUpActive,
+      {
+        isActive: this.powerUpActive,
+      },
+    );
   }
 
   private get readyPlayerCount(): number {

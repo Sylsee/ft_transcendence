@@ -17,6 +17,7 @@ import { LOBBY_MAX_LIFETIME, MAX_PLAYERS } from '../constants';
 import { InviteToLobbyDto } from '../dto/invite-lobby.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { MovePaddleDto } from '../dto/move-paddle.dto';
+import { PowerUpDto } from '../dto/power-up.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { MatchRepository } from '../repository/match.repository';
@@ -267,6 +268,32 @@ export class LobbyManager {
     }
 
     await client.data.lobby.setPlayerReady(client, ready);
+  }
+
+  public async setPowerUpActive(
+    client: AuthenticatedSocket,
+    powerUp: PowerUpDto,
+  ): Promise<void> {
+    if (!client.data.lobby) {
+      throw new WsException('You are not in a lobby');
+    }
+
+    if (client.data.lobby.mode !== LobbyMode.Custom) {
+      throw new WsException('You cannot use power ups in this lobby');
+    }
+
+    if (
+      client.data.lobby.instance.hasStarted ||
+      client.data.lobby.instance.hasFinished
+    ) {
+      throw new WsException('Game already started');
+    }
+
+    if (!client.data.lobby.players.has(client.id)) {
+      throw new WsException('You are not in this lobby');
+    }
+
+    await client.data.lobby.setPowerUpActive(powerUp);
   }
 
   // -------------------- Lobby queue --------------------

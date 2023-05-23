@@ -4,6 +4,7 @@ import { WsException } from '@nestjs/websockets';
 
 // Third-party imports
 import { performance } from 'perf_hooks';
+import { v4 } from 'uuid';
 
 // Local imports
 import { gameConfig } from 'src/config/game.config';
@@ -14,12 +15,14 @@ import { COUNT_DOWN_TIME } from '../constants';
 import { MovePaddleDto } from '../dto/move-paddle.dto';
 import { MatchEntity } from '../entity/match.entity';
 import { PaddleDirection } from '../enum/paddle-direction.enum';
+import { PowerUpType } from '../enum/power-up-type.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { Lobby } from '../lobby/lobby';
 import { MatchRepository } from '../repository/match.repository';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
 import { Ball } from './types/ball';
 import { Paddle } from './types/paddle';
+import { PowerUp } from './types/power-up';
 
 export class Game {
   private readonly logger: Logger = new Logger(Game.name);
@@ -34,8 +37,13 @@ export class Game {
   public scores: Record<UserEntity['id'], number> = {};
 
   private paddle1: Paddle;
+  private paddle1SizeTimeout: NodeJS.Timeout | null = null;
   private paddle2: Paddle;
+  private paddle2SizeTimeout: NodeJS.Timeout | null = null;
   private ball: Ball;
+  private ballSizeTimeout: NodeJS.Timeout | null = null;
+
+  private powerUps: Array<PowerUp> = [];
 
   private ballSpeedPerSecond = gameConfig.ballSpeedPerSecond;
   private ballDirection: 1 | -1 = Math.random() > 0.5 ? 1 : -1;
@@ -85,8 +93,23 @@ export class Game {
 
     // Reverse the ball's horizontal direction for the next reset
     this.ballDirection *= -1;
-    // Increase the ball's speed for the next reset
-    this.ballSpeedPerSecond += gameConfig.speedUp;
+    // Reset the ball's speed
+    this.ballSpeedPerSecond = gameConfig.ballSpeedPerSecond;
+
+    if (this.paddle1SizeTimeout) {
+      clearTimeout(this.paddle1SizeTimeout);
+      this.paddle1SizeTimeout = null;
+    }
+    if (this.paddle2SizeTimeout) {
+      clearTimeout(this.paddle2SizeTimeout);
+      this.paddle2SizeTimeout = null;
+    }
+    if (this.ballSizeTimeout) {
+      clearTimeout(this.ballSizeTimeout);
+      this.ballSizeTimeout = null;
+    }
+
+    this.powerUps = [];
   }
 
   public async triggerStart(): Promise<void> {
@@ -229,9 +252,64 @@ export class Game {
   }
 
   private async updateGameState(timeStep: number): Promise<void> {
+    if (
+      this.lobby.powerUpActive === true &&
+      Math.random() < gameConfig.powerUpSpawnChance
+    ) {
+      this.spawnPowerUp();
+    }
+
     this.updatePaddlePosition(timeStep);
     this.updateBallPosition(timeStep);
     await this.handleCollisions();
+  }
+
+  private spawnPowerUp(): void {
+    let powerUpX =
+      Math.random() * (gameConfig.width - gameConfig.powerUpRadius);
+    if (powerUpX < gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius) {
+      powerUpX = gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius;
+    } else if (
+      powerUpX >
+      gameConfig.width - gameConfig.paddleMargin * 2 - gameConfig.powerUpRadius
+    ) {
+      powerUpX = gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius;
+    }
+
+    let powerUpY =
+      Math.random() * (gameConfig.height - gameConfig.powerUpRadius);
+    if (powerUpY < gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius) {
+      powerUpY = gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius;
+    } else if (
+      powerUpY >
+      gameConfig.height - gameConfig.paddleMargin * 2 - gameConfig.powerUpRadius
+    ) {
+      powerUpY = gameConfig.paddleMargin * 2 + gameConfig.powerUpRadius;
+    }
+
+    const enumValues = Object.values(PowerUpType);
+    const randomIndex = Math.floor(Math.random() * enumValues.length);
+
+    const newPowerUp: PowerUp = {
+      id: v4(),
+      type: enumValues[randomIndex],
+      x: powerUpX,
+      y: powerUpY,
+      radius: gameConfig.powerUpRadius,
+    };
+
+    this.powerUps.push(newPowerUp);
+
+    this.lobby.dispatchToLobby<ServerGameEvents.GamePowerUpSpawn>(
+      ServerGameEvents.GamePowerUpSpawn,
+      {
+        id: newPowerUp.id,
+        type: newPowerUp.type,
+        x: newPowerUp.x,
+        y: newPowerUp.y,
+        radius: newPowerUp.radius,
+      },
+    );
   }
 
   private updatePaddlePosition(timeStep: number): void {
@@ -291,6 +369,124 @@ export class Game {
     ) {
       await this.handleScreenBoundsCollision();
     }
+
+    if (this.powerUps.length > 0) {
+      this.handlePowerUpCollisions();
+    }
+  }
+
+  private handlePowerUpCollisions(): void {
+    this.powerUps.forEach((powerUp) => {
+      const distX = this.ball.x - powerUp.x;
+      const distY = this.ball.y - powerUp.y;
+
+      const distanceBetweenCenters = Math.sqrt(distX ** 2 + distY ** 2);
+
+      if (distanceBetweenCenters <= this.ball.radius + powerUp.radius) {
+        this.handlePowerUpCollision(powerUp);
+        this.powerUps.splice(this.powerUps.indexOf(powerUp), 1);
+      }
+    });
+  }
+
+  private powerUpHandler = {
+    [PowerUpType.BALL_SIZE_DOWN]: () => {
+      this.ball.radius -= gameConfig.ballRadiusChangePerPowerUp;
+      if (this.ball.radius < gameConfig.ballMinRadius) {
+        this.ball.radius = gameConfig.ballMinRadius;
+      }
+
+      this.revertBallSizeAfterDelay();
+    },
+    [PowerUpType.BALL_SIZE_UP]: () => {
+      this.ball.radius += gameConfig.ballRadiusChangePerPowerUp;
+      if (this.ball.radius > gameConfig.ballMaxRadius) {
+        this.ball.radius = gameConfig.ballMaxRadius;
+      }
+
+      this.revertBallSizeAfterDelay();
+    },
+    [PowerUpType.PADDLE_SIZE_DOWN]: () => {
+      if (this.ball.velocity.x < 0) {
+        this.paddle1.height -= gameConfig.paddleHeightChangePerPowerUp;
+        if (this.paddle1.height < gameConfig.paddleMinHeight) {
+          this.paddle1.height = gameConfig.paddleMinHeight;
+        }
+
+        this.revertPaddleSizeAfterDelay(this.paddle1);
+      } else {
+        this.paddle2.height -= gameConfig.paddleHeightChangePerPowerUp;
+        if (this.paddle2.height < gameConfig.paddleMinHeight) {
+          this.paddle2.height = gameConfig.paddleMinHeight;
+        }
+
+        this.revertPaddleSizeAfterDelay(this.paddle2);
+      }
+    },
+    [PowerUpType.PADDLE_SIZE_UP]: () => {
+      if (this.ball.velocity.x > 0) {
+        this.paddle1.height += gameConfig.paddleHeightChangePerPowerUp;
+        if (this.paddle1.height > gameConfig.paddleMaxHeight) {
+          this.paddle1.height = gameConfig.paddleMaxHeight;
+        }
+
+        this.revertPaddleSizeAfterDelay(this.paddle1);
+      } else {
+        this.paddle2.height += gameConfig.paddleHeightChangePerPowerUp;
+        if (this.paddle2.height > gameConfig.paddleMaxHeight) {
+          this.paddle2.height = gameConfig.paddleMaxHeight;
+        }
+
+        this.revertPaddleSizeAfterDelay(this.paddle2);
+      }
+    },
+  };
+
+  private handlePowerUpCollision(powerUp: PowerUp): void {
+    const handler = this.powerUpHandler[powerUp.type];
+    if (handler) {
+      handler();
+    }
+
+    this.lobby.dispatchToLobby<ServerGameEvents.GamePowerUpDespawn>(
+      ServerGameEvents.GamePowerUpDespawn,
+      {
+        id: powerUp.id,
+      },
+    );
+  }
+
+  private async revertPaddleSizeAfterDelay(paddle: Paddle) {
+    if (paddle === this.paddle1 && this.paddle1SizeTimeout) {
+      clearTimeout(this.paddle1SizeTimeout);
+      this.paddle1SizeTimeout = null;
+    } else if (paddle === this.paddle2 && this.paddle2SizeTimeout) {
+      clearTimeout(this.paddle2SizeTimeout);
+      this.paddle2SizeTimeout = null;
+    }
+
+    const timeout = setTimeout(() => {
+      paddle.height = gameConfig.paddleHeight;
+    }, gameConfig.powerUpDuration);
+
+    if (paddle === this.paddle1) {
+      this.paddle1SizeTimeout = timeout;
+    } else if (paddle === this.paddle2) {
+      this.paddle2SizeTimeout = timeout;
+    }
+  }
+
+  private async revertBallSizeAfterDelay() {
+    if (this.ballSizeTimeout) {
+      clearTimeout(this.ballSizeTimeout);
+      this.ballSizeTimeout = null;
+    }
+
+    const timeout = setTimeout(() => {
+      this.ball.radius = gameConfig.ballRadius;
+    }, gameConfig.powerUpDuration);
+
+    this.ballSizeTimeout = timeout;
   }
 
   private ballCollidesWithPaddle(paddle: Paddle): boolean {
@@ -331,11 +527,14 @@ export class Game {
   }
 
   private handleBallPaddleCollision(paddle: Paddle): void {
+    const paddleMiddle = paddle.y + paddle.height / 2;
     const normalizedIntersectionY =
-      (this.ball.y - (paddle.y + paddle.height)) / paddle.height;
+      (this.ball.y - paddleMiddle) / (paddle.height / 2);
 
     this.ball.velocity.x = -this.ball.velocity.x;
     this.ball.velocity.y = normalizedIntersectionY * this.ballSpeedPerSecond;
+
+    this.ballSpeedPerSecond *= 1.05;
   }
 
   private async handleScreenBoundsCollision(): Promise<void> {

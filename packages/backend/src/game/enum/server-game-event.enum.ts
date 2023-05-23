@@ -6,4 +6,7 @@ export enum ServerGameEvents {
   GameCountdown = 'server.game.countdown',
   GameState = 'server.game.state',
   GameScore = 'server.game.score',
+  GameIsPowerUpActive = 'server.game.is-power-up-active',
+  GamePowerUpSpawn = 'server.game.power-up-spawn',
+  GamePowerUpDespawn = 'server.game.power-up-despawn',
 }

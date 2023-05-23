@@ -20,6 +20,7 @@ import { UserService } from 'src/user/services/user.service';
 import { InviteToLobbyDto } from './dto/invite-lobby.dto';
 import { JoinLobbyDto } from './dto/join-lobby.dto';
 import { MovePaddleDto } from './dto/move-paddle.dto';
+import { PowerUpDto } from './dto/power-up.dto';
 import { ClientGameEvent } from './enum/client-game-event.enum';
 import { LobbyManager } from './lobby/lobby.manager';
 import { AuthenticatedSocket } from './types/AuthenticatedSocket';
@@ -159,6 +160,14 @@ export class GameGateway
   @SubscribeMessage(ClientGameEvent.Unready)
   async handleUnready(client: AuthenticatedSocket): Promise<void> {
     await this.lobbyManager.setReady(client, false);
+  }
+
+  @SubscribeMessage(ClientGameEvent.PowerUp)
+  async handlePowerUp(
+    client: AuthenticatedSocket,
+    data: PowerUpDto,
+  ): Promise<void> {
+    await this.lobbyManager.setPowerUpActive(client, data);
   }
 
   // ---------------------------- Game Actions ----------------------------
