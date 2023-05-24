@@ -1,3 +1,5 @@
+import { faMessage, faUser } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useEffect, useState } from "react";
 import { usePopper } from "react-popper";
@@ -107,20 +109,8 @@ const MessageItem: React.FC<MessageItemProps> = ({
 	);
 
 	const arrowStyle = state?.placement.startsWith("top")
-		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-white"
-		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-white";
-
-	// functions
-	const formatDate = (timestamp: Date): string => {
-		const date = new Date(timestamp);
-		const month = (date.getMonth() + 1).toString().padStart(2, "0");
-		const day = date.getDate().toString().padStart(2, "0");
-		const year = date.getFullYear();
-		const hours = date.getHours().toString().padStart(2, "0");
-		const minutes = date.getMinutes().toString().padStart(2, "0");
-
-		return `${month}/${day}/${year} ${hours}:${minutes}`;
-	};
+		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-gray-800"
+		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-gray-800";
 
 	// handlers
 	const handleClickMessage = () => {
@@ -162,8 +152,62 @@ const MessageItem: React.FC<MessageItemProps> = ({
 				{/* Message content */}
 				<div
 					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-					className="flex items-center justify-center bg-chatgpt-grey-50 w-full h-full rounded-2xl"
+					className="flex items-center justify-center bg-chatgpt-grey-50 h-full rounded-xl"
 				>
+					{showTooltip && (
+						<div
+							ref={setPopperElement}
+							style={styles.popper}
+							{...attributes.popper}
+							className="z-10 flex flex-col justify-center items-center space-y-2 bg-gray-800 rounded-md shadow-md"
+						>
+							<div className="flex flex-col justify-center items-center space-y-2">
+								<button
+									onClick={() => handleClickProfile()}
+									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+								>
+									Profile
+								</button>
+								<button
+									onClick={() => handleClickMessage()}
+									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+								>
+									Message
+								</button>
+							</div>
+						</div>
+					)}
+
+					{showTooltip && (
+						<div
+							id="dropdown"
+							ref={setPopperElement}
+							style={styles.popper}
+							{...attributes.popper}
+							className="bg-gray-800 p-2 rounded shadow borde"
+						>
+							<div
+								ref={setArrowElement}
+								style={styles.arrow}
+								className={arrowStyle}
+							></div>
+							<button
+								onClick={handleClickProfile}
+								className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+							>
+								<FontAwesomeIcon icon={faUser} />
+							</button>
+							{connected_user_id &&
+								connected_user_id !== message.sender.id && (
+									<button
+										onClick={handleClickMessage}
+										className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+									>
+										<FontAwesomeIcon icon={faMessage} />
+									</button>
+								)}
+						</div>
+					)}
 					<p className="text-[15px] text-chatgpt-grey-100 px-3 py-1.5">
 						{message.content}
 					</p>
@@ -187,61 +231,6 @@ const MessageItem: React.FC<MessageItemProps> = ({
 	// 				</span>
 	// 				{/* User name interaction */}
 	// 				{/* TODO: refactor it with ul li and add text to the icon */}
-
-	//				{showTooltip && (
-	//					<div
-	//						ref={setPopperElement}
-	//						style={styles.popper}
-	//						{...attributes.popper}
-	//						className="z-10 flex flex-col justify-center items-center space-y-2 bg-gray-800 rounded-md shadow-md"
-	//					>
-	//						<div className="flex flex-col justify-center items-center space-y-2">
-	//							<button
-	//								onClick={() => handleClickProfile()}
-	//								className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
-	//							>
-	//								Profile
-	//							</button>
-	//							<button
-	//								onClick={() => handleClickMessage()}
-	//								className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
-	//							>
-	//								Message
-	//							</button>
-	//						</div>
-	//					</div>
-	//				)}
-
-	// 				{showTooltip && (
-	// 					<div
-	// 						id="dropdown"
-	// 						ref={setPopperElement}
-	// 						style={styles.popper}
-	// 						{...attributes.popper}
-	// 						className="bg-white p-2 rounded shadow borde"
-	// 					>
-	// 						<div
-	// 							ref={setArrowElement}
-	// 							style={styles.arrow}
-	// 							className={arrowStyle}
-	// 						></div>
-	// 						<button
-	// 							onClick={handleClickProfile}
-	// 							className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
-	// 						>
-	// 							<FontAwesomeIcon icon={faUser} />
-	// 						</button>
-	// 						{connected_user_id &&
-	// 							connected_user_id !== message.sender.id && (
-	// 								<button
-	// 									onClick={handleClickMessage}
-	// 									className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
-	// 								>
-	// 									<FontAwesomeIcon icon={faMessage} />
-	// 								</button>
-	// 							)}
-	// 					</div>
-	// 				)}
 	// 				{/* Message time */}
 	// 				<span className="ml-2">
 	// 					{formatDate(message.timestamp)}
