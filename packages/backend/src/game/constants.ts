@@ -8,3 +8,4 @@ export const LOBBY_MAX_LIFETIME = 2 * HOUR;
 
 // Game
 export const MAX_PLAYERS = 2;
+export const COUNT_DOWN_TIME = 3; // seconds

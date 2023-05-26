@@ -66,40 +66,41 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 	};
 
 	return (
-		<div className="flex ">
+		<div className="flex h-1/2 justify-center items-center grow">
 			{isConnectedUser && isEditing ? (
 				<div className="flex flex-col justify-center items-center">
 					<div className="flex flex-col">
-						<div className="flex items-center h-[40px]">
-							<form onSubmit={handleSubmit}>
-								<input
-									ref={inputRef}
-									name="name"
-									className="bg-transparent border-solid border-2 "
-									style={{
-										padding: "",
-									}}
-									value={inputValue}
-									onChange={handleOnChange}
-								/>
-								<button
-									type="submit"
-									className="ml-4"
-									disabled={status === "loading"}
-								>
+						<div className="flex items-center h-[40px] flex-wrap">
+							<form onSubmit={handleSubmit} className="flex">
+								<div className="w-1.2 grow">
+									<input
+										ref={inputRef}
+										name="name"
+										className="p-1 bg-transparent border-solid border-2 rounded-lg focus:outline-none w-full"
+										value={inputValue}
+										onChange={handleOnChange}
+									/>
+								</div>
+								<div className="flex justify-center items-center">
+									<button
+										type="submit"
+										className="ml-2 p-1"
+										disabled={status === "loading"}
+									>
+										<FontAwesomeIcon
+											fixedWidth
+											icon={faCheck}
+										/>
+									</button>
+								</div>
+								<button className="ml-2 p-1" type="submit">
 									<FontAwesomeIcon
 										fixedWidth
-										icon={faCheck}
+										icon={faXmark}
+										onClick={handleCancelButton}
 									/>
 								</button>
 							</form>
-							<button className="ml-4">
-								<FontAwesomeIcon
-									fixedWidth
-									icon={faXmark}
-									onClick={handleCancelButton}
-								/>
-							</button>
 						</div>
 					</div>
 					{status === "error" ? (
@@ -109,12 +110,14 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 					) : null}
 				</div>
 			) : (
-				<div className="flex items-center h-[40px]">
-					<div className="">
-						<p>name: </p>
+				<div className="flex items-center h-[40px] flex-wrap">
+					<div className="font-bold">
+						<p>name:</p>
 					</div>
-					<div className="ml-4">
-						<p>{name}</p>
+					<div className="ml-4 text-2xl grow">
+						<div className="w-f">
+							<p>{name}</p>
+						</div>
 					</div>
 					{isConnectedUser && (
 						<button className="ml-4" onClick={handleEdit}>

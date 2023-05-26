@@ -11,6 +11,8 @@ import {
 
 // Local imports
 import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
+import { MatchDto } from 'src/game/dto/game-dto';
+import { MatchRepository } from 'src/game/repository/match.repository';
 import { userIdInList } from 'src/shared/list';
 import {
   downloadProfilePicture,
@@ -21,6 +23,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 import { FriendRequestsDto } from '../dto/relationship/friend-requests.dto';
 import { UserRelationshipDto } from '../dto/relationship/user-relationship.dto';
 import { UpdateUserDto } from '../dto/update-user.dto';
+import { UserGameStatsDto } from '../dto/user-game-stats.dto';
 import { UserDto } from '../dto/user.dto';
 import { UserEntity } from '../entities/user.entity';
 import { UserRelationship } from '../enum/user-relationship.enum';
@@ -36,6 +39,7 @@ export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private friendRequestService: FriendRequestService,
+    private matchRepository: MatchRepository,
   ) {}
 
   // TODO: Remove this method
@@ -76,6 +80,13 @@ export class UserService {
 
   async findOneByName(username: string): Promise<UserEntity | void> {
     return this.userRepository.findOneByName(username);
+  }
+
+  async findOneByNameWithRelations(
+    username: string,
+    relations: Array<string>,
+  ): Promise<UserEntity | void> {
+    return this.userRepository.findOneByNameWithRelations(username, relations);
   }
 
   async findUserByProviderIDAndProvider(
@@ -471,6 +482,28 @@ export class UserService {
     user.twoFactorAuthSecret = null;
     user.isTwoFactorAuthEnabled = false;
     return this.userRepository.save(user);
+  }
+
+  // -----------------------------------------------------------
+  // ------------------------- Game ----------------------------
+  // -----------------------------------------------------------
+
+  async getUserGameHistory(id: UserEntity['id']): Promise<MatchDto[]> {
+    const matches = await this.matchRepository.getUserMatches(id);
+    if (!matches) {
+      throw new NotFoundException(`Matchs not found`);
+    }
+
+    return matches.map((match) => MatchDto.transform(match));
+  }
+
+  async getUserGameStats(id: UserEntity['id']): Promise<UserGameStatsDto> {
+    const stats = await this.matchRepository.getUserStats(id);
+    if (!stats) {
+      throw new NotFoundException(`Matchs not found`);
+    }
+
+    return stats;
   }
 
   // -----------------------------------------------------------

@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 // Third-party imports
 import { Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 // Local imports
 import { AuthProvider } from 'src/auth/enum/auth-provider.enum';
@@ -35,7 +36,10 @@ export class UserRepository {
     return this.userRepository.save(newUser);
   }
 
-  async update(userId: string, content: object): Promise<void> {
+  async update(
+    userId: UserEntity['id'],
+    content: QueryDeepPartialEntity<UserEntity>,
+  ): Promise<void> {
     this.userRepository.update({ id: userId }, content);
   }
 
@@ -87,6 +91,20 @@ export class UserRepository {
     return this.userRepository.findOneBy({ name: username }).catch((err) => {
       this.logger.error(`Error when finding user with name: ${username}`, err);
     });
+  }
+
+  async findOneByNameWithRelations(
+    username: string,
+    relations: Array<string>,
+  ): Promise<UserEntity | void> {
+    return this.userRepository
+      .findOne({ where: { name: username }, relations: relations })
+      .catch((err) => {
+        this.logger.error(
+          `Error when finding user with name: ${username}`,
+          err,
+        );
+      });
   }
 
   async findUsersBlocking(

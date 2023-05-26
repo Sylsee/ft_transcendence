@@ -16,9 +16,6 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 }) => {
 	// redux
 	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
-	const showChannelModal = useSelector(
-		(store: RootState) => store.CHAT.showChannelModal
-	);
 	const channels = useSelector((store: RootState) => store.CHAT.channels);
 
 	// queries
@@ -39,13 +36,12 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 	if (showModal)
 		return (
 			<ChatModal setShowModal={setShowModal}>
-				<Chat channels={channels} showChannelModal={showChannelModal} />
+				<Chat channels={channels} />
 			</ChatModal>
 		);
 	else if (showChat && !showModal)
 		return (
-			<div className="rounded-3xl hidden xl:flex flex-col w-1/3 items-stretch max-h-full ml-5 xl:ml-20">
-				<Chat channels={channels} showChannelModal={showChannelModal} />
+			<div className="hidden lg:flex flex-col w-1/3 items-stretch max-h-full">
 			</div>
 		);
 	else return null;
