@@ -2,7 +2,6 @@ import { Game } from "components/Game/Game";
 import { LobbyFound } from "components/Lobby/LobbyFound/LobbyFound";
 import { LobbySearchGame } from "components/Lobby/LobbySearchGame/LobbySearchGame";
 import { LobbyStart } from "components/Lobby/LobbyStart/LobbyStart";
-import { ScoreBoard } from "components/ScoreBoard/ScoreBoard";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getGameSocket } from "sockets/socket";
@@ -19,17 +18,23 @@ const Lobby: React.FC<LobbyProps> = () => {
 	const gameSocket = getGameSocket();
 
 	if (!gameSocket) return null;
+
 	return (
-		<div className="h-full flex justify-center items-stretch">
-			{LobbyStatus === LobbyState.Idle && (
-				<LobbyStart gameSocket={gameSocket} />
-			)}
-			{LobbyStatus === LobbyState.Searching && (
-				<LobbySearchGame gameSocket={gameSocket} />
-			)}
-			{LobbyStatus === LobbyState.Found && <LobbyFound />}
-			{LobbyStatus === LobbyState.Start && <Game />}
-			{LobbyStatus === LobbyState.Finish && <ScoreBoard />}
+		<div className="w-full text-white p-4 overflow-auto border-2 min-h-full ">
+			<div className="w-full min-h-full inline-flex flex-col justify-center items-center">
+				<div className="max-w-7xl inline-flex flex-col justify-center items-center w-full">
+					{LobbyStatus === LobbyState.Idle && (
+						<LobbyStart gameSocket={gameSocket} />
+					)}
+					{LobbyStatus === LobbyState.Searching && (
+						<LobbySearchGame gameSocket={gameSocket} />
+					)}
+					{LobbyStatus === LobbyState.Found && <LobbyFound />}
+					{(LobbyStatus === LobbyState.Start ||
+						LobbyStatus === LobbyState.Finish) && <Game />}
+					{/* {LobbyStatus === LobbyState.Finish && <ScoreBoard />} */}
+				</div>
+			</div>
 		</div>
 	);
 };

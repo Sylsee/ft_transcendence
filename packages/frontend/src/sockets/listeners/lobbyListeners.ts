@@ -18,7 +18,7 @@ export const socketLobbyListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		`${LOBBY_RECEIVE_EVENT_BASE_URL}${LobbyReceiveEvent.State}`,
-		(data: LobbyData) => {
+		(data: Omit<LobbyData, "isPowerUpEnabled">) => {
 			console.log(LobbyReceiveEvent.State, data);
 			dispatch(setLobby(data));
 		}

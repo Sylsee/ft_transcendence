@@ -77,6 +77,7 @@ export const emitLobbySocketEvent = (
 };
 
 export const emitGameSocketEvent = (event: string, payload: any): void => {
+	console.trace(event, payload);
 	const gameSocket = getGameSocket();
 	if (gameSocket && gameSocket.connected) {
 		gameSocket.emit(`${GAME_SEND_EVENT_BASE_URL}${event}`, payload);

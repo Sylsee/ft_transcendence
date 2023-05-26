@@ -40,12 +40,12 @@ const HeaderWrapper: React.FC = () => {
 	};
 
 	return (
-		<div className="h-full flex flex-col items-stretch max-h-full bg-backgroundColor">
+		<div className="h-full flex flex-col max-h-full bg-backgroundColor">
 			<div className="flex-shrink-0">
 				<Header />
 			</div>
-			<div className="flex justify-between items-stretch max-h-full  overflow-auto h-full">
-				<div className="flex-grow">
+			<div className="flex justify-between  max-h-full  overflow-auto h-full">
+				<div className="flex flex-grow overflow-auto">
 					{loading ? <Loader /> : <Outlet />}
 				</div>
 				{isAuth === AuthStatus.Authenticated && (

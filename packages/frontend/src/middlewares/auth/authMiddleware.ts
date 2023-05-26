@@ -10,9 +10,17 @@ import jwt_decode from "jwt-decode";
 import {
 	authenticate,
 	logout,
+	resetAuthState,
 	setAuthState,
 } from "store/auth-slice/auth-slice";
-import { getUser } from "store/selfUser-slice/selfUser-slice";
+import { resetChat } from "store/chat-slice/chat-slice";
+import { resetCustomNotificationState } from "store/customNotification-slice/customNotification-slice";
+import { resetGame } from "store/game-slice/game-slice";
+import {
+	getUser,
+	resetSelfUserState,
+} from "store/selfUser-slice/selfUser-slice";
+import { resetTooltipState } from "store/toolTip-slice/toolTip-slice";
 import { AuthStatus, DecodedToken } from "types/auth/auth";
 import { RootState } from "types/global/global";
 
@@ -54,6 +62,14 @@ const actionHandlers: Record<
 	},
 	[logout.type]: (store, next, action) => {
 		Cookies.remove(JWT_NAME);
+
+		store.dispatch(resetAuthState());
+		store.dispatch(resetChat());
+		store.dispatch(resetGame());
+		store.dispatch(resetTooltipState());
+		store.dispatch(resetSelfUserState());
+		store.dispatch(resetCustomNotificationState());
+
 		return next(action);
 	},
 };

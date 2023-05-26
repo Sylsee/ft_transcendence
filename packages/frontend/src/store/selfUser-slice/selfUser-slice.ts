@@ -14,7 +14,10 @@ export const selfUserSlice = createSlice({
 		setUser(state, action: PayloadAction<User>) {
 			state.user = { ...action.payload, status: UserStatus.Online };
 		},
+		resetSelfUserState() {
+			return initialState;
+		},
 	},
 });
 
-export const { getUser, setUser } = selfUserSlice.actions;
+export const { getUser, setUser, resetSelfUserState } = selfUserSlice.actions;

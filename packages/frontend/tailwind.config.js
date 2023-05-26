@@ -84,6 +84,34 @@ module.exports = withMT({
 					950: "#22262a",
 					DEFAULT: "#48525a",
 				},
+				"oxford-blue": {
+					50: "#f6f7f9",
+					100: "#ebedf3",
+					200: "#d3d7e4",
+					300: "#acb4cd",
+					400: "#7f8db1",
+					500: "#5f6e98",
+					600: "#4b577e",
+					700: "#3e4766",
+					800: "#3a425d",
+					900: "#30354a",
+					950: "#202331",
+					DEFAULT: "#3a425d",
+				},
+				fiord: {
+					50: "#f6f7f9",
+					100: "#ecedf2",
+					200: "#d4d7e3",
+					300: "#aeb5cb",
+					400: "#828dae",
+					500: "#626e95",
+					600: "#495274",
+					700: "#404764",
+					800: "#373c55",
+					900: "#323648",
+					950: "#212330",
+					DEFAULT: "#495274",
+				},
 			},
 			backgroundImage: {
 				"gradient-custom":
@@ -95,7 +123,7 @@ module.exports = withMT({
 	safelist: [
 		{
 			pattern:
-				/(bg|text|border)-(silver-tree|astronaut|mirage|tamarillo|river-red)/,
+				/(bg|text|border)-(silver-tree|astronaut|mirage|tamarillo|river-red|oxford-blue|fiord)/,
 		},
 	],
 });

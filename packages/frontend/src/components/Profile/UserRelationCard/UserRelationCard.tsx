@@ -59,13 +59,11 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 		refetchBlockedUsers,
 		refetchFriendsList,
 		refetchFriendsRequests,
+		isConnectedUser,
 	]);
 
 	return (
-		<div
-			className="flex flex-col w-full h-96 shadow-md rounded-lg p-6"
-			style={{ backgroundColor: "#3A425D" }}
-		>
+		<div className="flex flex-col w-full h-96 shadow-md rounded-lg p-6 bg-oxford-blue">
 			<UserRelationCardHeader
 				isConnectedUser={isConnectedUser}
 				setUserListType={setUserListType}

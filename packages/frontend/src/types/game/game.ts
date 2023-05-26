@@ -10,16 +10,48 @@ export enum GameReceiveEvent {
 	GameCountdown = "countdown",
 	GameState = "state",
 	GameScore = "score",
+	IsPowerUpActive = "is-power-up-active",
+	PowerUpSpawn = "power-up-spawn",
+	PowerUpDespawn = "power-up-despawn",
 }
 
 export enum GameSendEvent {
 	MovePaddle = "move-paddle",
+	PowerUp = "power-up",
 }
 
 export enum GameDirection {
 	Up = "up",
 	Down = "down",
 	None = "none",
+}
+
+export type EmitGameSocketEvent = (
+	event: GameSendEvent,
+	payload: { direction: GameDirection }
+) => void;
+
+export interface PowerUpStatus {
+	isActive: boolean;
+}
+
+export enum PowerUpType {
+	PaddleSizeUp = "paddle-size-up",
+	PaddleSizeDown = "paddle-size-down",
+	BallSizeUp = "ball-size-up",
+	BallSizeDown = "ball-size-down",
+}
+
+export interface PowerUpBall {
+	id: string;
+	radius: number;
+	type: PowerUpType;
+	x: number;
+	y: number;
+}
+
+export interface PowerUpDespawn {
+	id: string;
 }
 
 export interface GameConfig {
@@ -84,6 +116,7 @@ export interface GameData {
 		ball: Omit<Ball, "velocity" | "radius">;
 	};
 	isLeftPlayer: boolean;
+	PowerUpBalls: PowerUpBall[];
 }
 
 export interface GameScore {

@@ -2,11 +2,14 @@ import { Dispatch } from "@reduxjs/toolkit";
 import { Socket } from "socket.io-client";
 import { getChatSocket, getGameSocket } from "sockets/socket";
 import {
+	addPowerUpBall,
+	removePowerUpBall,
 	setCountDown,
 	setGame,
 	setGameConfig,
 	setGameScore,
 	setLobbyStatus,
+	setPowerUp,
 } from "store/game-slice/game-slice";
 import {
 	GameConfig,
@@ -14,6 +17,9 @@ import {
 	GameReceiveEvent,
 	GameScore,
 	GAME_RECEIVE_EVENT_BASE_URL,
+	PowerUpBall,
+	PowerUpDespawn,
+	PowerUpStatus,
 } from "types/game/game";
 import { LobbyState, LOBBY_RECEIVE_EVENT_BASE_URL } from "types/game/lobby";
 
@@ -34,25 +40,25 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.Message}`,
-		(data: any) => {
-			console.log(GameReceiveEvent.Message, data);
+		(message: any) => {
+			console.log(GameReceiveEvent.Message, message);
 		}
 	);
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.Finish}`,
-		(data: GameScore) => {
-			console.log(GameReceiveEvent.Finish, data);
+		(gameScore: GameScore) => {
+			console.log(GameReceiveEvent.Finish, gameScore);
 			dispatch(setLobbyStatus(LobbyState.Finish));
-			dispatch(setGameScore(data));
+			dispatch(setGameScore(gameScore));
 		}
 	);
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameCountdown}`,
-		(data: any) => {
-			console.log(GameReceiveEvent.GameCountdown, data);
-			dispatch(setCountDown(data.seconds));
+		(countdown: any) => {
+			console.log(GameReceiveEvent.GameCountdown, countdown);
+			dispatch(setCountDown(countdown.seconds));
 		}
 	);
 
@@ -70,6 +76,29 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 			dispatch(setGameScore({ ...score, winner: null }));
 		}
 	);
+
+	socket.on(
+		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.IsPowerUpActive}`,
+		(powerUpStatus: PowerUpStatus) => {
+			dispatch(setPowerUp(powerUpStatus.isActive));
+		}
+	);
+
+	socket.on(
+		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.PowerUpSpawn}`,
+		(ball: PowerUpBall) => {
+			console.log(GameReceiveEvent.PowerUpSpawn, ball);
+			dispatch(addPowerUpBall(ball));
+		}
+	);
+
+	socket.on(
+		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.PowerUpDespawn}`,
+		(data: PowerUpDespawn) => {
+			console.log(GameReceiveEvent.PowerUpDespawn, data);
+			dispatch(removePowerUpBall(data.id));
+		}
+	);
 };
 
 export const removeSocketGameListeners = () => {
@@ -84,4 +113,13 @@ export const removeSocketGameListeners = () => {
 	);
 	socket.off(`${LOBBY_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameState}`);
 	socket.off(`${LOBBY_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.GameScore}`);
+	socket.off(
+		`${LOBBY_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.IsPowerUpActive}`
+	);
+	socket.off(
+		`${LOBBY_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.PowerUpSpawn}`
+	);
+	socket.off(
+		`${LOBBY_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.PowerUpDespawn}`
+	);
 };

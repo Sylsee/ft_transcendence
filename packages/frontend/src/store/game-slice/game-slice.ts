@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GameConfig, GameData, GameScore } from "types/game/game";
+import { GameConfig, GameData, GameScore, PowerUpBall } from "types/game/game";
 import { LobbyData, LobbyState } from "types/game/lobby";
 import { GameState } from "types/game/reducer";
 
@@ -17,14 +17,18 @@ export const gameSlice = createSlice({
 		setLobbyStatus: (state, action: PayloadAction<LobbyState>) => {
 			state.lobbyStatus = action.payload;
 		},
-		setLobby: (state, action: PayloadAction<LobbyData>) => {
-			state.lobby = action.payload;
+		setLobby: (
+			state,
+			action: PayloadAction<Omit<LobbyData, "isPowerUpEnabled">>
+		) => {
+			state.lobby = {
+				...action.payload,
+				isPowerUpEnabled: state.lobby?.isPowerUpEnabled ? true : false,
+			};
 		},
-		cleanLobby: (state) => {
-			state.lobby = null;
-			state.lobbyStatus = LobbyState.Idle;
-			state.isLobbyOwner = false;
-			state.game = null;
+		setPowerUp: (state, action: PayloadAction<boolean>) => {
+			if (!state.lobby) return;
+			state.lobby.isPowerUpEnabled = action.payload;
 		},
 		setIsLobbyOwner: (state, action: PayloadAction<boolean>) => {
 			state.isLobbyOwner = action.payload;
@@ -79,6 +83,7 @@ export const gameSlice = createSlice({
 						y: action.payload.ballCoordinates.y,
 					},
 				},
+				PowerUpBalls: [],
 			};
 		},
 		setGameScore: (state, action: PayloadAction<GameScore>) => {
@@ -91,16 +96,36 @@ export const gameSlice = createSlice({
 			state.game.paddle2.x = state.game.defaultCoordinates.paddle2.x;
 			state.game.paddle2.y = state.game.defaultCoordinates.paddle2.y;
 		},
+		addPowerUpBall: (state, action: PayloadAction<PowerUpBall>) => {
+			if (!state.game) return;
+			state.game.PowerUpBalls.push(action.payload);
+		},
+		removePowerUpBall: (state, action: PayloadAction<string>) => {
+			if (!state.game) return;
+			const isElementToRemove = (element: PowerUpBall) => {
+				return element.id === action.payload;
+			};
+			state.game.PowerUpBalls.splice(
+				state.game.PowerUpBalls.findIndex(isElementToRemove),
+				1
+			);
+		},
+		resetGame: () => {
+			return initialState;
+		},
 	},
 });
 
 export const {
 	setLobbyStatus,
 	setLobby,
-	cleanLobby,
 	setIsLobbyOwner,
 	setGame,
 	setCountDown,
 	setGameConfig,
 	setGameScore,
+	resetGame,
+	setPowerUp,
+	addPowerUpBall,
+	removePowerUpBall,
 } = gameSlice.actions;

@@ -18,14 +18,9 @@ const UserRelationCardButton: React.FC<UserRelationCardButtonProps> = ({
 	return (
 		<button
 			onClick={handleClick}
-			className="grow flex flex-col min-w-1/4 justify-center p-4"
+			className="grow flex flex-col min-w-1/4 justify-center p-4 items-center"
 		>
-			<FontAwesomeIcon
-				icon={icon}
-				size="xl"
-				className="w-full"
-				rotation={rotation}
-			/>
+			<FontAwesomeIcon icon={icon} size="xl" rotation={rotation} />
 			<div className="w-full flex justify-center">
 				<div
 					className={`h-[2px] w-1/2 ${isActive && "bg-white"} mt-2`}

@@ -6,12 +6,7 @@ import { RootState } from "types/global/global";
 const ProtectedRoute: React.FC = () => {
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
 
-	if (isAuth === AuthStatus.Authenticated)
-		return (
-			<>
-				<Outlet />
-			</>
-		);
+	if (isAuth === AuthStatus.Authenticated) return <Outlet />;
 	else return <Navigate to={"/"} />;
 };
 

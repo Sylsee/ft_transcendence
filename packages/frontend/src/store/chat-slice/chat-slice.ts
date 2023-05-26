@@ -157,6 +157,9 @@ export const chatSlice = createSlice({
 		setSelectedChannel: (state, action: PayloadAction<string | null>) => {
 			state.selectedChannelId = action.payload;
 		},
+		resetChat: () => {
+			return initialState;
+		},
 	},
 });
 
@@ -202,4 +205,5 @@ export const {
 	setShowChannelModal,
 	setIsMenuOpen,
 	toggleChatMenu,
+	resetChat,
 } = chatSlice.actions;

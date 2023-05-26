@@ -20,11 +20,17 @@ export const authSlice = createSlice({
 		setTwoFactorAuthEnabled(state, action: PayloadAction<boolean>) {
 			state.isTwoFactorAuthEnabled = action.payload;
 		},
-		logout(state) {
-			state.isAuth = AuthStatus.NotAuthenticated;
+		logout() {},
+		resetAuthState() {
+			return initialState;
 		},
 	},
 });
 
-export const { authenticate, setAuthState, setTwoFactorAuthEnabled, logout } =
-	authSlice.actions;
+export const {
+	authenticate,
+	setAuthState,
+	setTwoFactorAuthEnabled,
+	logout,
+	resetAuthState,
+} = authSlice.actions;

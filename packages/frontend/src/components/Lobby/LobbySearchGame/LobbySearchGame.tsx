@@ -1,4 +1,4 @@
-import styles from "components/Lobby/Lobby.module.css";
+import { EllipsisLoadingText } from "components/Loader/EllipsisLoadingText/EllipsisLoadingText";
 import { UserRowButton } from "components/Profile/UserRelationCard/UserList/UserRow/Buttons/UserRowButton";
 import React from "react";
 import { useDispatch } from "react-redux";
@@ -23,12 +23,7 @@ const LobbySearchGame: React.FC<LobbySearchGameProps> = ({ gameSocket }) => {
 		<div className="flex flex-col justify-center  ">
 			<div className="">
 				<div className="text-xl font-bold text-center mb-4">
-					<div className={`${styles.loading}`}>
-						Waiting for a match
-						<span
-							className={`${styles.dotsContainer} text-left`}
-						></span>
-					</div>
+					<EllipsisLoadingText content="Waiting for a match" />
 				</div>
 				<div className="flex justify-center items-center w-full text-lg">
 					<UserRowButton

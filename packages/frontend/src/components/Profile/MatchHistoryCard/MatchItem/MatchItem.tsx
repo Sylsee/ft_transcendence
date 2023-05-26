@@ -1,68 +1,64 @@
-import { UserMatchItem } from "components/Profile/MatchHistoryCard/MatchItem/UserMatchItem/UserMatchItem";
+import { UserMatchHeader } from "components/Profile/MatchHistoryCard/MatchItem/UserMatchItem/UserMatchHeader/UserMatchHeader";
 import React from "react";
+import { Link } from "react-router-dom";
 import { Match } from "types/user/user";
-import { formatDate } from "utils/formatter/date";
 
 interface MatchItemProps {
 	match: Match;
+	userId: string;
 }
 
-const MatchItem: React.FC<MatchItemProps> = ({ match }) => {
+const MatchItem: React.FC<MatchItemProps> = ({ match, userId }) => {
 	return (
-		// <div className="flex flex-wrap justify-between border-t border-gray-200 py-2">
-		// 	<div className="w-full sm:w-auto">
-		// 		<span className="text-gray-500">Date: </span>
-		// 		{formatDate(match.createdAt)}
-		// 	</div>
-		// 	<div className="w-full sm:w-auto mt-2 sm:mt-0">
-		// 		<span className="text-gray-500">Mode: </span>
-		// 		{match.mode}
-		// 	</div>
-		// 	<div className="w-full sm:w-auto mt-2 sm:mt-0">
-		// 		<span className="text-gray-500">Winner: </span>
-		// 		{match.winner.name} ({match.winnerPoints} points)
-		// 	</div>
-		// 	<div className="w-full sm:w-auto mt-2 sm:mt-0">
-		// 		<span className="text-gray-500">Loser: </span>
-		// 		{match.loser.name} ({match.loserPoints} points)
-		// 	</div>
-		// </div>
-		// <tr className="border-b dark:border-neutral-500">
-		// 	<td className="whitespace-nowrap px-6 py-4 font-medium">
-		// 		{formatDate(match.createdAt)}
-		// 	</td>
-		// 	<td className="whitespace-nowrap px-6 py-4">{match.mode}</td>
-		// 	<td className="whitespace-nowrap px-6 py-4">
-		// 		<UserMatchItem
-		// 			user={match.winner}
-		// 			userPoints={match.winnerPoints}
-		// 		/>
-		// 	</td>
-		// 	<td className="whitespace-nowrap px-6 py-4">
-		// 		<UserMatchItem
-		// 			user={match.loser}
-		// 			userPoints={match.loserPoints}
-		// 		/>
-		// 	</td>
-		// </tr>
-		<div className=" flex flex-wrap  border-b dark:border-neutral-500 border-2 border-red-500">
-			<div className="whitespace-nowrap  py-4 font-mediu border-2 w-full pl-2">
-				{formatDate(match.createdAt)}
-			</div>
-			<div className="whitespace-nowrap py-4 border-2 w-full pl-2">
-				{match.mode}
-			</div>
-			<div className="whitespace-nowrap py-4 border-2 w-full pl-2">
-				<UserMatchItem
-					user={match.winner}
-					userPoints={match.winnerPoints}
-				/>
-			</div>
-			<div className="whitespace-nowrap  py-4 border-2 w-full pl-2">
-				<UserMatchItem
-					user={match.loser}
-					userPoints={match.loserPoints}
-				/>
+		<div
+			className={`flex flex-col items-center p-2 min-h-20 shadow-xl my-1 bg-fiord`}
+		>
+			{/* header */}
+			<UserMatchHeader date={match.createdAt} mode={match.mode} />
+			{/* content */}
+			<div
+				className={`grow flex items-center justify-between h-full w-full p-1 rounded-lg ${
+					userId === match.winner.id
+						? "bg-silver-tree"
+						: "bg-tamarillo-400"
+				} `}
+			>
+				{/* first child */}
+				<Link to={`/user/${match.winner.id}`} className="sm:block">
+					<img
+						className="w-10 min-w-10 h-10 rounded-full mr-2"
+						src={match.winner.profilePictureUrl}
+						alt="The winner"
+					/>
+				</Link>
+				{/* second child */}
+				<div className="flex grow">
+					<Link
+						to={`/user/${match.winner.id}`}
+						className="w-2/5 text-end hidden sm:block"
+					>
+						<p className="font-bold">{match.winner.name}</p>
+					</Link>
+					<div className="font-bold text-oxford-blue-700 w-full sm:w-1/5 text-center">
+						{match.winnerPoints} / {match.loserPoints}
+					</div>
+					<Link
+						to={`/user/${match.loser.id}`}
+						className="w-2/5 hidden sm:block"
+					>
+						<p className="font-bold break-words">
+							{match.loser.name}
+						</p>
+					</Link>
+				</div>
+				{/* third child */}
+				<Link to={`/user/${match.loser.id}`} className="sm:block">
+					<img
+						className="w-10 min-w-10 h-10 rounded-full mr-2"
+						src={match.loser.profilePictureUrl}
+						alt="The Loser"
+					/>
+				</Link>
 			</div>
 		</div>
 	);

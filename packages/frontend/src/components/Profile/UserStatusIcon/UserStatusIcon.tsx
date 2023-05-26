@@ -11,7 +11,7 @@ interface UserStatusIconProps {
 
 const UserStatusIcon: React.FC<UserStatusIconProps> = ({
 	status,
-	customStatusStyles = "bottom-1 right-6",
+	customStatusStyles = "bottom-3 right-6",
 	customControllerStyles = "bottom-2 right-7",
 }) => {
 	if (status === undefined) return null;

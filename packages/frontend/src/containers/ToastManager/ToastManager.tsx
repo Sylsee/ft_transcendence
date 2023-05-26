@@ -2,6 +2,7 @@ import { InvitationToast } from "components/InvitationToast/InvitationToast";
 import { useJoinChannel } from "hooks/chat/useJoinChannel";
 import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { emitLobbySocketEvent } from "sockets/socket";
 import { removeCustomNotification } from "store/customNotification-slice/customNotification-slice";
@@ -22,6 +23,9 @@ const ToastManager: React.FC<ToastManagerProps> = () => {
 		(state: RootState) => state.CUSTOM_NOTIFICATION.notifications
 	);
 
+	// react-rooter
+	const navigate = useNavigate();
+
 	// mutations
 	const { mutate } = useJoinChannel();
 
@@ -37,6 +41,8 @@ const ToastManager: React.FC<ToastManagerProps> = () => {
 
 		const handleAcceptLobbyInvitation = (id: string) => {
 			emitLobbySocketEvent(LobbySendEvent.JoinLobby, { lobbyId: id });
+			// redirect to lobby
+			navigate(`/lobby/`, { replace: true });
 		};
 		const handleDeclineLobbyInvitation = () => {};
 		if (notifications.length > notificationsLengthRef.current) {

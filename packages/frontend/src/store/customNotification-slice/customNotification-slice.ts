@@ -21,8 +21,14 @@ export const customNotificationSlice = createSlice({
 		removeCustomNotification: (state, action: PayloadAction<number>) => {
 			state.notifications.splice(action.payload, 1);
 		},
+		resetCustomNotificationState() {
+			return initialState;
+		},
 	},
 });
 
-export const { addCustomNotification, removeCustomNotification } =
-	customNotificationSlice.actions;
+export const {
+	addCustomNotification,
+	removeCustomNotification,
+	resetCustomNotificationState,
+} = customNotificationSlice.actions;

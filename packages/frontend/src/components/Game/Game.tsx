@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from "react";
+import useKeyboardControls from "hooks/game/useKeyboardControls";
+import useTouchControls from "hooks/game/useTouchControls";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { emitGameSocketEvent } from "sockets/socket";
-import { GameDirection, GameSendEvent } from "types/game/game";
 import { RootState } from "types/global/global";
-
 interface GameProps {}
 
 const Game: React.FC<GameProps> = () => {
@@ -13,21 +13,37 @@ const Game: React.FC<GameProps> = () => {
 		(state: RootState) => state.GAME.game?.countDown || 0
 	);
 
-	useEffect(() => {
-		if (!game) return;
-		const canvas = canvasRef.current;
-		if (!canvas) return;
+	// custom hooks
+	useTouchControls(countDown, emitGameSocketEvent);
+	useKeyboardControls(countDown, emitGameSocketEvent);
 
-		const handleResize = () => {
+	const requestAnimationRef = useRef<number>(0);
+
+	const tempCanvasRef = useRef<any | null>(null);
+
+	useEffect(() => {
+		tempCanvasRef.current = document.createElement("canvas");
+	}, []);
+
+	const animateGame = useCallback(
+		(time: any) => {
+			console.log("animateGame");
+			if (!game || !tempCanvasRef.current) return;
+			const canvas = canvasRef.current;
+			if (!canvas) return;
+
 			const logicalWidth = game.width;
 			const logicalHeight = game.height;
-
 			const rect = canvas.getBoundingClientRect();
+
+			console.log(rect.width, rect.height);
 
 			const scale = Math.min(
 				rect.width / logicalWidth,
 				rect.height / logicalHeight
 			);
+
+			console.log("scale", scale);
 
 			canvas.width = logicalWidth * scale;
 			canvas.height = logicalHeight * scale;
@@ -38,29 +54,28 @@ const Game: React.FC<GameProps> = () => {
 			context.scale(scale, scale);
 
 			// Création d'un canvas temporaire pour le dessin inversé
-			const tempCanvas = document.createElement("canvas");
+			const tempCanvas = tempCanvasRef.current;
 			tempCanvas.width = logicalWidth;
 			tempCanvas.height = logicalHeight;
+
 			const tempContext = tempCanvas.getContext("2d");
 			if (!tempContext) return;
 
-			// Inverser le canvas temporaire si le joueur n'est pas le joueur de gauche
 			if (!game.isLeftPlayer) {
 				tempContext.scale(-1, 1);
 				tempContext.translate(-logicalWidth, 0);
 			}
 
-			tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height); // Effacer le canvas temporaire
+			tempContext.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
 
-			// Dessiner une ligne pointillée au milieu
 			tempContext.beginPath();
-			tempContext.strokeStyle = "white";
+			tempContext.strokeStyle = "#c5bda2";
 			tempContext.setLineDash([5, 15]);
 			tempContext.moveTo(logicalWidth / 2, 0);
 			tempContext.lineTo(logicalWidth / 2, logicalHeight);
 			tempContext.stroke();
 
-			tempContext.fillStyle = "white";
+			tempContext.fillStyle = "#4F609C";
 
 			tempContext.fillRect(
 				game.paddle1.x,
@@ -68,6 +83,7 @@ const Game: React.FC<GameProps> = () => {
 				game.paddle1.width,
 				game.paddle1.height
 			);
+
 			tempContext.fillRect(
 				game.paddle2.x,
 				game.paddle2.y,
@@ -76,6 +92,7 @@ const Game: React.FC<GameProps> = () => {
 			);
 
 			tempContext.beginPath();
+			tempContext.fillStyle = "white";
 			tempContext.arc(
 				game.ball.x,
 				game.ball.y,
@@ -85,7 +102,21 @@ const Game: React.FC<GameProps> = () => {
 			);
 			tempContext.fill();
 
-			// Copier l'image du canvas temporaire sur le canvas original
+			// game.PowerUpBalls.forEach((ball: PowerUpBall) => {
+			// 	tempContext.beginPath();
+			// 	tempContext.fillStyle = "red";
+			// 	if (ball.type === PowerUpType.PaddleSizeUp)
+			// 		tempContext.fillStyle = "green";
+			// 	else if (ball.type === PowerUpType.PaddleSizeDown)
+			// 		tempContext.fillStyle = "red";
+			// 	else if (ball.type === PowerUpType.BallSizeUp)
+			// 		tempContext.fillStyle = "blue";
+			// 	else if (ball.type === PowerUpType.BallSizeDown)
+			// 		tempContext.fillStyle = "yellow";
+			// 	tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+			// 	tempContext.fill();
+			// });
+
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(tempCanvas, 0, 0);
 
@@ -93,11 +124,11 @@ const Game: React.FC<GameProps> = () => {
 			context.font = "35px Arial ";
 			context.fillStyle = "white";
 			const player1Score = game.isLeftPlayer
-				? game.score.player2Score
-				: game.score.player1Score;
-			const player2Score = game.isLeftPlayer
 				? game.score.player1Score
 				: game.score.player2Score;
+			const player2Score = game.isLeftPlayer
+				? game.score.player2Score
+				: game.score.player1Score;
 
 			context.fillText(player1Score.toString(), logicalWidth / 4, 50);
 			context.fillText(
@@ -105,160 +136,30 @@ const Game: React.FC<GameProps> = () => {
 				(3 * logicalWidth) / 4,
 				50
 			);
-		};
 
-		handleResize();
-		window.addEventListener("resize", handleResize);
-
-		return () => {
-			window.removeEventListener("resize", handleResize);
-		};
-	}, [game]);
+			requestAnimationRef.current = requestAnimationFrame(animateGame);
+		},
+		[game]
+	);
 
 	useEffect(() => {
-		const handleKeyDown = (event: KeyboardEvent) => {
-			if (countDown !== 0) return;
+		console.log("animateGame");
 
-			switch (event.key) {
-				case "ArrowUp":
-					emitGameSocketEvent(GameSendEvent.MovePaddle, {
-						direction: GameDirection.Up,
-					});
-					break;
-				case "ArrowDown":
-					emitGameSocketEvent(GameSendEvent.MovePaddle, {
-						direction: GameDirection.Down,
-					});
-					break;
-				default:
-					break;
-			}
-		};
-
-		const handleKeyUp = (event: KeyboardEvent) => {
-			if (countDown !== 0) return;
-
-			switch (event.key) {
-				case "ArrowUp":
-				case "ArrowDown":
-					emitGameSocketEvent(GameSendEvent.MovePaddle, {
-						direction: GameDirection.None,
-					});
-					break;
-				default:
-					break;
-			}
-		};
-
-		let initialTouchY: number | null = null;
-		let lastDirection: GameDirection = GameDirection.None;
-
-		const handleTouchStart = (event: TouchEvent) => {
-			if (countDown !== 0) return;
-			initialTouchY = event.touches[0].clientY;
-		};
-
-		const handleTouchMove = (event: TouchEvent) => {
-			if (countDown !== 0 || initialTouchY === null) return;
-
-			const currentTouchY = event.touches[0].clientY;
-			if (currentTouchY < initialTouchY) {
-				lastDirection = GameDirection.Up;
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.Up,
-				});
-			} else if (currentTouchY > initialTouchY) {
-				lastDirection = GameDirection.Down;
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.Down,
-				});
-			}
-
-			initialTouchY = currentTouchY;
-		};
-
-		const handleTouchEnd = (event: TouchEvent) => {
-			if (countDown !== 0 || initialTouchY === null) return;
-			if (lastDirection !== GameDirection.None) {
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.None,
-				});
-			}
-			initialTouchY = null;
-			lastDirection = GameDirection.None;
-		};
-
-		window.addEventListener("keydown", handleKeyDown);
-		window.addEventListener("keyup", handleKeyUp);
-		window.addEventListener("touchstart", handleTouchStart);
-		window.addEventListener("touchmove", handleTouchMove);
-		window.addEventListener("touchend", handleTouchEnd);
-
+		if (game && tempCanvasRef.current) {
+			requestAnimationRef.current = requestAnimationFrame(animateGame);
+		}
 		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-			window.removeEventListener("keyup", handleKeyUp);
-			window.removeEventListener("touchstart", handleTouchStart);
-			window.removeEventListener("touchmove", handleTouchMove);
-			window.removeEventListener("touchend", handleTouchEnd);
+			cancelAnimationFrame(requestAnimationRef.current);
 		};
-	}, [countDown]);
+	}, [game, animateGame]);
 
-	useEffect(() => {
-		let initialTouchY: number | null = null;
-		let lastDirection: GameDirection = GameDirection.None;
-
-		const handleTouchStart = (event: TouchEvent) => {
-			if (countDown !== 0) return;
-			initialTouchY = event.touches[0].clientY;
-		};
-
-		const handleTouchMove = (event: TouchEvent) => {
-			if (countDown !== 0 || initialTouchY === null) return;
-
-			const currentTouchY = event.touches[0].clientY;
-			if (currentTouchY < initialTouchY) {
-				lastDirection = GameDirection.Up;
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.Up,
-				});
-			} else if (currentTouchY > initialTouchY) {
-				lastDirection = GameDirection.Down;
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.Down,
-				});
-			}
-
-			initialTouchY = currentTouchY;
-		};
-
-		const handleTouchEnd = (event: TouchEvent) => {
-			if (countDown !== 0 || initialTouchY === null) return;
-			if (lastDirection !== GameDirection.None) {
-				emitGameSocketEvent(GameSendEvent.MovePaddle, {
-					direction: GameDirection.None,
-				});
-			}
-			initialTouchY = null;
-			lastDirection = GameDirection.None;
-		};
-
-		window.addEventListener("touchstart", handleTouchStart);
-		window.addEventListener("touchmove", handleTouchMove);
-		window.addEventListener("touchend", handleTouchEnd);
-
-		return () => {
-			window.removeEventListener("touchstart", handleTouchStart);
-			window.removeEventListener("touchmove", handleTouchMove);
-			window.removeEventListener("touchend", handleTouchEnd);
-		};
-	}, [countDown]);
 	return (
-		<div className="flex flex-col justify-center items-center w-full p-4">
+		<div className="flex w-full flex-col justify-center items-center  p-4 max-h-full">
 			<div
 				style={{
 					aspectRatio: "14/10",
 				}}
-				className="relative border-2  w-full max-w-7xl"
+				className="relative bg-oxford-blue w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
 			>
 				{countDown > 0 && (
 					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl">
@@ -270,7 +171,6 @@ const Game: React.FC<GameProps> = () => {
 					style={{
 						width: "100%",
 						height: "100%",
-						border: "2px solid black",
 					}}
 				></canvas>
 			</div>
@@ -279,3 +179,4 @@ const Game: React.FC<GameProps> = () => {
 };
 
 export { Game };
+// NEW

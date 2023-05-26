@@ -19,6 +19,7 @@ export type LobbyUser = Omit<User, "status"> & { isReady: boolean };
 export interface LobbyData {
 	lobbyId: string;
 	mode: LobbyMode;
+	isPowerUpEnabled: boolean;
 	hasFinished: false;
 	hasStarted: false;
 	players: LobbyUser[];

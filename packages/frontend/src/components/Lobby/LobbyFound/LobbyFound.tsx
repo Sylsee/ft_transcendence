@@ -1,5 +1,6 @@
 import { LobbyFriends } from "components/Lobby/LobbyFound/LobbyFriends/LobbyFriends";
 import { LobbyLeave } from "components/Lobby/LobbyFound/LobbyLeave/LobbyLeave";
+import { LobbyPowerUp } from "components/Lobby/LobbyFound/LobbyPowerUp/LobbyPowerUp";
 import { LobbyUserCard } from "components/Lobby/LobbyFound/LobbyUserCard/LobbyUserCard";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -25,7 +26,7 @@ const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
 	)
 		return null;
 	return (
-		<div className="w-full max-w-4xl flex flex-col justify-center">
+		<div className="w-full flex flex-col justify-center border-2 border-pink-900">
 			<div className="m-4 flex flex-col justify-center items-center">
 				<p className="text-4xl font-bold text-silver-tree-400">
 					{isLobbyOwner ? "Your lobby" : "Lobby Found"}
@@ -37,6 +38,7 @@ const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
 			{isLobbyOwner && lobby.players.length < 2 && (
 				<LobbyFriends connectedUserId={connectedUserId} />
 			)}
+			{isLobbyOwner && <LobbyPowerUp />}
 			<div className="flex flex-col md:flex-row text-lg">
 				{lobby.players.map((player, index) => (
 					<LobbyUserCard
@@ -45,7 +47,7 @@ const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
 						isConnectedUser={connectedUserId === player.id}
 					/>
 				))}
-				<div></div>
+				{lobby.players.length < 2 && <LobbyUserCard />}
 			</div>
 			<LobbyLeave />
 		</div>

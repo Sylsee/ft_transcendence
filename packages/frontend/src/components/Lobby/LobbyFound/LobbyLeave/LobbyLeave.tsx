@@ -2,7 +2,7 @@ import { UserRowButton } from "components/Profile/UserRelationCard/UserList/User
 import React from "react";
 import { useDispatch } from "react-redux";
 import { emitLobbySocketEvent } from "sockets/socket";
-import { cleanLobby } from "store/game-slice/game-slice";
+import { resetGame } from "store/game-slice/game-slice";
 import { LobbySendEvent } from "types/game/lobby";
 
 interface LobbyLeaveProps {}
@@ -12,7 +12,7 @@ const LobbyLeave: React.FC<LobbyLeaveProps> = ({}) => {
 
 	const handleLeaveClick = () => {
 		emitLobbySocketEvent(LobbySendEvent.LeaveLobby);
-		dispatch(cleanLobby());
+		dispatch(resetGame());
 	};
 
 	return (
