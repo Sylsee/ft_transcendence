@@ -9,7 +9,7 @@ RUN npm ci
 RUN npm i serve -g
 
 RUN echo "npm run build" > bootstrap.sh
-RUN echo "serve -s build -l 4000" >> bootstrap.sh
+RUN echo "serve -s build -l 4000 -L" >> bootstrap.sh
 RUN chmod +x bootstrap.sh
 
 CMD ./bootstrap.sh
