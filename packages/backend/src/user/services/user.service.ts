@@ -42,7 +42,6 @@ export class UserService {
     private matchRepository: MatchRepository,
   ) {}
 
-  // TODO: Remove this method
   findAll() {
     return this.userRepository.find();
   }

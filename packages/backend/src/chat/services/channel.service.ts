@@ -39,7 +39,6 @@ export class ChannelService {
     private userService: UserService,
   ) {}
 
-  // TODO: Remove this method
   async findAllChannels(): Promise<ChannelEntity[] | void> {
     return this.channelRepository.findWithRelations([
       'owner',

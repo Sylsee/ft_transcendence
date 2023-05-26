@@ -1,9 +1,9 @@
-FROM node:14-slim As development
+FROM node:14-slim
 
 WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm i
+RUN npm ci
 
 CMD [ "npm", "run", "start" ]
