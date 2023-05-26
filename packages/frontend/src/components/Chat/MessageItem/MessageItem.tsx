@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import {
 	selectDirectMessageChannel,
 	setActiveChannel,
+	setShowChatModal,
 } from "store/chat-slice/chat-slice";
 import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
 import { ChannelType, Message } from "types/chat/chat";
@@ -126,6 +127,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 
 	const handleClickProfile = () => {
 		navigate(`/user/${message.sender.id}`, { replace: true });
+		dispatch(setShowChatModal(false));
 	};
 
 	return (
