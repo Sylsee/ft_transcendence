@@ -1,5 +1,5 @@
-COMPOSE_FILE	=	docker-compose.dev.yml
-DOCKER			=	docker compose # docker-compose
+COMPOSE_FILE	=	docker-compose.prod.yml
+DOCKER			=	docker-compose # docker-compose
 OPTIONS			=	#-d
 
 _RESET			=	\e[0m
