@@ -19,12 +19,11 @@ services:
     command:
       - sh
       - -c
-      - npm i && npm run start:prod
+      - npm ci && npm run prebuild && npm run build && npm run start:prod
     depends_on:
       - db
     ports:
       - ${BACKEND_PORT}:${BACKEND_PORT}
-      - 9229:9229 # for NodeJS debugging
     networks:
       - transcendence-network
     restart: unless-stopped
@@ -34,7 +33,7 @@ services:
   # ------------------------------------------------------------
   db:
     image: postgres:12-alpine
-    hostname: postgres-db_prod
+    hostname: ${POSTGRES_HOST}
     environment:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: ${POSTGRES_DB}
@@ -49,26 +48,6 @@ services:
     restart: unless-stopped
 
   # ------------------------------------------------------------
-  # PgAdmin - Database Admin
-  # ------------------------------------------------------------
-  pgadmin:
-    image: dpage/pgadmin4
-    hostname: pgadmin_prod
-    environment:
-      GUNICORN_ACCESS_LOGFILE: "/dev/null"
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    volumes:
-      - pgadmin:/root/.pgadmin
-    ports:
-      - ${PGADMIN_PORT}:80
-    networks:
-      - transcendence-network
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  # ------------------------------------------------------------
   # Node - Frontend
   # ------------------------------------------------------------
   frontend:
@@ -77,22 +56,21 @@ services:
     build:
       context: ./packages/frontend
       target: ${NODE_ENV}
+      dockerfile: Dockerfile.prod
     environment:
-      CHOKIDAR_USEPOLLING: true
-      WDS_SOCKET_PORT: ${FRONTEND_PORT}
-      PORT: ${FRONTEND_PORT}
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=${FRONTEND_PORT}
+      - PORT=${FRONTEND_PORT}
     volumes:
       - ./packages/frontend/src:/usr/src/app/src
     ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
     networks:
       - transcendence-network
     restart: always
 
 volumes:
   pgdata:
-  pgadmin:
-  node_modules:
 
 networks:
   transcendence-network:
