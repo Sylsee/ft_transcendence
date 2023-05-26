@@ -23,7 +23,7 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 
 	useEffect(() => {
 		const handleResize = () => {
-			if (window.innerWidth > 1024) {
+			if (window.innerWidth > 1280) {
 				setShowModal(false);
 			}
 		};
@@ -42,7 +42,6 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 	else if (showChat && !showModal)
 		return (
 			<div className="hidden lg:flex flex-col w-1/3 items-stretch max-h-full">
-				<Chat channels={channels} />
 			</div>
 		);
 	else return null;

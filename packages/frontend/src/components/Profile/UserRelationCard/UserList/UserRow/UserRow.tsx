@@ -1,8 +1,8 @@
 import { UserRowButton } from "components/Profile/UserRelationCard/UserList/UserRow/Buttons/UserRowButton";
 import { Link } from "react-router-dom";
 import { UserStatus } from "types/user/user";
-import { FriendRequest } from "../../../../../types/userRelations/userRelations";
 import { ButtonPropsList } from "../../../../../types/button/button";
+import { FriendRequest } from "../../../../../types/userRelations/userRelations";
 
 interface UserRowProps {
 	user: FriendRequest;

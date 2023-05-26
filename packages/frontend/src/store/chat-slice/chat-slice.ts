@@ -20,6 +20,7 @@ const initialState: ChatState = {
 	showChat: false,
 	showChannelModal: ChannelModalType.None,
 	isMenuOpen: false,
+	chatInput: "",
 };
 
 export const chatSlice = createSlice({
@@ -157,6 +158,9 @@ export const chatSlice = createSlice({
 		setSelectedChannel: (state, action: PayloadAction<string | null>) => {
 			state.selectedChannelId = action.payload;
 		},
+		setChatInput: (state, action: PayloadAction<string>) => {
+			state.chatInput = action.payload;
+		},
 	},
 });
 
@@ -202,4 +206,5 @@ export const {
 	setShowChannelModal,
 	setIsMenuOpen,
 	toggleChatMenu,
+	setChatInput,
 } = chatSlice.actions;

@@ -1,58 +1,78 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ChannelList } from "components/Chat/ChannelList/ChannelList";
-import React from "react";
+import { AddChannelItem } from "components/Chat/ChatMenu/AddChannelItem/AddChannelItem";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { selectActiveChannel } from "store/chat-slice/chat-slice";
 import { Channel } from "types/chat/chat";
 import { RootState } from "types/global/global";
+import { ChatMenuButton } from "./ChatMenuButton/ChatMenuButton";
 
 interface ChatMenuProps {
 	handleClickChannel: (channel: Channel) => void;
-	handleCreateChannel: () => void;
-	handleEditChannel: (channel: Channel) => void;
 	channels: Channel[];
+	toggleMenu: () => void;
 }
 
 const ChatMenu: React.FC<ChatMenuProps> = ({
 	handleClickChannel,
-	handleCreateChannel,
-	handleEditChannel,
 	channels,
+	toggleMenu,
 }) => {
 	const isMenuOpen = useSelector((store: RootState) => store.CHAT.isMenuOpen);
 	const activeChannel = useSelector(selectActiveChannel);
+
+	const [channelsIsJoinedFilter, setChannelsIsJoinedFilter] = useState(true);
+
+	const handleClickJoined = () => {
+		setChannelsIsJoinedFilter(true);
+	};
+
+	const handleClickAccessible = () => {
+		setChannelsIsJoinedFilter(false);
+	};
+
 	return (
 		<div
-			className={`bg-mirage-950 absolute h-full top-0 left-0 w-64 p-4  transform transition-transform duration-300 ${
-				isMenuOpen ? "translate-x-0" : "-translate-x-full"
-			}`}
+			className={`flex flex-col bg-chatgpt-grey-500 absolute h-full top-0 left-[-1px] w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
+				isMenuOpen
+					? "translate-x-[1px] shadow-right"
+					: "-translate-x-full"
+			} rounded-3xl`}
 		>
-			<div>
-				<button onClick={handleCreateChannel}>
-					<FontAwesomeIcon fixedWidth icon={faPlus} />
+			{/* ChatMenuHeader */}
+			<div className="flex justify-center items-center pt-5 px-1 pb-2 md:pl-8 md:pt-7 md:pb-4">
+				<button onClick={toggleMenu} className="h-full">
+					<FontAwesomeIcon fixedWidth icon={faClose} size="xl" />
 				</button>
+				<div className="flex flex-grow justify-center items-center">
+					<ChatMenuButton
+						name="Joined"
+						handleClick={handleClickJoined}
+						isSelected={channelsIsJoinedFilter}
+					/>
+					<ChatMenuButton
+						name="Accessible"
+						handleClick={handleClickAccessible}
+						isSelected={!channelsIsJoinedFilter}
+					/>
+				</div>
 			</div>
-			<div className="grid grid-rows-2 gap-4 h-[calc(100%)]">
+			{/* ChatMenuBody */}
+			<div className="overflow-auto flex-grow">
 				<ChannelList
-					handleEditChannel={handleEditChannel}
-					title="Joined Channels"
 					channels={channels.filter(
-						(channel) => channel.permissions.isMember
+						(channel) =>
+							channelsIsJoinedFilter ===
+							channel.permissions.isMember
 					)}
 					activeChannel={activeChannel}
 					handleClickChannel={handleClickChannel}
 				/>
-				<ChannelList
-					handleEditChannel={handleEditChannel}
-					title="Other Channels"
-					channels={channels.filter(
-						(channel) => !channel.permissions.isMember
-					)}
-					activeChannel={activeChannel}
-					handleClickChannel={handleClickChannel}
-				/>
 			</div>
+			{/* ChatMenuFooter */}
+			<AddChannelItem />
 		</div>
 	);
 };

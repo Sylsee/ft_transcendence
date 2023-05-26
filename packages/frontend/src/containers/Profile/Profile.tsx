@@ -43,13 +43,17 @@ const Profile = () => {
 		return <ErrorNotFound />;
 
 	return (
-		<div className="flex justify-center text-white mt-10 px-4">
-			<div className="flex flex-col lg:flex-row w-full max-w-7xl">
-				<ProfileCard
-					user={isConnectedUser ? connected_user : userData}
-					isConnectedUser={isConnectedUser}
-				/>
-				<div className="flex flex-col lg:w-1/2 w-full mt-7 lg:mt-0 lg:ml-4">
+		<div className="flex justify-center text-white px-4">
+			<div className="flex flex-col xl:flex-row  w-full max-w-6xl">
+				<div className="flex flex-col w-full">
+					<ProfileCard
+						user={isConnectedUser ? connected_user : userData}
+						isConnectedUser={isConnectedUser}
+					/>
+					{/* ProfileStats */}
+					<div className="w-full h-64"></div>
+				</div>
+				<div className="flex flex-col w-full mt-7 lg:mt-0 lg:ml-4">
 					<UserRelationCard
 						id={id}
 						isConnectedUser={isConnectedUser}
