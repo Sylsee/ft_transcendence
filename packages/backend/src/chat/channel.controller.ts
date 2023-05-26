@@ -46,7 +46,6 @@ export class ChannelController {
 
   // ----------------------- Debug Endpoints -----------------------
 
-  // TODO: Remove this endpoint in production
   @Get('debug')
   @ApiOperation({
     summary: 'Get all channels',

@@ -60,7 +60,6 @@ export class UserController {
     private readonly friendRequestService: FriendRequestService,
   ) {}
 
-  // TODO: Remove this endpoint
   @Get()
   @ApiOperation({
     summary: 'Get all users',
