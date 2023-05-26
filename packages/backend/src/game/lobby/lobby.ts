@@ -1,12 +1,12 @@
 // NestJS imports
 import { Logger } from '@nestjs/common';
+import { WsException } from '@nestjs/websockets';
 
 // Third-party imports
 import { Server, Socket } from 'socket.io';
 import { v4 } from 'uuid';
 
 // Local imports
-import { WsException } from '@nestjs/websockets';
 import { ChatGateway } from 'src/chat/chat.gateway';
 import { ServerChatEvent } from 'src/chat/enum/server-chat-event.enum';
 import { UserDto } from 'src/user/dto/user.dto';
@@ -17,7 +17,8 @@ import { MAX_PLAYERS } from '../constants';
 import { UserWithReadyStatusDto } from '../dto/user-with-ready-status.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
-import { Instance } from '../instance/instance';
+import { Game } from '../game/game';
+import { MatchRepository } from '../repository/match.repository';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
 import { GamePayloads } from '../types/GamePayloads';
 
@@ -38,39 +39,63 @@ export class Lobby {
     UserEntity['id']
   >();
 
-  public readonly instance: Instance = new Instance(this);
+  public readonly instance: Game = new Game(
+    this,
+    this.matchRepository,
+    this.userService,
+  );
 
   constructor(
     private readonly server: Server,
     private readonly userService: UserService,
     private readonly chatGateway: ChatGateway,
+    private readonly matchRepository: MatchRepository,
     mode: LobbyMode = LobbyMode.QuickPlay,
   ) {
     this.mode = mode;
   }
 
-  public addPlayer(client: AuthenticatedSocket): void {
+  public async addPlayer(client: AuthenticatedSocket): Promise<void> {
     this.players.set(client.id, client);
     client.join(this.id);
     client.data.lobby = this;
 
+    this.dispatchLobbyState();
+
     if (
       this.players.size === MAX_PLAYERS &&
-      !this.instance.hasStarted &&
+      this.instance.hasStarted === false &&
       this.mode === LobbyMode.QuickPlay
     ) {
-      this.triggerStart();
+      await this.triggerStart();
     }
-
-    this.dispatchLobbyState();
   }
 
-  public removePlayer(client: AuthenticatedSocket): void {
-    this.players.delete(client.id);
+  public get player1(): AuthenticatedSocket {
+    return Array.from(this.players.values())[0];
+  }
+
+  public get player2(): AuthenticatedSocket {
+    return Array.from(this.players.values())[1];
+  }
+
+  public async removePlayer(client: AuthenticatedSocket): Promise<void> {
+    if (
+      this.instance.hasStarted === true &&
+      this.instance.hasFinished === false
+    ) {
+      const loser = await this.instance.setLoser(client.data.id);
+
+      this.dispatchToLobby<ServerGameEvents.GameMessage>(
+        ServerGameEvents.GameMessage,
+        {
+          message: `${loser.name} give up !`,
+        },
+      );
+    }
+
     client.leave(this.id);
     client.data.lobby = null;
-
-    this.dispatchLobbyState();
   }
 
   public async setPlayerReady(
@@ -93,7 +118,7 @@ export class Lobby {
     this.dispatchLobbyState();
 
     if (this.readyPlayerCount === MAX_PLAYERS) {
-      this.triggerStart();
+      await this.triggerStart();
     }
   }
 
@@ -105,9 +130,6 @@ export class Lobby {
   }
 
   private async triggerStart(): Promise<void> {
-    this.logger.debug(
-      `triggerStart(): ${JSON.stringify(this.players.values(), null, 2)}`,
-    );
     const playerPromises = Array.from(this.players.values()).map(
       async (client) => {
         this.userService.update(client.data.id, { status: UserStatus.InGame });
@@ -123,43 +145,44 @@ export class Lobby {
           throw new WsException('Internal server error');
         }
 
-        this.logger.debug(`User: ${JSON.stringify(user, null, 2)}`);
-
         this.chatGateway.sendEvent(user.friends, ServerChatEvent.UserStatus, {
           id: user.id,
-          status: user.status,
+          status: UserStatus.InGame,
         });
       },
     );
     await Promise.all(playerPromises);
 
-    console.log('triggerStart()');
-    this.instance.triggerStart();
+    await this.instance.triggerStart();
   }
 
   // -------------------- Dispatchers --------------------
 
   public async dispatchLobbyState(): Promise<void> {
-    const players = await this.fetchUserDtoFromPlayers();
+    if (this.mode === LobbyMode.QuickPlay && this.players.size < MAX_PLAYERS) {
+      return;
+    }
 
-    // TODO: If spectators maybe send the lobby state anyway ?
+    const players = await this.fetchUserDtoFromPlayers();
     if (players.length === 0) {
       return;
     }
 
     const payload: GamePayloads[ServerGameEvents.LobbyState] = {
       lobbyId: this.id,
+      mode: this.mode,
       players: players,
       hasStarted: this.instance.hasStarted,
       hasFinished: this.instance.hasFinished,
-      currentRound: this.instance.currentRound,
-      scores: this.instance.scores,
     };
 
     this.dispatchToLobby(ServerGameEvents.LobbyState, payload);
   }
 
-  public dispatchToLobby<T>(event: ServerGameEvents, payload: T): void {
+  public dispatchToLobby<T extends keyof GamePayloads>(
+    event: T,
+    payload: GamePayloads[T],
+  ): void {
     this.server.to(this.id).emit(event, payload);
   }
 

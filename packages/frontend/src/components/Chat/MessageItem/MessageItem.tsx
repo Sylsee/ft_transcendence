@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import {
 	selectDirectMessageChannel,
 	setActiveChannel,
+	setShowChatModal,
 } from "store/chat-slice/chat-slice";
 import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
 import { ChannelType, Message } from "types/chat/chat";
@@ -17,9 +18,13 @@ import { formatDate } from "utils/formatter/date";
 
 interface MessageItemProps {
 	message: Message;
+	isConnectedUser: boolean;
 }
 
-const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
+const MessageItem: React.FC<MessageItemProps> = ({
+	message,
+	isConnectedUser,
+}) => {
 	// states
 	const [referenceElement, setReferenceElement] =
 		useState<HTMLSpanElement | null>(null);
@@ -106,8 +111,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 	);
 
 	const arrowStyle = state?.placement.startsWith("top")
-		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-white"
-		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-white";
+		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-gray-800"
+		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-gray-800";
 
 	// handlers
 	const handleClickMessage = () => {
@@ -123,26 +128,66 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 
 	const handleClickProfile = () => {
 		navigate(`/user/${message.sender.id}`, { replace: true });
+		dispatch(setShowChatModal(false));
 	};
 
 	return (
-		<div className="flex items-start space-x-4 p-2 break-words">
-			<div style={{ width: "calc(100% - 3rem)" }}>
-				<div className="select-none text-gray-500">
-					<span
-						ref={setReferenceElement}
-						onClick={() => toggleTooltip()}
-						style={{ color: "#c7b99b" }}
-						className=" font-semibold text-white cursor-pointer hover:underline"
-					>
-						{message.sender.name}
-					</span>
+		<div className="flex justify-start items-end py-2">
+			{/* User profile picture */}
+			<img
+				src={`${message.sender.profilePictureUrl}`}
+				onClick={() => toggleTooltip()}
+				referrerPolicy="no-referrer"
+				alt="Avatar"
+				className="object-cover rounded-full w-10 h-10 mb-1 cursor-pointer hover:opacity-80"
+			/>
+
+			{/* Message */}
+			<div className="flex flex-col items-start ml-2 max-w-[calc(100%-6rem)]">
+				{/* User name */}
+				<span
+					ref={setReferenceElement}
+					onClick={() => toggleTooltip()}
+					className="text-xs font-semibold text-white cursor-pointer hover:underline pl-3 pb-1"
+				>
+					{message.sender.name}
+				</span>
+				{/* Message content */}
+				<div
+					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+					className="flex items-center justify-center bg-chatgpt-grey-50 h-full rounded-xl"
+				>
 					{showTooltip && (
 						<div
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="bg-white p-2 rounded shadow borde"
+							className="z-10 flex flex-col justify-center items-center space-y-2 bg-gray-800 rounded-md shadow-md"
+						>
+							<div className="flex flex-col justify-center items-center space-y-2">
+								<button
+									onClick={() => handleClickProfile()}
+									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+								>
+									Profile
+								</button>
+								<button
+									onClick={() => handleClickMessage()}
+									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
+								>
+									Message
+								</button>
+							</div>
+						</div>
+					)}
+
+					{showTooltip && (
+						<div
+							id="dropdown"
+							ref={setPopperElement}
+							style={styles.popper}
+							{...attributes.popper}
+							className="bg-gray-800 p-2 rounded shadow borde"
 						>
 							<div
 								ref={setArrowElement}
@@ -166,14 +211,39 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
 								)}
 						</div>
 					)}
-					<span className="ml-2">
-						{formatDate(message.timestamp)}
-					</span>
+					<p className="text-[15px] text-chatgpt-grey-100 px-3 py-1.5">
+						{message.content}
+					</p>
 				</div>
-				<div className="text-gray-200">{message.content}</div>
 			</div>
 		</div>
 	);
+
+	// return (
+	// 	<div className="flex items-start space-x-4 p-2 break-words border-2 border-purple-600">
+	// 		<div className="w-[calc(100%-0.5rem)] border-2">
+	// 			<div className="text-gray-500">
+	// 				{/* User name */}
+	// 				<span
+	// 					ref={setReferenceElement}
+	// 					onClick={() => toggleTooltip()}
+	// 					style={{ color: "#c7b99b" }}
+	// 					className="font-semibold text-white cursor-pointer hover:underline"
+	// 				>
+	// 					{message.sender.name}
+	// 				</span>
+	// 				{/* User name interaction */}
+	// 				{/* TODO: refactor it with ul li and add text to the icon */}
+	// 				{/* Message time */}
+	// 				<span className="ml-2">
+	// 					{formatDate(message.timestamp)}
+	// 				</span>
+	// 			</div>
+	// 			{/* Message content */}
+	// 			<div className="text-gray-200">{message.content}</div>
+	// 		</div>
+	// 	</div>
+	// );
 };
 
 export { MessageItem };

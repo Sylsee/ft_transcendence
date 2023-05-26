@@ -1,5 +1,5 @@
 // NestJS imports
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // Local imports
@@ -34,9 +34,9 @@ import { MuteUserService } from './services/mute-user.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([ChannelEntity, MessageEntity, MuteUserEntity]),
-    UserModule,
-    AuthModule,
-    GameModule,
+    forwardRef(() => GameModule),
+    forwardRef(() => AuthModule),
+    forwardRef(() => UserModule),
   ],
   providers: [
     /* Gateway */

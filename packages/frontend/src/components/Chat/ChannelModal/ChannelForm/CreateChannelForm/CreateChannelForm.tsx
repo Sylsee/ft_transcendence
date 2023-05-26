@@ -1,9 +1,13 @@
 import { ErrorItem } from "components/Error/ErrorItem";
+import { ModalButton } from "components/Modal/ModalButton/ModalButton";
 import { ModalFooter } from "components/Modal/ModalFooter/ModalFooter";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useUpdateChannel } from "hooks/chat/useUpdateChannel";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch } from "react-redux";
+import { setShowChannelModal } from "store/chat-slice/chat-slice";
+import { ModalButtonType } from "types/button/button";
 import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 
 interface CreateChannelFormProps {
@@ -18,6 +22,9 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 	channel,
 }) => {
 	const isUpdate = !!channel && formType === ChannelModalType.Update;
+
+	// redux
+	const dispatch = useDispatch();
 
 	// mutations
 	const updateMutation = useUpdateChannel(channel?.id);
@@ -84,6 +91,12 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 			setValue("type", ChannelType.Private);
 	};
 
+	const handleDeleteClick = () => {
+		if (!channel) return;
+
+		dispatch(setShowChannelModal(ChannelModalType.DeleteConfirmation));
+	};
+
 	const onFormSubmit = isUpdate ? onUpdateFormSubmit : onCreateFormSubmit;
 
 	return (
@@ -110,7 +123,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 					Channel type:
 				</label>
 				<select
-					className="block p-3 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
+					className="cursor-pointer block p-3 bg-transparent border-0 border-b-2 border-gray-200 appearance-none dark:text-gray-400 dark:border-gray-700 focus:outline-none focus:ring-0 focus:border-gray-200 peer"
 					id="type"
 					{...register("type")}
 					onChange={(e) => handleTypeChange(e)}
@@ -139,10 +152,19 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 				</div>
 			)}
 			{status === "error" && <ErrorItem error={error} />}
+
 			<ModalFooter
 				acceptValue={isUpdate ? "Update" : "Create"}
 				handleCancel={handleCloseModal}
-			/>
+			>
+				{isUpdate && (
+					<ModalButton
+						name="Delete"
+						buttonType={ModalButtonType.Critical}
+						handleClick={handleDeleteClick}
+					/>
+				)}
+			</ModalFooter>
 		</form>
 	);
 };

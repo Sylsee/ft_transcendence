@@ -1,17 +1,20 @@
-import { faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReactComponent as SendArrow } from "assets/icons/chat/send-arrow.svg";
 import { ChatEvent } from "config";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { emitChatSocketEvent } from "sockets/socket";
+import { setChatInput } from "store/chat-slice/chat-slice";
+import { RootState } from "types/global/global";
 
 interface ChatInputProps {
 	channelId: string;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
+	const dispatch = useDispatch();
+
 	// states
-	const [message, setMessage] = useState<string | undefined>("");
-	const [inputIsValid, setinputIsValid] = useState<boolean>(false);
+	const message = useSelector((store: RootState) => store.CHAT.chatInput);
 
 	// ref
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -25,38 +28,31 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 	const handleInputChange = (
 		e: React.ChangeEvent<HTMLTextAreaElement> | any
 	) => {
-		setMessage(e.target.value);
-		setinputIsValid(
-			e.target.value.length >= 1 && e.target.value.length <= 1000
-		);
+		dispatch(setChatInput(e.target.value));
 	};
 	const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
-		if (!inputIsValid) return;
-
 		const payload = { channelId, content: message };
 		emitChatSocketEvent(ChatEvent.Message, payload);
-		setMessage("");
+		dispatch(setChatInput(""));
 	};
+
 	return (
-		<form className="flex" onSubmit={(e) => handleFormSubmit(e)}>
-			<div className="flex w-full">
-				<input
-					ref={inputRef}
-					onChange={(e) => handleInputChange(e)}
-					placeholder="Write a message..."
-					value={message}
-					className="w-full p-4 text-black focus:outline-none focus:border-blue-500"
-				/>
-			</div>
-			{inputIsValid && (
-				<button
-					type="submit"
-					className="bg-white hover:text-astronaut-500  text-astronaut-400  font-bold py-2 px-4"
-				>
-					<FontAwesomeIcon icon={faPaperPlane} />
-				</button>
-			)}
+		<form
+			className="flex flex-grow rounded-3xl items-end bg-chatgpt-grey-200"
+			onSubmit={(e) => handleFormSubmit(e)}
+		>
+			<input
+				ref={inputRef}
+				onChange={(e) => handleInputChange(e)}
+				placeholder="Write a message..."
+				value={message}
+				style={{ wordWrap: "break-word", wordBreak: "break-word" }}
+				className="flex rounded-3xl items-center w-full py-4 pl-5 text-chatgpt-grey-100 text-[15px] focus:outline-none bg-chatgpt-grey-200"
+			/>
+			<button type="submit" className="h-full py-1.5 px-3 pr-5">
+				<SendArrow />
+			</button>
 		</form>
 	);
 };

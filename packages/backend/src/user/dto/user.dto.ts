@@ -57,8 +57,10 @@ export class UserDto {
     user: UserEntity,
     requestUser: UserEntity = undefined,
   ): UserDto {
+    if (user === null) return null;
+
     const shouldIncludeStatus = (): boolean => {
-      if (!requestUser) return false;
+      if (requestUser === undefined) return false;
 
       if (user.id === requestUser.id) return true;
 

@@ -1,29 +1,35 @@
+import { ModalButtonType } from "types/button/button";
+import { ModalButton } from "../ModalButton/ModalButton";
+
 interface ModalFooterProps {
 	cancelValue?: string;
 	handleCancel: () => void;
 	acceptValue?: string;
+	children?: React.ReactNode;
 }
 
 const ModalFooter: React.FC<ModalFooterProps> = ({
 	cancelValue = "Cancel",
 	handleCancel,
 	acceptValue = "Accept",
+	children,
 }) => {
 	return (
-		<div className="flex items-center justify-end p-6 border-t border-solid border-slate-200 rounded-b">
-			<button
-				className="text-red-500 background-transparent font-bold uppercase px-6 py-2 text-sm outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-				type="button"
-				onClick={() => handleCancel()}
-			>
-				{cancelValue}
-			</button>
-			<button
-				className="bg-green-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-				type="submit"
-			>
-				{acceptValue}
-			</button>
+		<div className="flex justify-between pt-4 flex-wrap">
+			<div>{children}</div>
+			<div className="flex items-center justify-end">
+				<ModalButton
+					name={cancelValue}
+					type="button"
+					buttonType={ModalButtonType.Cancel}
+					handleClick={() => handleCancel()}
+				/>
+				<ModalButton
+					name={acceptValue}
+					type="submit"
+					buttonType={ModalButtonType.Accept}
+				/>
+			</div>
 		</div>
 	);
 };

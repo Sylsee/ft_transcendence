@@ -39,40 +39,46 @@ const HeaderWrapper: React.FC = () => {
 		dispatch(setShowChat(value));
 	};
 
+	useEffect(() => {
+		console.log("RERENDER");
+	});
+
 	return (
 		<div className="h-full flex flex-col max-h-full bg-backgroundColor">
 			<div className="flex-shrink-0">
 				<Header />
 			</div>
-			<div className="flex justify-between  max-h-full  overflow-auto h-full">
-				<div className="flex flex-grow overflow-auto">
-					{loading ? <Loader /> : <Outlet />}
+			<div className="flex justify-center h-full w-full">
+				<div className="flex justify-between py-10  max-w-[2000px] mx-0 md:mx-10 items-stretch overflow-auto h-full w-full lg:relative">
+					<div className="flex-grow">
+						{loading ? <Loader /> : <Outlet />}
+					</div>
+					{isAuth === AuthStatus.Authenticated && (
+						<ChatWrapper
+							showModal={showModal}
+							setShowModal={handleShowChatModal}
+						/>
+					)}
+					{!showModal && (
+						<button
+							type="button"
+							className="text-white hover:bg-chatgpt-grey-200  bg-chatgpt-grey-400  font-medium text-sm text-center bottom-4 right-4 xl:hidden rounded-full p-4 shadow-lg absolute"
+							onClick={() => handleShowChatModal(true)}
+						>
+							<FontAwesomeIcon icon={faMessage} />
+						</button>
+					)}
+					{!showChat && (
+						<button
+							type="button"
+							className="text-white hover:bg-chatgpt-grey-200 bg-chatgpt-grey-400 font-medium text-sm text-center bottom-4 right-4 hidden xl:block rounded-full p-4 shadow-lg  absolute"
+							onClick={() => handleShowChat(true)}
+						>
+							<FontAwesomeIcon icon={faMessage} />
+						</button>
+					)}
 				</div>
-				{isAuth === AuthStatus.Authenticated && (
-					<ChatWrapper
-						showModal={showModal}
-						setShowModal={handleShowChatModal}
-					/>
-				)}
 			</div>
-			{!showModal && isAuth === AuthStatus.Authenticated && (
-				<button
-					type="button"
-					className="text-white hover:bg-astronaut-900  bg-mirage-900  font-medium text-sm text-center fixed bottom-4 right-4 lg:hidden rounded-full p-4 shadow-lg"
-					onClick={() => handleShowChatModal(true)}
-				>
-					<FontAwesomeIcon icon={faMessage} />
-				</button>
-			)}
-			{!showChat && isAuth === AuthStatus.Authenticated && (
-				<button
-					type="button"
-					className="text-white hover:bg-astronaut-900  bg-mirage-900 font-medium text-sm text-center fixed bottom-4 right-4 hidden lg:block rounded-full p-4 shadow-lg"
-					onClick={() => handleShowChat(true)}
-				>
-					<FontAwesomeIcon icon={faMessage} />
-				</button>
-			)}
 			<ToastManager />
 		</div>
 	);

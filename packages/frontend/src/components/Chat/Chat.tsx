@@ -1,8 +1,7 @@
-import { ActiveChannel } from "components/Chat/ActiveChannel/ActiveChannel";
+import { ActiveChannelMessages } from "components/Chat/ActiveChannel/ActiveChannelMessages";
 import { ChannelModal } from "components/Chat/ChannelModal/ChannelModal";
 import { ChatHeader } from "components/Chat/ChatHeader/ChatHeader";
 import { ChatInput } from "components/Chat/ChatInput/ChatInput";
-import { ChatMenu } from "components/Chat/ChatMenu/ChatMenu";
 import { useJoinChannel } from "hooks/chat/useJoinChannel";
 import { useMessageQuery } from "hooks/chat/useMessageQuery";
 import { useEffect, useLayoutEffect, useRef } from "react";
@@ -20,6 +19,7 @@ import {
 } from "store/chat-slice/chat-slice";
 import { Channel, ChannelModalType, ChannelType } from "types/chat/chat";
 import { RootState } from "types/global/global";
+import { ChatMenu } from "./ChatMenu/ChatMenu";
 
 interface ChatProps {
 	channels: Channel[];
@@ -76,16 +76,6 @@ const Chat: React.FC<ChatProps> = ({ channels }) => {
 		dispatch(toggleChatMenu());
 	};
 
-	const handleEditChannel = (channel: Channel) => {
-		dispatch(setSelectedChannel(channel.id));
-		dispatch(setShowChannelModal(ChannelModalType.Update));
-	};
-
-	const handleCreateChannel = () => {
-		dispatch(setSelectedChannel(null));
-		dispatch(setShowChannelModal(ChannelModalType.Create));
-	};
-
 	const handleCloseModal = () => {
 		dispatch(setSelectedChannel(null));
 		dispatch(setShowChannelModal(ChannelModalType.None));
@@ -102,7 +92,7 @@ const Chat: React.FC<ChatProps> = ({ channels }) => {
 	const handleClickChannel = (channel: Channel) => {
 		if (channel.permissions.isMember) {
 			dispatch(setActiveChannel(channel.id));
-			setIsMenuOpen(false);
+			dispatch(setIsMenuOpen(false));
 		} else if (
 			!channel.permissions.isMember &&
 			channel.type === ChannelType.Password_protected
@@ -115,25 +105,27 @@ const Chat: React.FC<ChatProps> = ({ channels }) => {
 	};
 
 	return (
-		<div className="bg-mirage h-full items-stretch  flex flex-col ">
-			<ChatHeader
-				toggleMenu={toggleMenu}
-				handleCloseChat={handleCloseChat}
-				handleCloseChatModal={handleCloseChatModal}
-			></ChatHeader>
-			<div className="relative h-full flex flex-col items-stretch max-h-full overflow-hidden">
-				<ActiveChannel
+		<div className="relative h-full w-full overflow-hidden">
+			{/* Chat */}
+			<div className="absolute flex flex-col h-full w-full rounded-3xl bg-chatgpt-grey-400 pt-6 p-3 md:p-8">
+				<ChatHeader
+					toggleMenu={toggleMenu}
+					handleCloseChat={handleCloseChat}
+					handleCloseChatModal={handleCloseChatModal}
+				/>
+				<ActiveChannelMessages
 					messagesEndRef={messagesEndRef}
 					activeChannel={activeChannel}
 				/>
-				<ChatMenu
-					handleClickChannel={handleClickChannel}
-					handleEditChannel={handleEditChannel}
-					handleCreateChannel={handleCreateChannel}
-					channels={channels}
-				/>
+				{activeChannel && <ChatInput channelId={activeChannel.id} />}
 			</div>
-			{activeChannel && <ChatInput channelId={activeChannel.id} />}
+
+			<ChatMenu
+				handleClickChannel={handleClickChannel}
+				channels={channels}
+				toggleMenu={toggleMenu}
+			/>
+
 			<ChannelModal
 				modalType={channelModalType}
 				handleCloseModal={handleCloseModal}

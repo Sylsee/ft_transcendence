@@ -32,7 +32,10 @@ export default class PongCommand implements Command {
 
     await Promise.all(
       usernames.map(async (username) => {
-        const user = await this.userService.findOneByName(username);
+        const user = await this.userService.findOneByNameWithRelations(
+          username,
+          ['blockedUsers'],
+        );
         if (user) {
           const error = await this.inviteUser(sender, user);
           if (error) {
@@ -63,7 +66,7 @@ export default class PongCommand implements Command {
 
       const lobbyId: string = await this.lobbyManager.inviteToLobbyThroughChat(
         sender,
-        invitedUser.id,
+        invitedUser,
       );
 
       this.chatGateway.sendEvent(socketID, ServerChatEvent.InviteToLobby, {

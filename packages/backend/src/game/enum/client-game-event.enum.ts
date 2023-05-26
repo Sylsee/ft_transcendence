@@ -13,4 +13,8 @@ export enum ClientGameEvent {
   */
   Ready = 'client.lobby.ready',
   Unready = 'client.lobby.unready',
+  MovePaddle = 'client.game.move-paddle',
+  /*
+    direction: MovePaddleDto
+  */
 }

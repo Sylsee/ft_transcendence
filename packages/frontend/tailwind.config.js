@@ -9,21 +9,6 @@ module.exports = withMT({
 				"14/10": "14 / 10",
 			},
 			colors: {
-				// chat background color
-				mirage: {
-					50: "#f4f8fb",
-					100: "#e9eff5",
-					200: "#cedee9",
-					300: "#a2c2d7",
-					400: "#70a1c0",
-					500: "#4e87a9",
-					600: "#3c6c8d",
-					700: "#315773",
-					800: "#2c4a60",
-					900: "#293f51",
-					950: "#111a22",
-					DEFAULT: "#1a2836",
-				},
 				// website background color
 				backgroundColor: "#15202B",
 				// hover and active color
@@ -84,6 +69,20 @@ module.exports = withMT({
 					950: "#22262a",
 					DEFAULT: "#48525a",
 				},
+				"chatgpt-grey": {
+					50: "#444654",
+					100: "#ECECF1",
+					200: "#40414F",
+					300: "#2A2B32",
+					400: "#343541",
+					500: "#202123",
+					600: "#757575",
+					700: "#616161",
+					800: "#424242",
+					900: "#212121",
+					950: "#111111",
+					DEFAULT: "#202123",
+				},
 				"oxford-blue": {
 					50: "#f6f7f9",
 					100: "#ebedf3",
@@ -117,8 +116,12 @@ module.exports = withMT({
 				"gradient-custom":
 					"linear-gradient(to right top, #051937, #36274c, #623458, #8c445d, #ae5b5b)",
 			},
+			boxShadow: {
+				right: "5px 4px 6px 1px rgba(0, 0, 0, 0.1)",
+			},
 		},
 	},
+	variants: {},
 	plugins: [],
 	safelist: [
 		{

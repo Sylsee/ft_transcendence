@@ -1,5 +1,5 @@
 // NestJS imports
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { WsException } from '@nestjs/websockets';
 
@@ -16,8 +16,10 @@ import { UserService } from 'src/user/services/user.service';
 import { LOBBY_MAX_LIFETIME, MAX_PLAYERS } from '../constants';
 import { InviteToLobbyDto } from '../dto/invite-lobby.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
+import { MovePaddleDto } from '../dto/move-paddle.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
+import { MatchRepository } from '../repository/match.repository';
 import { AuthenticatedSocket } from '../types/AuthenticatedSocket';
 import { GamePayloads } from '../types/GamePayloads';
 import { Lobby } from './lobby';
@@ -37,8 +39,10 @@ export class LobbyManager {
   >();
 
   constructor(
+    @Inject(forwardRef(() => ChatGateway))
     private chatGateway: ChatGateway,
     private userService: UserService,
+    private matchRepository: MatchRepository,
   ) {}
 
   public async createLobby(client: AuthenticatedSocket): Promise<Lobby> {
@@ -54,11 +58,12 @@ export class LobbyManager {
       this.server,
       this.userService,
       this.chatGateway,
+      this.matchRepository,
       LobbyMode.Custom,
     );
     this.lobbies.set(lobby.id, lobby);
 
-    lobby.addPlayer(client);
+    await lobby.addPlayer(client);
 
     return lobby;
   }
@@ -87,7 +92,6 @@ export class LobbyManager {
       throw new WsException('You are not invited to this lobby');
     }
 
-    // TODO: If we make the spectator feature then add the user as spectator
     if (lobby.players.size >= MAX_PLAYERS) {
       throw new WsException('Lobby already full');
     }
@@ -96,7 +100,7 @@ export class LobbyManager {
       throw new WsException('You are already in this lobby');
     }
 
-    lobby.addPlayer(client);
+    await lobby.addPlayer(client);
   }
 
   public async leaveLobbyOrThrow(client: AuthenticatedSocket): Promise<void> {
@@ -113,17 +117,19 @@ export class LobbyManager {
       throw new WsException('You are not in this lobby');
     }
 
-    lobby.removePlayer(client);
-
-    const socketsIds = Array.from(lobby.players.keys());
-    this.sendEvent(socketsIds, ServerGameEvents.GameMessage, {
-      message: `${client.data.username} left the lobby`,
-    });
-
-    lobby.instance.triggerFinish();
+    await lobby.removePlayer(client);
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
+    } else if (lobby.instance.hasStarted === true) {
+      lobby.instance.triggerFinish();
+    } else {
+      lobby.instance.stop = true;
+      lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
+        winner: null,
+        player1Score: 0,
+        player2Score: 0,
+      });
     }
   }
 
@@ -141,17 +147,20 @@ export class LobbyManager {
       return;
     }
 
-    lobby.removePlayer(client);
-
-    const socketsIds = Array.from(lobby.players.keys());
-    this.sendEvent(socketsIds, ServerGameEvents.GameMessage, {
-      message: `${client.data.username} left the lobby`,
-    });
-
-    lobby.instance.triggerFinish();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    await lobby.removePlayer(client).catch(() => {});
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
+    } else if (lobby.instance.hasStarted === true) {
+      lobby.instance.triggerFinish();
+    } else {
+      lobby.instance.stop = true;
+      lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
+        winner: null,
+        player1Score: 0,
+        player2Score: 0,
+      });
     }
   }
 
@@ -209,9 +218,9 @@ export class LobbyManager {
 
   public async inviteToLobbyThroughChat(
     user: UserEntity,
-    invitedUserId: string,
+    invitedUser: UserEntity,
   ): Promise<string> {
-    if (user.id === invitedUserId) {
+    if (user.id === invitedUser.id) {
       throw new WsException('You cannot invite yourself');
     }
 
@@ -232,21 +241,19 @@ export class LobbyManager {
       throw new WsException('Lobby already full');
     }
 
-    if (lobby.players.has(invitedUserId)) {
+    if (lobby.players.has(invitedUser.id)) {
       throw new WsException('User already in this lobby');
     }
 
-    if (lobby.invitedPlayers.includes(invitedUserId)) {
+    if (lobby.invitedPlayers.includes(invitedUser.id)) {
       throw new WsException('User already invited');
     }
 
-    // TODO: see if we really want to block invitations from blocked users
-    // If so we need to find the user with the blocked users relations
-    if (userIdInList(user.blockedUsers, user.id)) {
+    if (userIdInList(invitedUser.blockedUsers, user.id)) {
       throw new WsException('You cannot invite this user');
     }
 
-    lobby.invitedPlayers.push(user.id);
+    lobby.invitedPlayers.push(invitedUser.id);
 
     return lobby.id;
   }
@@ -308,18 +315,42 @@ export class LobbyManager {
       return;
     }
 
-    const lobby = new Lobby(this.server, this.userService, this.chatGateway);
+    const lobby = new Lobby(
+      this.server,
+      this.userService,
+      this.chatGateway,
+      this.matchRepository,
+    );
     this.lobbies.set(lobby.id, lobby);
 
     this.playerQueue.splice(0, MAX_PLAYERS).forEach(async (client) => {
-      lobby.addPlayer(client);
+      await lobby.addPlayer(client).catch((error) => {
+        throw new WsException(error.message);
+      });
     });
+  }
+
+  // -------------------- Game --------------------
+
+  public movePaddle(
+    client: AuthenticatedSocket,
+    movePaddleDto: MovePaddleDto,
+  ): void {
+    if (!client.data.lobby) {
+      throw new WsException('You are not in a lobby');
+    }
+
+    if (!client.data.lobby.instance || !client.data.lobby.instance.hasStarted) {
+      throw new WsException('Game not started');
+    }
+
+    client.data.lobby.instance.movePaddle(client, movePaddleDto);
   }
 
   // -------------------- Utils --------------------
 
-  @Cron('*/5 * * * * *')
-  public cleanUpLobbies(): void {
+  @Cron('*/30 * * * * *')
+  public async cleanUpLobbies(): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for (const [_lobbyId, lobby] of this.lobbies) {
       const now = new Date().getTime();
@@ -327,7 +358,7 @@ export class LobbyManager {
       const lobbyLifetime = now - lobbyCreatedAt;
 
       if (lobbyLifetime > LOBBY_MAX_LIFETIME) {
-        lobby.dispatchToLobby<GamePayloads[ServerGameEvents.GameMessage]>(
+        lobby.dispatchToLobby<ServerGameEvents.GameMessage>(
           ServerGameEvents.GameMessage,
           {
             message: 'Game timed out',
