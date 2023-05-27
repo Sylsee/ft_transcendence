@@ -6,7 +6,7 @@ import { RootState } from "types/global/global";
 
 interface LobbyPowerUpProps {}
 
-const LobbyPowerUp: React.FC<LobbyPowerUpProps> = ({}) => {
+const LobbyPowerUp: React.FC<LobbyPowerUpProps> = () => {
 	const isPowerUpEnabled = useSelector(
 		(state: RootState) => state.GAME.lobby?.isPowerUpEnabled
 	);

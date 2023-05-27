@@ -210,4 +210,5 @@ export const {
 	setIsMenuOpen,
 	toggleChatMenu,
 	setChatInput,
+	resetChat,
 } = chatSlice.actions;

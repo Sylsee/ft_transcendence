@@ -17,7 +17,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
 	);
 
 	return (
-		<div className="p-6 h-96 flex flex-col lg:w-1/2 shadow-md rounded-xl bg-oxford-blue">
+		<div className="p-6 h-96 flex flex-col lg:w-1/2 shadow-md rounded-xl bg-tuna">
 			<ProfileAvatar
 				isConnectedUser={isConnectedUser}
 				id={user.id}

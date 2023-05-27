@@ -11,7 +11,7 @@ interface MatchItemProps {
 const MatchItem: React.FC<MatchItemProps> = ({ match, userId }) => {
 	return (
 		<div
-			className={`flex flex-col items-center p-2 min-h-20 shadow-xl my-1 bg-fiord`}
+			className={`flex flex-col items-center p-2 min-h-20 shadow-xl my-1 bg-mako`}
 		>
 			{/* header */}
 			<UserMatchHeader date={match.createdAt} mode={match.mode} />
@@ -39,7 +39,7 @@ const MatchItem: React.FC<MatchItemProps> = ({ match, userId }) => {
 					>
 						<p className="font-bold">{match.winner.name}</p>
 					</Link>
-					<div className="font-bold text-oxford-blue-700 w-full sm:w-1/5 text-center">
+					<div className="font-bold text-tuna-700 w-full sm:w-1/5 text-center">
 						{match.winnerPoints} / {match.loserPoints}
 					</div>
 					<Link

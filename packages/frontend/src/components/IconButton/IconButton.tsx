@@ -14,7 +14,7 @@ const IconButton: React.FC<IconButtonProps> = ({
 	return (
 		<button
 			onClick={(e) => onClick(url)}
-			className="mx-3 p-2 rounded-lg bg-astronaut-950 border-2 font-bold border-mirage-950 flex items-center gap-3 opacity-70 hover:opacity-100"
+			className="mx-3 p-3 rounded-lg shadow-lg hover:bg-gun-powder bg-tuna font-bold border-mirage-950 flex items-center gap-3"
 		>
 			<div className="h-7 w-7">{logo}</div>
 			<p className="text-white">{name}</p>

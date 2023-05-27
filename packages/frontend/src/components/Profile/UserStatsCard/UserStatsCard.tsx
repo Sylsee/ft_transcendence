@@ -29,7 +29,7 @@ const UserStatCard: React.FC<UserStatCardProps> = ({ id }) => {
 
 	if (!data) return null;
 	return (
-		<div className="flex flex-col h-96 rounded-lg shadow-md p-2 w-full lg:w-1/2 mt-4 bg-oxford-blue">
+		<div className="flex flex-col h-96 rounded-lg shadow-md p-2 w-full lg:w-1/2 mt-4 bg-tuna">
 			<div className="flex justify-center items-center mb-4 text-left font-bold text-lg ">
 				<div className="">
 					<p>Stats</p>

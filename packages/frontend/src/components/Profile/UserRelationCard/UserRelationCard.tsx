@@ -63,7 +63,7 @@ const UserRelationCard: React.FC<UserRelationCardProps> = ({
 	]);
 
 	return (
-		<div className="flex flex-col w-full h-96 shadow-md rounded-lg p-6 bg-oxford-blue">
+		<div className="flex flex-col w-full h-96 shadow-md rounded-lg p-6 bg-tuna">
 			<UserRelationCardHeader
 				isConnectedUser={isConnectedUser}
 				setUserListType={setUserListType}

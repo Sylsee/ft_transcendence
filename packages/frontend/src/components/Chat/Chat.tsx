@@ -107,7 +107,7 @@ const Chat: React.FC<ChatProps> = ({ channels }) => {
 	return (
 		<div className="relative h-full w-full overflow-hidden">
 			{/* Chat */}
-			<div className="absolute flex flex-col h-full w-full rounded-3xl bg-chatgpt-grey-400 pt-6 p-3 md:p-8">
+			<div className="absolute flex flex-col h-full w-full rounded-3xl bg-tuna pt-6 p-3 md:p-8">
 				<ChatHeader
 					toggleMenu={toggleMenu}
 					handleCloseChat={handleCloseChat}
@@ -119,13 +119,11 @@ const Chat: React.FC<ChatProps> = ({ channels }) => {
 				/>
 				{activeChannel && <ChatInput channelId={activeChannel.id} />}
 			</div>
-
 			<ChatMenu
 				handleClickChannel={handleClickChannel}
 				channels={channels}
 				toggleMenu={toggleMenu}
 			/>
-
 			<ChannelModal
 				modalType={channelModalType}
 				handleCloseModal={handleCloseModal}

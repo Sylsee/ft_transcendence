@@ -13,7 +13,7 @@ const MatchHistoryCard: React.FC<MatchHistoryCardProps> = ({ id, userId }) => {
 	const { data, status, error } = useFetchMatchHistory(id);
 
 	return (
-		<div className="flex flex-col mt-4 h-96 rounded-lg shadow-md p-2 w-full lg:w-1/2 lg:ml-4 bg-oxford-blue">
+		<div className="flex flex-col mt-4 h-96 rounded-lg shadow-md p-2 w-full lg:w-1/2 lg:ml-4 bg-tuna">
 			<div className="flex justify-center items-center mb-4 text-left font-bold text-lg ">
 				<div className="">
 					<p>Match History</p>

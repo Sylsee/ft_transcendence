@@ -8,7 +8,7 @@ import { RootState } from "types/global/global";
 
 interface ScoreBoardProps {}
 
-const ScoreBoard: React.FC<ScoreBoardProps> = ({}) => {
+const ScoreBoard: React.FC<ScoreBoardProps> = () => {
 	const game = useSelector((state: RootState) => state.GAME.game);
 	const dispatch = useDispatch();
 

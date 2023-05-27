@@ -97,7 +97,7 @@ const ToastManager: React.FC<ToastManagerProps> = () => {
 		}
 
 		notificationsLengthRef.current = notifications.length;
-	}, [notifications, dispatch, mutate]);
+	}, [notifications, dispatch, mutate, navigate]);
 
 	return null;
 };

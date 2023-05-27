@@ -14,8 +14,6 @@ import {
 import { setActiveTooltip } from "store/toolTip-slice/toolTip-slice";
 import { ChannelType, Message } from "types/chat/chat";
 import { RootState } from "types/global/global";
-import { formatDate } from "utils/formatter/date";
-
 interface MessageItemProps {
 	message: Message;
 	isConnectedUser: boolean;
@@ -155,7 +153,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 				{/* Message content */}
 				<div
 					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-					className="flex items-center justify-center bg-chatgpt-grey-50 h-full rounded-xl"
+					className="flex items-center justify-center bg-mako h-full rounded-xl"
 				>
 					{showTooltip && (
 						<div
@@ -211,7 +209,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 								)}
 						</div>
 					)}
-					<p className="text-[15px] text-chatgpt-grey-100 px-3 py-1.5">
+					<p className="text-[15px] text-athens-gray px-3 py-1.5">
 						{message.content}
 					</p>
 				</div>

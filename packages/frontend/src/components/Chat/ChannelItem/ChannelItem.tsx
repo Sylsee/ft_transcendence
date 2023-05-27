@@ -48,10 +48,8 @@ const ChannelItem: React.FC<ChannelItemProps> = ({
 			style={{
 				transition: "all 0.2s",
 			}}
-			className={`flex justify-between items-center hover:bg-chatgpt-grey-300 ${
-				isActive === true
-					? "bg-chatgpt-grey-400 hover:bg-chatgpt-grey-400"
-					: ""
+			className={`flex justify-between items-center ${
+				isActive === true ? "bg-tuna" : "hover:bg-light-shark"
 			}`}
 		>
 			<button

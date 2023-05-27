@@ -15,7 +15,7 @@ const LobbyUserCard: React.FC<LobbyUserCardProps> = ({
 }) => {
 	return (
 		<div className="flex flex-col h-96 p-4 items-stretch w-full">
-			<div className="sm:m-2 md:m-4 p-4 h-full bg-oxford-blue rounded-lg shadow-lg">
+			<div className="sm:m-2 md:m-4 p-4 h-full bg-tuna rounded-lg shadow-lg">
 				{player !== undefined && isConnectedUser !== undefined ? (
 					<>
 						<div className="flex justify-center items-center">
@@ -39,10 +39,10 @@ const LobbyUserCard: React.FC<LobbyUserCardProps> = ({
 					<>
 						<div className="flex flex-col justify-center items-center h-full">
 							<div className="grow w-full flex flex-col items-center">
-								<div className="w-32 h-32 bg-fiord rounded-full animate-pulse"></div>
-								<div className="w-1/2 h-10 bg-fiord animate-pulse mt-4 rounded-md"></div>
+								<div className="w-32 h-32 bg-mako rounded-full animate-pulse"></div>
+								<div className="w-1/2 h-10 bg-mako animate-pulse mt-4 rounded-md"></div>
 							</div>
-							<div className="min-h-10 p-2 bg-fiord  text-center italic rounded-md">
+							<div className="min-h-10 p-2 bg-mako  text-center italic rounded-md">
 								<EllipsisLoadingText content="Waiting for the second player to join" />
 							</div>
 						</div>

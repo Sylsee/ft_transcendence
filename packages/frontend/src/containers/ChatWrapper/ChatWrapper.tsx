@@ -41,7 +41,8 @@ const ChatWrapper: React.FC<ChatWrapperProps> = ({
 		);
 	else if (showChat && !showModal)
 		return (
-			<div className="hidden lg:flex flex-col w-1/3 items-stretch max-h-full">
+			<div className="hidden xl:flex flex-col w-1/3 items-stretch max-h-full">
+				<Chat channels={channels} />
 			</div>
 		);
 	else return null;

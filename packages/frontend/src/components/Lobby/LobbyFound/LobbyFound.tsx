@@ -9,7 +9,7 @@ import { RootState } from "types/global/global";
 
 interface LobbyFoundProps {}
 
-const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
+const LobbyFound: React.FC<LobbyFoundProps> = () => {
 	const connectedUserId = useSelector(
 		(state: RootState) => state.USER.user?.id
 	);
@@ -26,7 +26,7 @@ const LobbyFound: React.FC<LobbyFoundProps> = ({}) => {
 	)
 		return null;
 	return (
-		<div className="w-full flex flex-col justify-center border-2 border-pink-900">
+		<div className="w-full flex flex-col justify-center">
 			<div className="m-4 flex flex-col justify-center items-center">
 				<p className="text-4xl font-bold text-silver-tree-400">
 					{isLobbyOwner ? "Your lobby" : "Lobby Found"}

@@ -7,7 +7,7 @@ import { LobbySendEvent } from "types/game/lobby";
 
 interface LobbyLeaveProps {}
 
-const LobbyLeave: React.FC<LobbyLeaveProps> = ({}) => {
+const LobbyLeave: React.FC<LobbyLeaveProps> = () => {
 	const dispatch = useDispatch();
 
 	const handleLeaveClick = () => {

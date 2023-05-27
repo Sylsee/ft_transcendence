@@ -11,7 +11,7 @@ interface UserRowProps {
 
 const UserRow: React.FC<UserRowProps> = ({ user, buttonPropsList }) => {
 	return (
-		<div className="flex flex-row flex-wrap items-center justify-between p-2 rounded-md my-1 bg-fiord">
+		<div className="flex flex-row flex-wrap items-center justify-between p-2 rounded-md my-1 bg-mako">
 			<div className="flex items-center   flex-grow">
 				<Link
 					to={`/user/${user.id}`}

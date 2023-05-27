@@ -159,7 +159,7 @@ const Game: React.FC<GameProps> = () => {
 				style={{
 					aspectRatio: "14/10",
 				}}
-				className="relative bg-oxford-blue w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
+				className="relative bg-tuna w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
 			>
 				{countDown > 0 && (
 					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl">

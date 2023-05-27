@@ -24,7 +24,7 @@ const LobbyStart: React.FC<LobbyStartProps> = ({ gameSocket }) => {
 	};
 
 	return (
-		<div className="w-full max-w-4xl flex flex-col justify-center p-2 bg-oxford-blue rounded-md shadow-md min-h-96">
+		<div className="w-full max-w-4xl flex flex-col justify-center p-2 rounded-md min-h-96">
 			<div className="mb-4">
 				<div className="text-xl font-bold text-center">
 					<h1>
@@ -42,7 +42,7 @@ const LobbyStart: React.FC<LobbyStartProps> = ({ gameSocket }) => {
 					/>
 				</div>
 				<div className="flex justify-center">
-					<div className="w-full md:w-1 max-w-[80%] h-1 md:h-full bg-mirage-700"></div>
+					<div className="w-full md:w-1 max-w-[80%] h-1 md:h-full bg-athens-gray-500"></div>
 				</div>
 				<div className="flex justify-center items-center h-64 w-full ">
 					<UserRowButton
