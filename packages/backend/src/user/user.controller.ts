@@ -28,7 +28,7 @@ import {
 } from '@nestjs/swagger';
 
 // Third-party imports
-import * as Express from 'express';
+import { Express } from 'express';
 
 // Local imports
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';

@@ -9,9 +9,7 @@ export const envValidationConfig: ConfigModuleOptions = {
   isGlobal: true,
   expandVariables: true,
   validationSchema: Joi.object({
-    NODE_ENV: Joi.string()
-      .valid('development', 'production')
-      .default('development'),
+    NODE_ENV: Joi.string().valid('development', 'production').required(),
 
     PORT: Joi.number().default(3000),
     DB_PORT: Joi.number().default(5432),

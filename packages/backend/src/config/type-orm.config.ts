@@ -44,8 +44,8 @@ export class TypeOrmConfigService implements TypeOrmOptionsFactory {
         MessageEntity,
         MuteUserEntity,
       ],
-      synchronize: !this.isProduction(),
 
+      synchronize: true,
       autoLoadEntities: true,
     };
   }

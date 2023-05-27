@@ -16,11 +16,20 @@ services:
     volumes:
       - ./packages/backend/:/home/node/app
     environment:
-      NODE_ENV: ${NODE_ENV}
+      NODE_ENV: production
+      PORT: ${BACKEND_PORT}
+      DB_PORT: ${POSTGRES_PORT}
+      FRONTEND_PORT: ${FRONTEND_PORT}
+      APP_DOMAIN: ${APP_DOMAIN}
+      APP_NAME: ${APP_NAME}
+      DB_HOST: ${POSTGRES_HOST}
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
     command:
       - sh
       - -c
-      - npm ci && npm run prebuild && npm run build && npm run start:prod
+      - npm ci && npm run build && npm run start:prod
     depends_on:
       - db
     ports:
