@@ -100,6 +100,38 @@ export class Lobby {
 
     client.leave(this.id);
     client.data.lobby = null;
+
+    const user = await this.userService.findOneById(client.data.id);
+    if (!user) {
+      this.logger.error(
+        `User ${client.data.id} not found after authentication`,
+      );
+      throw new WsException('Internal server error');
+    }
+
+    if (user.status === UserStatus.InGame) {
+      this.userService.update(client.data.id, { status: UserStatus.Online });
+
+      const userWithFriends = await this.userService.findOneWithRelations(
+        client.data.id,
+        ['friends'],
+      );
+      if (!userWithFriends) {
+        this.logger.error(
+          `User ${client.data.id} not found after authentication`,
+        );
+        throw new WsException('Internal server error');
+      }
+
+      this.chatGateway.sendEvent(
+        userWithFriends.friends,
+        ServerChatEvent.UserStatus,
+        {
+          id: userWithFriends.id,
+          status: UserStatus.InGame,
+        },
+      );
+    }
   }
 
   public async setPlayerReady(

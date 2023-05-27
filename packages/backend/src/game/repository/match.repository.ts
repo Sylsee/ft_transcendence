@@ -75,13 +75,6 @@ export class MatchRepository {
     const pointsScored = parseInt(result.pointsScored);
     const pointsAgainst = parseInt(result.pointsAgainst);
 
-    console.log(
-      typeof wins,
-      typeof losses,
-      typeof pointsScored,
-      typeof pointsAgainst,
-    );
-
     return {
       totalMatches: totalMatches ? totalMatches : 0,
       wins: wins ? wins : 0,
@@ -91,4 +84,3 @@ export class MatchRepository {
     };
   }
 }
-
