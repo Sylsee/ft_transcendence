@@ -5,7 +5,7 @@ import { ConfigModuleOptions } from '@nestjs/config';
 import * as Joi from 'joi';
 
 export const envValidationConfig: ConfigModuleOptions = {
-  envFilePath: `.env.${process.env.NODE_ENV}`,
+  envFilePath: `.env`,
   isGlobal: true,
   expandVariables: true,
   validationSchema: Joi.object({
