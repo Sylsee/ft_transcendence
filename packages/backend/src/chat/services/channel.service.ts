@@ -66,12 +66,17 @@ export class ChannelService {
     const users = [user];
 
     if (createChannelDto.type === ChannelType.DIRECT_MESSAGE) {
-      if (
-        await this.channelRepository.findDmChannel(
-          user.id,
-          createChannelDto.otherUserId,
-        )
-      ) {
+      if (user.id === createChannelDto.otherUserId) {
+        throw new BadRequestException(
+          'Cannot create a direct message channel with yourself',
+        );
+      }
+
+      const channels = await this.channelRepository.findDmChannel(
+        user.id,
+        createChannelDto.otherUserId,
+      );
+      if (channels && channels.length > 0) {
         throw new ForbiddenException(
           'Users already have a direct message channel',
         );
