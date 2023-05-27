@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "backend": "file:packages/backend",
+    "frontend": "file:packages/frontend"
+  }
+}
