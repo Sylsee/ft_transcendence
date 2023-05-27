@@ -3,7 +3,7 @@ import { LobbyFound } from "components/Lobby/LobbyFound/LobbyFound";
 import { LobbySearchGame } from "components/Lobby/LobbySearchGame/LobbySearchGame";
 import { LobbyStart } from "components/Lobby/LobbyStart/LobbyStart";
 import { ScoreBoard } from "components/ScoreBoard/ScoreBoard";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { getGameSocket } from "sockets/socket";
 import { LobbyState } from "types/game/lobby";
@@ -17,6 +17,12 @@ const Lobby: React.FC<LobbyProps> = () => {
 	);
 
 	const gameSocket = getGameSocket();
+
+	useEffect(() => {
+		return () => {
+			console.log("Lobby unmount");
+		};
+	}, []);
 
 	if (!gameSocket) return null;
 

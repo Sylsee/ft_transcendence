@@ -3,6 +3,7 @@ import useTouchControls from "hooks/game/useTouchControls";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { emitGameSocketEvent } from "sockets/socket";
+import { PowerUpBall, PowerUpType } from "types/game/game";
 import { RootState } from "types/global/global";
 interface GameProps {}
 
@@ -102,20 +103,20 @@ const Game: React.FC<GameProps> = () => {
 			);
 			tempContext.fill();
 
-			// game.PowerUpBalls.forEach((ball: PowerUpBall) => {
-			// 	tempContext.beginPath();
-			// 	tempContext.fillStyle = "red";
-			// 	if (ball.type === PowerUpType.PaddleSizeUp)
-			// 		tempContext.fillStyle = "green";
-			// 	else if (ball.type === PowerUpType.PaddleSizeDown)
-			// 		tempContext.fillStyle = "red";
-			// 	else if (ball.type === PowerUpType.BallSizeUp)
-			// 		tempContext.fillStyle = "blue";
-			// 	else if (ball.type === PowerUpType.BallSizeDown)
-			// 		tempContext.fillStyle = "yellow";
-			// 	tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-			// 	tempContext.fill();
-			// });
+			game.PowerUpBalls.forEach((ball: PowerUpBall) => {
+				tempContext.beginPath();
+				tempContext.fillStyle = "red";
+				if (ball.type === PowerUpType.PaddleSizeUp)
+					tempContext.fillStyle = "green";
+				else if (ball.type === PowerUpType.PaddleSizeDown)
+					tempContext.fillStyle = "red";
+				else if (ball.type === PowerUpType.BallSizeUp)
+					tempContext.fillStyle = "blue";
+				else if (ball.type === PowerUpType.BallSizeDown)
+					tempContext.fillStyle = "yellow";
+				tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+				tempContext.fill();
+			});
 
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			context.drawImage(tempCanvas, 0, 0);
