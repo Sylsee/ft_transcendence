@@ -69,12 +69,18 @@ export class MatchRepository {
         this.logger.error(error);
       });
 
+    const totalMatches = parseInt(result.wins) + parseInt(result.losses);
+    const wins = parseInt(result.wins);
+    const losses = parseInt(result.losses);
+    const pointsScored = parseInt(result.pointsScored);
+    const pointsAgainst = parseInt(result.pointsAgainst);
+
     return {
-      totalMatches: parseInt(result.wins) + parseInt(result.losses),
-      wins: parseInt(result.wins),
-      losses: parseInt(result.losses),
-      pointsScored: parseInt(result.pointsScored),
-      pointsAgainst: parseInt(result.pointsAgainst),
+      totalMatches: totalMatches ?? 0,
+      wins: wins ?? 0,
+      losses: losses ?? 0,
+      pointsScored: pointsScored ?? 0,
+      pointsAgainst: pointsAgainst ?? 0,
     };
   }
 }
