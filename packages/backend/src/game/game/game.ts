@@ -109,6 +109,14 @@ export class Game {
       this.ballSizeTimeout = null;
     }
 
+    this.powerUps.forEach((powerUp) => {
+      this.lobby.dispatchToLobby<ServerGameEvents.GamePowerUpDespawn>(
+        ServerGameEvents.GamePowerUpDespawn,
+        {
+          id: powerUp.id,
+        },
+      );
+    });
     this.powerUps = [];
   }
 

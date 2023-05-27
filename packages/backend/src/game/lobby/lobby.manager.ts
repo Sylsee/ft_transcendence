@@ -46,7 +46,7 @@ export class LobbyManager {
     private matchRepository: MatchRepository,
   ) {}
 
-  public async createLobby(client: AuthenticatedSocket): Promise<Lobby> {
+  public async createLobby(client: AuthenticatedSocket): Promise<void> {
     if (client.data.lobby) {
       throw new WsException('You are already in a lobby, leave it first');
     }
@@ -55,18 +55,16 @@ export class LobbyManager {
       throw new WsException('You are in queue, please leave queue first');
     }
 
-    const lobby = new Lobby(
+    const newLobby = new Lobby(
       this.server,
       this.userService,
       this.chatGateway,
       this.matchRepository,
       LobbyMode.Custom,
     );
-    this.lobbies.set(lobby.id, lobby);
+    this.lobbies.set(newLobby.id, newLobby);
 
-    await lobby.addPlayer(client);
-
-    return lobby;
+    await newLobby.addPlayer(client);
   }
 
   public async joinLobby(
