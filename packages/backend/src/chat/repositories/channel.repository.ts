@@ -66,14 +66,15 @@ export class ChannelRepository {
   async findDmChannel(
     userId1: string,
     userId2: string,
-  ): Promise<ChannelEntity | void> {
+  ): Promise<ChannelEntity[] | void> {
     return this.channelRepository
       .createQueryBuilder('channel')
-      .leftJoinAndSelect('channel.users', 'user')
+      .innerJoin('channel.users', 'user')
       .where('channel.type = :type', { type: ChannelType.DIRECT_MESSAGE })
-      .andWhere('user.id = :userId', { userId: userId1 })
-      .andWhere('user.id = :userId', { userId: userId2 })
-      .getOne()
+      .andWhere('user.id IN (:...userIds)', { userIds: [userId1, userId2] })
+      .groupBy('channel.id')
+      .having('COUNT(channel.id) = :count', { count: 2 })
+      .getMany()
       .catch((err) => {
         this.logger.error(
           `Error when finding direct message channel between users: ${userId1} and ${userId2}`,

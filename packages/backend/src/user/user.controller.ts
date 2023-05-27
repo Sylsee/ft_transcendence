@@ -28,7 +28,7 @@ import {
 } from '@nestjs/swagger';
 
 // Third-party imports
-import { Request } from 'express';
+import * as Express from 'express';
 
 // Local imports
 import { Jwt2faAuthGuard } from 'src/auth/guard/jwt-2fa-auth.guard';
@@ -37,11 +37,11 @@ import { MatchDto } from 'src/game/dto/game-dto';
 import { getProfilePictureUrl } from 'src/shared/profile-picture';
 import { FriendRequestsDto } from './dto/relationship/friend-requests.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UserGameStatsDto } from './dto/user-game-stats.dto';
 import { UserDto } from './dto/user.dto';
 import { UserEntity } from './entities/user.entity';
 import { FriendRequestService } from './services/friend_request.service';
 import { UserService } from './services/user.service';
-import { UserGameStatsDto } from './dto/user-game-stats.dto';
 
 const ApiUserIdParam = ApiParam({
   name: 'id',
@@ -60,19 +60,18 @@ export class UserController {
     private readonly friendRequestService: FriendRequestService,
   ) {}
 
-  // TODO: Remove this endpoint
   @Get()
   @ApiOperation({
     summary: 'Get all users',
     description: 'Retrieve all users.',
   })
   @ApiOkResponse({ description: 'Users found', type: [UserDto] })
-  async getAllUsers(@Req() request: Request): Promise<any> {
+  async getAllUsers(@Req() req): Promise<any> {
     if (this.configService.get<string>('NODE_ENV') === 'production') {
       throw new BadRequestException();
     }
     return {
-      token: request.cookies['access_token'],
+      token: req.cookies['access_token'],
       ...(await this.userService.findAll()),
     };
   }

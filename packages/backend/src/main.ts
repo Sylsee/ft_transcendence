@@ -42,6 +42,7 @@ async function bootstrap() {
         'bA@gxxDzA@axQ4mNYMnk@$T$T4zqD96KBRPrz4YSon?XhP4?MdTG#N8jJac$G?gpgkRH$9p66oF8tPsk',
       resave: false,
       saveUninitialized: false,
+      cookie: { secure: true },
     }),
   );
 

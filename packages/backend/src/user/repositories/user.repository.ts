@@ -20,7 +20,6 @@ export class UserRepository {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  // TODO: Remove this method
   async find(): Promise<UserEntity[]> {
     return this.userRepository.find({ relations: ['blockedUsers'] });
   }
