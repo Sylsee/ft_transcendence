@@ -1,5 +1,7 @@
 import { User } from "types/user/user";
 
+export const CHAT_EVENT_BASE_URL: string = "send:";
+
 // channel
 export enum ChannelType {
 	Public = "public",

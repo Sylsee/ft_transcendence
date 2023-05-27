@@ -39,7 +39,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 
 	return (
 		<form
-			className="flex flex-grow rounded-3xl items-end bg-chatgpt-grey-200"
+			className="flex flex-grow rounded-3xl items-end bg-gun-powder"
 			onSubmit={(e) => handleFormSubmit(e)}
 		>
 			<input
@@ -48,7 +48,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ channelId }) => {
 				placeholder="Write a message..."
 				value={message}
 				style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-				className="flex rounded-3xl items-center w-full py-4 pl-5 text-chatgpt-grey-100 text-[15px] focus:outline-none bg-chatgpt-grey-200"
+				className="flex rounded-3xl items-center w-full py-4 pl-5 text-athens-gray text-[15px] focus:outline-none bg-gun-powder"
 			/>
 			<button type="submit" className="h-full py-1.5 px-3 pr-5">
 				<SendArrow />

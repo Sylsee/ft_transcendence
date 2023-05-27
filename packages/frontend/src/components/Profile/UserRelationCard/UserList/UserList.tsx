@@ -5,6 +5,9 @@ import { useDeleteFriend } from "hooks/userRelations/useDeleteFriend";
 import { useDeleteFriendRequest } from "hooks/userRelations/useDeleteFriendRequest";
 import { useRejectFriendRequest } from "hooks/userRelations/useRejectFriendRequest";
 import { useUnblockUser } from "hooks/userRelations/useUnblockUser";
+import { toast } from "react-toastify";
+import { emitLobbySocketEvent } from "sockets/socket";
+import { LobbySendEvent } from "types/game/lobby";
 import { ApiErrorResponse } from "types/global/global";
 import {
 	FriendRequest,
@@ -42,6 +45,8 @@ const UserList: React.FC<UserListProps> = ({
 				return "Friends Requests Sent";
 			case UserListType.BlockedUsers:
 				return "Blocked Users";
+			case UserListType.InviteToLobby:
+				return "Invite Friends";
 			default:
 				return "";
 		}
@@ -102,6 +107,22 @@ const UserList: React.FC<UserListProps> = ({
 							color: "silver-tree",
 							handleClick: (id: string) => {
 								unBlockUserMutate(id);
+							},
+						},
+					],
+				};
+			case UserListType.InviteToLobby:
+				return {
+					buttons: [
+						{
+							name: "Invite",
+							color: "silver-tree",
+							handleClick: (id: string) => {
+								emitLobbySocketEvent(
+									LobbySendEvent.InviteToLobby,
+									{ userId: id }
+								);
+								toast.info("Invitation sent");
 							},
 						},
 					],

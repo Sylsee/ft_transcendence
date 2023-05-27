@@ -15,7 +15,7 @@ const Loader: React.FC<LoaderProps> = ({
 	height = 80,
 }) => {
 	return (
-		<div className="h-full flex flex-col  items-center justify-center">
+		<div className="h-full w-full flex flex-col  items-center justify-center">
 			<div className="flex justify-center items-center">
 				{type === LoaderType.TailSpine ? (
 					<TailSpin

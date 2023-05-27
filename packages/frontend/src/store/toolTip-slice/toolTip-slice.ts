@@ -12,7 +12,10 @@ export const tooltipSlice = createSlice({
 		setActiveTooltip: (state, action: PayloadAction<string | null>) => {
 			state.activeTooltip = action.payload;
 		},
+		resetTooltipState() {
+			return initialState;
+		},
 	},
 });
 
-export const { setActiveTooltip } = tooltipSlice.actions;
+export const { setActiveTooltip, resetTooltipState } = tooltipSlice.actions;

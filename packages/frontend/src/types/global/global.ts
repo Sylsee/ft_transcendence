@@ -2,8 +2,9 @@ import { ChatState } from "types/chat/chat";
 import { CustomNotificationState } from "types/customNotification/customNotification";
 import { TooltipState } from "types/toolTip/toolTip";
 
-import { SelfUserState } from "../user/reducer";
+import { GameState } from "types/game/reducer";
 import { AuthState } from "../auth/reducer";
+import { SelfUserState } from "../user/reducer";
 
 // redux store
 export interface RootState {
@@ -12,6 +13,7 @@ export interface RootState {
 	CHAT: ChatState;
 	CUSTOM_NOTIFICATION: CustomNotificationState;
 	TOOLTIP: TooltipState;
+	GAME: GameState;
 }
 
 // api

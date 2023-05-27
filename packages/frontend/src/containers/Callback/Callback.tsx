@@ -5,7 +5,6 @@ import { Navigate } from "react-router-dom";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
 
-// TODO twofactor
 const Callback: React.FC = () => {
 	const [loading, setLoading] = useState(true);
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
@@ -21,13 +20,7 @@ const Callback: React.FC = () => {
 			setLoading(false);
 	}, [isAuth, id]);
 
-	if (loading)
-		return (
-			<>
-				<Loader />
-			</>
-		);
-
+	if (loading) return <Loader />;
 	return isAuth === AuthStatus.Authenticated ? (
 		<Navigate to={`/user/${id}`} />
 	) : (

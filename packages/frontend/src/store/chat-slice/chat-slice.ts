@@ -161,6 +161,9 @@ export const chatSlice = createSlice({
 		setChatInput: (state, action: PayloadAction<string>) => {
 			state.chatInput = action.payload;
 		},
+		resetChat: () => {
+			return initialState;
+		},
 	},
 });
 
@@ -207,4 +210,5 @@ export const {
 	setIsMenuOpen,
 	toggleChatMenu,
 	setChatInput,
+	resetChat,
 } = chatSlice.actions;

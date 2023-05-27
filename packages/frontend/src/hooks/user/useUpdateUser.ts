@@ -1,4 +1,8 @@
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import {
+	useMutation,
+	UseMutationResult,
+	useQueryClient,
+} from "@tanstack/react-query";
 import { updateUserById } from "api/user/userRequests";
 import { useDispatch } from "react-redux";
 import { setUser } from "store/selfUser-slice/selfUser-slice";
@@ -11,12 +15,15 @@ const useUpdateUser = (): UseMutationResult<
 	ApiErrorResponse,
 	UpdateUserRequest
 > => {
+	const queryClient = useQueryClient();
+
 	const dispatch = useDispatch();
 	const mutation = useMutation<User, ApiErrorResponse, UpdateUserRequest>(
 		(data: UpdateUserRequest) => updateUserById(data),
 		{
 			onSuccess: (user) => {
 				dispatch(setUser(user));
+				queryClient.invalidateQueries(["matchHistory", user.id]);
 			},
 		}
 	);

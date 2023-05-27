@@ -68,10 +68,9 @@ services:
     networks:
       - transcendence-network
     restart: unless-stopped
-
 volumes:
-  pgdata:
+    pgdata:
 
 networks:
-  transcendence-network:
-    driver: bridge
+    transcendence-network:
+        driver: bridge

@@ -1,19 +1,28 @@
-export interface UserStats {
-	wins: number;
-	losses: number;
-}
+import { LobbyMode } from "types/game/lobby";
 
 export interface Match {
 	id: string;
-	players: User[];
+	createdAt: Date;
+	mode: LobbyMode;
 	winner: User;
-	date: Date;
+	loser: User;
+	winnerPoints: number;
+	loserPoints: number;
+}
+
+export interface UserStats {
+	losses: number;
+	wins: number;
+	pointsAgainst: number;
+	pointsScored: number;
+	totalMatches: number;
 }
 
 // user
 export enum UserStatus {
-	Active = "active",
-	Inactive = "inactive",
+	Online = "online",
+	InGame = "inGame",
+	Offline = "offline",
 }
 
 export interface User {
@@ -21,5 +30,4 @@ export interface User {
 	name: string;
 	profilePictureUrl: string;
 	status?: UserStatus;
-	isTwoFactorAuthEnabled?: boolean;
 }

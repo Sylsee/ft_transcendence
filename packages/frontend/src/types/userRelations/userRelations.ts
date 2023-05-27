@@ -17,6 +17,7 @@ export enum UserListType {
 	ReceivedFriendRequests,
 	SentFriendRequests,
 	BlockedUsers,
+	InviteToLobby,
 }
 
 export type FriendRequest = User;

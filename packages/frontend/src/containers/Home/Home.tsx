@@ -17,7 +17,7 @@ const Home: React.FC = () => {
 	};
 
 	return (
-		<div className="h-full flex flex-col items-center justify-center">
+		<div className="h-full w-full flex flex-col items-center justify-center">
 			{isAuth === AuthStatus.NotAuthenticated && (
 				<div className="flex">
 					<IconButton
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
 				</div>
 			)}
 			{isAuth === AuthStatus.Authenticated && (
-				<Link to="/game">
+				<Link to="/lobby">
 					<IconButton url="" name="Play" logo={pong_logo()} />
 				</Link>
 			)}

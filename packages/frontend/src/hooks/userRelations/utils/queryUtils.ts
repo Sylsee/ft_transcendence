@@ -1,10 +1,10 @@
 import { QueryClient } from "@tanstack/react-query";
-import {
-	User,
-	UserStatus,
-} from "types/user/user";
-import { FriendRequest, FriendRequestType } from "../../../types/userRelations/userRelations";
+import { User, UserStatus } from "types/user/user";
 import { FriendRequestQueryResponse } from "../../../types/userRelations/api";
+import {
+	FriendRequest,
+	FriendRequestType,
+} from "../../../types/userRelations/userRelations";
 
 export const cancelFriendQueries = (
 	queryClient: QueryClient,
@@ -92,17 +92,10 @@ export const updateUserStatusFromQuery = (
 		};
 	});
 
-	console.log("FOFOFOF");
-
 	queryClient.setQueryData(
 		["friends", connectedUserId],
 		(oldData: User[] | undefined) => {
-			console.log("COOL0");
-			console.log(connectedUserId);
 			if (!oldData) return oldData;
-			console.log("COOL");
-
-			console.log(oldData);
 			const r = oldData.map((user: User) => {
 				if (user.id !== id) return user;
 				return {
@@ -110,7 +103,6 @@ export const updateUserStatusFromQuery = (
 					status,
 				};
 			});
-			console.log(r);
 			return r;
 		}
 	);

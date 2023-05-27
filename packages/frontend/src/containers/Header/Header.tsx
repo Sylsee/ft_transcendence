@@ -7,7 +7,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "store/auth-slice/auth-slice";
 import { AuthStatus } from "types/auth/auth";
+import { LobbyState } from "types/game/lobby";
 import { RootState } from "types/global/global";
+import styles from "./Header.module.css";
 
 const Header: React.FC = () => {
 	// state
@@ -17,7 +19,9 @@ const Header: React.FC = () => {
 	const id = useSelector((store: RootState) => store.USER.user?.id);
 	const dispatch = useDispatch();
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
-
+	const lobbyStatus = useSelector(
+		(store: RootState) => store.GAME.lobbyStatus
+	);
 	// handlers
 	const logoutHandler = () => {
 		dispatch(logout());
@@ -27,12 +31,19 @@ const Header: React.FC = () => {
 		<nav className="h-100 relative flex flex-wrap items-center justify-between px-2 py-3 lg:px-4 lg:py-4">
 			<div className="container max-w-none px-4 m-0 flex flex-wrap items-center justify-between">
 				<div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-					<Link
-						className="text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-white"
-						to="/"
-					>
-						Ft_transcendence
-					</Link>
+					<div className="flex justify-center items-center">
+						<Link
+							className="text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-white"
+							to="/"
+						>
+							Ft_transcendence
+						</Link>
+						{lobbyStatus === LobbyState.Searching && (
+							<Link to="/lobby">
+								<div className={`${styles.loader}`}></div>
+							</Link>
+						)}
+					</div>
 					{isAuth === AuthStatus.Authenticated && (
 						<button
 							className="text-white cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"

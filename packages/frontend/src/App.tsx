@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ErrorNotFound } from "components/Error/ErrorNotFound";
+import { Lobby } from "components/Lobby/Lobby";
 import { TwoFaAuthenticate } from "components/TwoFaAuthenticate/TwoFaAuthenticate";
 import { Callback } from "containers/Callback/Callback";
 import { HeaderWrapper } from "containers/HeaderWrapper/HeaderWrapper";
@@ -11,18 +12,17 @@ import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import {
-	removeSocketChatListeners,
-	socketChatListeners,
-} from "sockets/listeners/chatListeners";
-import {
-	removeSocketUserListeners,
-	socketUserListeners,
-} from "sockets/listeners/userListeners";
+import { socketChatListeners } from "sockets/listeners/chatListeners";
+import { socketGameListeners } from "sockets/listeners/gameListeners";
+import { socketLobbyListeners } from "sockets/listeners/lobbyListeners";
+import { socketUserListeners } from "sockets/listeners/userListeners";
 import {
 	connectChatSocket,
+	connectGameSocket,
 	disconnectChatSocket,
+	disconnectSockets,
 	initializeChatSocket,
+	initializeGameSocket,
 } from "sockets/socket";
 import { AuthStatus } from "types/auth/auth";
 import { RootState } from "types/global/global";
@@ -53,8 +53,8 @@ const router = createBrowserRouter([
 						element: <Profile />,
 					},
 					{
-						path: "/user/edit",
-						element: <Profile />,
+						path: "/lobby",
+						element: <Lobby />,
 					},
 				],
 			},
@@ -74,25 +74,33 @@ const App: React.FC = () => {
 		(state: RootState) => state.USER.user?.id
 	);
 	const chatSocket = initializeChatSocket();
+	const gameSocket = initializeGameSocket();
 
 	useEffect(() => {
-		if (!chatSocket || !connectedUserId) return;
+		if (!chatSocket || !connectedUserId || !gameSocket) return;
 		if (isAuth !== AuthStatus.Authenticated) {
 			disconnectChatSocket();
-			removeSocketChatListeners();
-			removeSocketUserListeners();
 		}
 		if (isAuth === AuthStatus.Authenticated) {
 			connectChatSocket();
 			socketChatListeners(dispatch);
 			socketUserListeners(queryClient, connectedUserId);
+
+			connectGameSocket();
+			socketLobbyListeners(dispatch);
+			socketGameListeners(dispatch);
 		}
 		return () => {
-			disconnectChatSocket();
-			removeSocketChatListeners();
-			removeSocketUserListeners();
+			disconnectSockets();
 		};
-	}, [chatSocket, dispatch, isAuth, queryClient, connectedUserId]);
+	}, [
+		chatSocket,
+		dispatch,
+		isAuth,
+		queryClient,
+		connectedUserId,
+		gameSocket,
+	]);
 
 	return (
 		<>

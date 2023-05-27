@@ -35,7 +35,7 @@ const ChatMenu: React.FC<ChatMenuProps> = ({
 
 	return (
 		<div
-			className={`flex flex-col bg-chatgpt-grey-500 absolute h-full top-0 left-[-1px] w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
+			className={`flex flex-col bg-shark absolute h-full top-0 left-[-1px] w-64 md:w-full md:max-w-[400px] transform transition-transform duration-300 ${
 				isMenuOpen
 					? "translate-x-[1px] shadow-right"
 					: "-translate-x-full"
