@@ -76,11 +76,11 @@ export class MatchRepository {
     const pointsAgainst = parseInt(result.pointsAgainst);
 
     return {
-      totalMatches: totalMatches ?? 0,
-      wins: wins ?? 0,
-      losses: losses ?? 0,
-      pointsScored: pointsScored ?? 0,
-      pointsAgainst: pointsAgainst ?? 0,
+      totalMatches: totalMatches ? totalMatches : 0,
+      wins: wins ? wins : 0,
+      losses: losses ? losses : 0,
+      pointsScored: pointsScored ? pointsScored : 0,
+      pointsAgainst: pointsAgainst ? pointsAgainst : 0,
     };
   }
 }
