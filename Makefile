@@ -1,12 +1,13 @@
 PROD_COMPOSE_FILE	=	docker-compose.prod.yml
 DEV_COMPOSE_FILE	=	docker-compose.dev.yml
-DOCKER			=	docker-compose
-OPTIONS			=	#-d
 
-_RESET			=	\e[0m
+DOCKER		=	docker-compose
+OPTIONS		=	#-d
+
+_RESET		=	\e[0m
 _RED			=	\e[31m
-_GREEN			=	\e[32m
-_YELLOW			=	\e[33m
+_GREEN		=	\e[32m
+_YELLOW		=	\e[33m
 _CYAN			=	\e[36m
 
 dev:
@@ -16,16 +17,20 @@ prod:
 	$(DOCKER) -f $(PROD_COMPOSE_FILE) up --build $(OPTIONS)
 
 front:
-	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS) frontend
+	$(DOCKER) -f $(DEV_COMPOSE_FILE) up --build $(OPTIONS) frontend
+	$(DOCKER) -f $(PROD_COMPOSE_FILE) up --build $(OPTIONS) frontend
 
 back:
-	$(DOCKER) -f $(COMPOSE_FILE) up --build $(OPTIONS) backend db
+	$(DOCKER) -f $(DEV_COMPOSE_FILE) up --build $(OPTIONS) backend db
+	$(DOCKER) -f $(PROD_COMPOSE_FILE) up --build $(OPTIONS) backend db
 
 clean:
-	$(DOCKER) -f $(COMPOSE_FILE) down
+	$(DOCKER) -f $(DEV_COMPOSE_FILE) down
+	$(DOCKER) -f $(PROD_COMPOSE_FILE) down
 
 fclean: clean
-	$(DOCKER) -f $(COMPOSE_FILE) down --rmi all --volumes --remove-orphans
+	$(DOCKER) -f $(DEV_COMPOSE_FILE) down --rmi all --volumes --remove-orphans
+	$(DOCKER) -f $(PROD_COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
 clean-dev:
 	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage
