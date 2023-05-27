@@ -2,6 +2,7 @@
 import { UserDto } from 'src/user/dto/user.dto';
 import { UserWithReadyStatusDto } from '../dto/user-with-ready-status.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
+import { PowerUpType } from '../enum/power-up-type.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { Ball } from '../game/types/ball';
 import { Paddle } from '../game/types/paddle';
@@ -65,5 +66,21 @@ export type GamePayloads = {
   [ServerGameEvents.GameScore]: {
     player1Score: number;
     player2Score: number;
+  };
+
+  [ServerGameEvents.GameIsPowerUpActive]: {
+    isActive: boolean;
+  };
+
+  [ServerGameEvents.GamePowerUpSpawn]: {
+    id: string;
+    type: PowerUpType;
+    x: number;
+    y: number;
+    radius: number;
+  };
+
+  [ServerGameEvents.GamePowerUpDespawn]: {
+    id: string;
   };
 };

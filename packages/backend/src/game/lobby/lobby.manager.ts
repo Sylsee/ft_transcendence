@@ -17,6 +17,7 @@ import { LOBBY_MAX_LIFETIME, MAX_PLAYERS } from '../constants';
 import { InviteToLobbyDto } from '../dto/invite-lobby.dto';
 import { JoinLobbyDto } from '../dto/join-lobby.dto';
 import { MovePaddleDto } from '../dto/move-paddle.dto';
+import { PowerUpDto } from '../dto/power-up.dto';
 import { LobbyMode } from '../enum/lobby-mode.enum';
 import { ServerGameEvents } from '../enum/server-game-event.enum';
 import { MatchRepository } from '../repository/match.repository';
@@ -45,7 +46,7 @@ export class LobbyManager {
     private matchRepository: MatchRepository,
   ) {}
 
-  public async createLobby(client: AuthenticatedSocket): Promise<Lobby> {
+  public async createLobby(client: AuthenticatedSocket): Promise<void> {
     if (client.data.lobby) {
       throw new WsException('You are already in a lobby, leave it first');
     }
@@ -54,18 +55,16 @@ export class LobbyManager {
       throw new WsException('You are in queue, please leave queue first');
     }
 
-    const lobby = new Lobby(
+    const newLobby = new Lobby(
       this.server,
       this.userService,
       this.chatGateway,
       this.matchRepository,
       LobbyMode.Custom,
     );
-    this.lobbies.set(lobby.id, lobby);
+    this.lobbies.set(newLobby.id, newLobby);
 
-    await lobby.addPlayer(client);
-
-    return lobby;
+    await newLobby.addPlayer(client);
   }
 
   public async joinLobby(
@@ -267,6 +266,32 @@ export class LobbyManager {
     }
 
     await client.data.lobby.setPlayerReady(client, ready);
+  }
+
+  public async setPowerUpActive(
+    client: AuthenticatedSocket,
+    powerUp: PowerUpDto,
+  ): Promise<void> {
+    if (!client.data.lobby) {
+      throw new WsException('You are not in a lobby');
+    }
+
+    if (client.data.lobby.mode !== LobbyMode.Custom) {
+      throw new WsException('You cannot use power ups in this lobby');
+    }
+
+    if (
+      client.data.lobby.instance.hasStarted ||
+      client.data.lobby.instance.hasFinished
+    ) {
+      throw new WsException('Game already started');
+    }
+
+    if (!client.data.lobby.players.has(client.id)) {
+      throw new WsException('You are not in this lobby');
+    }
+
+    await client.data.lobby.setPowerUpActive(powerUp);
   }
 
   // -------------------- Lobby queue --------------------

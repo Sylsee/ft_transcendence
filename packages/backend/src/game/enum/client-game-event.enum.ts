@@ -17,4 +17,5 @@ export enum ClientGameEvent {
   /*
     direction: MovePaddleDto
   */
+  PowerUp = 'client.game.power-up',
 }

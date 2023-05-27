@@ -62,7 +62,7 @@ export class ChannelDto {
     required: true,
   })
   @IsNotEmpty()
-  @Length(3, 20)
+  @Length(3, 14)
   @IsString()
   name: string;
 
