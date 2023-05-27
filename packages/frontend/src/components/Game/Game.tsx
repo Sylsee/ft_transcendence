@@ -44,7 +44,7 @@ const Game: React.FC<GameProps> = () => {
 				rect.height / logicalHeight
 			);
 
-			console.log("scale", scale);
+			// console.log("scale", scale);
 
 			canvas.width = logicalWidth * scale;
 			canvas.height = logicalHeight * scale;

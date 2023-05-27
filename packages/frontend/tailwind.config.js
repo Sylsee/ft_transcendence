@@ -69,21 +69,6 @@ module.exports = withMT({
 					950: "#22262a",
 					DEFAULT: "#48525a",
 				},
-				"chatgpt-grey": {
-					50: "#444654",
-					100: "#ECECF1",
-					200: "#40414F",
-					300: "#2A2B32",
-					400: "#343541",
-					500: "#202123",
-					600: "#7575#34354175",
-					700: "#616161",
-
-					800: "#424242",
-					900: "#212121",
-					950: "#111111",
-					DEFAULT: "#202123",
-				},
 
 				// basic color
 				tuna: {
@@ -116,6 +101,7 @@ module.exports = withMT({
 					950: "#22232a",
 					DEFAULT: "#444654",
 				},
+
 				// dark color
 				shark: {
 					50: "#f6f6f7",
@@ -149,6 +135,7 @@ module.exports = withMT({
 					950: "#25252c",
 					DEFAULT: "#40414f",
 				},
+
 				// really light
 				"athens-gray": {
 					50: "#f6f6f8",
@@ -164,12 +151,10 @@ module.exports = withMT({
 					950: "#33313a",
 					DEFAULT: "#ececf1",
 				},
-
-				hoverColor: "#2f3032",
 			},
 			backgroundImage: {
-				"gradient-custom":
-					"linear-gradient(to right top, #051937, #36274c, #623458, #8c445d, #ae5b5b)",
+				"background-gradient":
+					"linear-gradient(180deg, #1B1B1B 0%, #1C1C1C 6.25%, #232628 50%, #1B1B1B 100%)",
 			},
 			boxShadow: {
 				right: "5px 4px 6px 1px rgba(0, 0, 0, 0.1)",
@@ -181,7 +166,7 @@ module.exports = withMT({
 	safelist: [
 		{
 			pattern:
-				/(bg|text|border)-(silver-tree|astronaut|mirage|tamarillo|river-red|tuna|mako|)/,
+				/(bg|text|border)-(silver-tree|astronaut|mirage|tamarillo|river-red|tuna|mako|shark|light-shark|gun-powder|athens-gray|)/,
 		},
 	],
 });

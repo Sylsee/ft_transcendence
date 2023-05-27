@@ -124,3 +124,9 @@ export interface GameScore {
 	player2Score: number;
 	winner: User | null;
 }
+
+export enum GameResult {
+	Win,
+	Lose,
+	Equal,
+}

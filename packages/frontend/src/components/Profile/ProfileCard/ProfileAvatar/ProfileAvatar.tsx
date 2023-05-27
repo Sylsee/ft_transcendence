@@ -7,14 +7,12 @@ import { toast } from "react-toastify";
 import { UserStatus } from "types/user/user";
 
 interface ProfileAvatarProps {
-	id: string;
 	isConnectedUser: boolean;
 	profilePictureUrl: string;
 	status: UserStatus | undefined;
 }
 
 const ProfileAvatar: React.FC<ProfileAvatarProps> = ({
-	id,
 	isConnectedUser,
 	profilePictureUrl,
 	status,

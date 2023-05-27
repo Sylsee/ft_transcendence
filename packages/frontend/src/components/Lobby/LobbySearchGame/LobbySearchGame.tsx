@@ -4,8 +4,8 @@ import React from "react";
 import { useDispatch } from "react-redux";
 import { Socket } from "socket.io-client";
 import { emitLobbySocketEvent } from "sockets/socket";
-import { setLobbyStatus } from "store/game-slice/game-slice";
-import { LobbySendEvent, LobbyState } from "types/game/lobby";
+import { resetGame } from "store/game-slice/game-slice";
+import { LobbySendEvent } from "types/game/lobby";
 
 interface LobbySearchGameProps {
 	gameSocket: Socket;
@@ -16,7 +16,7 @@ const LobbySearchGame: React.FC<LobbySearchGameProps> = ({ gameSocket }) => {
 
 	const handleCancelClick = () => {
 		emitLobbySocketEvent(LobbySendEvent.CancelSearchGame);
-		dispatch(setLobbyStatus(LobbyState.Idle));
+		dispatch(resetGame());
 	};
 
 	return (

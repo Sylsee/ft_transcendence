@@ -43,13 +43,7 @@ const HeaderWrapper: React.FC = () => {
 	});
 
 	return (
-		<div
-			className="h-full flex flex-col max-h-full"
-			style={{
-				background:
-					"linear-gradient(180deg, #1B1B1B 0%, #1C1C1C 6.25%, #232628 50%, #1B1B1B 100%)",
-			}}
-		>
+		<div className="h-full flex flex-col max-h-full bg-background-gradient">
 			<div className="flex-shrink-0">
 				<Header />
 			</div>

@@ -4,26 +4,41 @@ import { LobbySearchGame } from "components/Lobby/LobbySearchGame/LobbySearchGam
 import { LobbyStart } from "components/Lobby/LobbyStart/LobbyStart";
 import { ScoreBoard } from "components/ScoreBoard/ScoreBoard";
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
-import { getGameSocket } from "sockets/socket";
-import { LobbyState } from "types/game/lobby";
+import { useDispatch, useSelector } from "react-redux";
+import { emitLobbySocketEvent, getGameSocket } from "sockets/socket";
+import { resetGame } from "store/game-slice/game-slice";
+import { LobbySendEvent, LobbyState } from "types/game/lobby";
 import { RootState } from "types/global/global";
 
 interface LobbyProps {}
 
 const Lobby: React.FC<LobbyProps> = () => {
+	const dispatch = useDispatch();
 	const LobbyStatus = useSelector(
 		(state: RootState) => state.GAME.lobbyStatus
 	);
 
 	const gameSocket = getGameSocket();
 
+	const statusRef = React.useRef(LobbyStatus);
+	const dispatchRef = React.useRef(dispatch);
+
+	useEffect(() => {
+		statusRef.current = LobbyStatus;
+		dispatchRef.current = dispatch;
+	}, [LobbyStatus, dispatch]);
+
 	useEffect(() => {
 		return () => {
-			console.log("Lobby unmount");
+			if (
+				statusRef.current === LobbyState.Start ||
+				statusRef.current === LobbyState.Finish
+			) {
+				emitLobbySocketEvent(LobbySendEvent.LeaveLobby);
+				dispatchRef.current(resetGame());
+			}
 		};
 	}, []);
-
 	if (!gameSocket) return null;
 
 	return (
