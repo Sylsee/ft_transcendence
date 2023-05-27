@@ -36,7 +36,11 @@ const UserStatCard: React.FC<UserStatCardProps> = ({ id }) => {
 				</div>
 			</div>
 			<div className="flex flex-col grow text-3xl font-bold">
-				{status === "error" && <ErrorItem error={error} />}
+				{status === "error" && (
+					<div className="text-lg">
+						<ErrorItem error={error} />
+					</div>
+				)}
 				<UserStatRow
 					name="Games Played"
 					value={`${data.totalMatches}`}
