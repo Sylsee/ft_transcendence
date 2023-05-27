@@ -10,13 +10,13 @@ export const gameConfig = {
   timeStep: 1 / 60, // Fixed time step in seconds
   maxScore: 5, // The score needed to win the game
   pointCountDownDuration: 2, // seconds
-  powerUpSpawnChance: 0.01, // The chance of a power up spawning every ticks
-  powerUpRadius: 50,
-  powerUpDuration: 4, // seconds
-  ballRadiusChangePerPowerUp: 2.5,
-  ballMinRadius: 5,
-  ballMaxRadius: 20,
-  paddleHeightChangePerPowerUp: 25,
+  powerUpSpawnChance: 0.003, // The chance of a power up spawning every ticks
+  powerUpRadius: 40,
+  powerUpDuration: 6, // seconds
+  ballRadiusChangePerPowerUp: 5,
+  ballMinRadius: 7.5,
+  ballMaxRadius: 30,
+  paddleHeightChangePerPowerUp: 60,
   paddleMinHeight: 50,
-  paddleMaxHeight: 200,
+  paddleMaxHeight: 300,
 };

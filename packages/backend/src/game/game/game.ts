@@ -80,6 +80,8 @@ export class Game {
 
     // Random angle between -22.5 and 22.5 degrees
     const angle = (Math.random() * Math.PI) / 4 - Math.PI / 8;
+    // Reset the ball's speed
+    this.ballSpeedPerSecond = gameConfig.ballSpeedPerSecond;
 
     this.ball = {
       x: gameConfig.width / 2,
@@ -93,8 +95,6 @@ export class Game {
 
     // Reverse the ball's horizontal direction for the next reset
     this.ballDirection *= -1;
-    // Reset the ball's speed
-    this.ballSpeedPerSecond = gameConfig.ballSpeedPerSecond;
 
     if (this.paddle1SizeTimeout) {
       clearTimeout(this.paddle1SizeTimeout);
@@ -421,12 +421,18 @@ export class Game {
           this.paddle1.height = gameConfig.paddleMinHeight;
         }
 
+        this.paddle1.y += gameConfig.paddleHeightChangePerPowerUp / 2;
+        this.checkPaddleBounds(this.paddle1);
+
         this.revertPaddleSizeAfterDelay(this.paddle1);
       } else {
         this.paddle2.height -= gameConfig.paddleHeightChangePerPowerUp;
         if (this.paddle2.height < gameConfig.paddleMinHeight) {
           this.paddle2.height = gameConfig.paddleMinHeight;
         }
+
+        this.paddle2.y += gameConfig.paddleHeightChangePerPowerUp / 2;
+        this.checkPaddleBounds(this.paddle2);
 
         this.revertPaddleSizeAfterDelay(this.paddle2);
       }
@@ -438,12 +444,18 @@ export class Game {
           this.paddle1.height = gameConfig.paddleMaxHeight;
         }
 
+        this.paddle1.y -= gameConfig.paddleHeightChangePerPowerUp / 2;
+        this.checkPaddleBounds(this.paddle1);
+
         this.revertPaddleSizeAfterDelay(this.paddle1);
       } else {
         this.paddle2.height += gameConfig.paddleHeightChangePerPowerUp;
         if (this.paddle2.height > gameConfig.paddleMaxHeight) {
           this.paddle2.height = gameConfig.paddleMaxHeight;
         }
+
+        this.paddle2.y -= gameConfig.paddleHeightChangePerPowerUp / 2;
+        this.checkPaddleBounds(this.paddle2);
 
         this.revertPaddleSizeAfterDelay(this.paddle2);
       }
@@ -474,8 +486,12 @@ export class Game {
     }
 
     const timeout = setTimeout(() => {
+      const heightDiff = paddle.height - gameConfig.paddleHeight;
+      paddle.y += heightDiff / 2;
+      this.checkPaddleBounds(paddle);
+
       paddle.height = gameConfig.paddleHeight;
-    }, gameConfig.powerUpDuration);
+    }, gameConfig.powerUpDuration * 1000);
 
     if (paddle === this.paddle1) {
       this.paddle1SizeTimeout = timeout;
@@ -492,7 +508,7 @@ export class Game {
 
     const timeout = setTimeout(() => {
       this.ball.radius = gameConfig.ballRadius;
-    }, gameConfig.powerUpDuration);
+    }, gameConfig.powerUpDuration * 1000);
 
     this.ballSizeTimeout = timeout;
   }
