@@ -1,5 +1,4 @@
-import { faGamepad } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ReactComponent as ControllerIcon } from "assets/icons/user/game-controller-icon.svg";
 import React from "react";
 import { UserStatus } from "types/user/user";
 
@@ -31,7 +30,7 @@ const UserStatusIcon: React.FC<UserStatusIconProps> = ({
 			<div
 				className={`absolute ${customControllerStyles} w-3 h-3 text-river-bed-900`}
 			>
-				<FontAwesomeIcon icon={faGamepad} />
+				<ControllerIcon className="w-4 h-4" />
 			</div>
 		);
 	}

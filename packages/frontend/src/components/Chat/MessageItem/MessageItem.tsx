@@ -109,8 +109,8 @@ const MessageItem: React.FC<MessageItemProps> = ({
 	);
 
 	const arrowStyle = state?.placement.startsWith("top")
-		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-gray-800"
-		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-gray-800";
+		? "-bottom-2.5 h-0 w-0 border-x-8 border-x-transparent border-t-[12px] border-t-shark"
+		: "-top-2.5 h-0 w-0 border-x-8 border-x-transparent border-b-[12px] border-b-shark";
 
 	// handlers
 	const handleClickMessage = () => {
@@ -155,12 +155,12 @@ const MessageItem: React.FC<MessageItemProps> = ({
 					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
 					className="flex items-center justify-center bg-mako h-full rounded-xl"
 				>
-					{showTooltip && (
+					{/* {showTooltip && (
 						<div
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="z-10 flex flex-col justify-center items-center space-y-2 bg-gray-800 rounded-md shadow-md"
+							className="z-10 flex flex-col justify-center items-center space-y-2 bg-shark rounded-md shadow-md"
 						>
 							<div className="flex flex-col justify-center items-center space-y-2">
 								<button
@@ -177,7 +177,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 								</button>
 							</div>
 						</div>
-					)}
+					)} */}
 
 					{showTooltip && (
 						<div
@@ -185,7 +185,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="bg-gray-800 p-2 rounded shadow borde"
+							className="bg-shark p-2 rounded shadow borde"
 						>
 							<div
 								ref={setArrowElement}
@@ -194,7 +194,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 							></div>
 							<button
 								onClick={handleClickProfile}
-								className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+								className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
 							>
 								<FontAwesomeIcon icon={faUser} />
 							</button>
@@ -202,7 +202,7 @@ const MessageItem: React.FC<MessageItemProps> = ({
 								connected_user_id !== message.sender.id && (
 									<button
 										onClick={handleClickMessage}
-										className="text-sm p-1 text-blue-gray-800 hover:text-blue-gray-900"
+										className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
 									>
 										<FontAwesomeIcon icon={faMessage} />
 									</button>

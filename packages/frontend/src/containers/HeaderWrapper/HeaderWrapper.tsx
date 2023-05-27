@@ -38,17 +38,13 @@ const HeaderWrapper: React.FC = () => {
 		dispatch(setShowChat(value));
 	};
 
-	useEffect(() => {
-		console.log("RERENDER");
-	});
-
 	return (
 		<div className="h-full flex flex-col max-h-full bg-background-gradient">
 			<div className="flex-shrink-0">
 				<Header />
 			</div>
-			<div className="flex justify-between  max-h-full overflow-auto h-full mx-0 md:mx-10">
-				<div className="flex flex-grow overflow-auto">
+			<div className="flex justify-between  max-h-full overflow-auto h-full">
+				<div className="flex flex-grow overflow-auto mx-0 md:ml-10">
 					{loading ? <Loader /> : <Outlet />}
 				</div>
 				{isAuth === AuthStatus.Authenticated && (

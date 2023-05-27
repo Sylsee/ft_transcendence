@@ -23,7 +23,7 @@ const LobbyFriends: React.FC<LobbyFriendsProps> = ({ connectedUserId }) => {
 					<p>
 						You can invite other players by using the{" "}
 						<span className="font-bold bg-mako p-1 rounded-md text-athens-gray">
-							/invite
+							/pong
 						</span>{" "}
 						command in the chat.
 					</p>
