@@ -1,9 +1,6 @@
 PROD_COMPOSE_FILE	=	docker-compose.prod.yml
 DEV_COMPOSE_FILE	=	docker-compose.dev.yml
-DOCKER			=	docker compose
-OPTIONS			=	#-d
-
-DOCKER		=	docker-compose
+DOCKER		=	docker compose
 OPTIONS		=	#-d
 
 _RESET		=	\e[0m
@@ -11,6 +8,8 @@ _RED			=	\e[31m
 _GREEN		=	\e[32m
 _YELLOW		=	\e[33m
 _CYAN			=	\e[36m
+
+all: prod
 
 dev:
 	$(DOCKER) -f $(DEV_COMPOSE_FILE) up --build $(OPTIONS)
