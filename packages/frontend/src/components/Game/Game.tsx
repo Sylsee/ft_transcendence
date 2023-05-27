@@ -12,7 +12,8 @@ const Game: React.FC<GameProps> = () => {
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const requestAnimationRef = useRef<number>(0);
 	const tempCanvasRef = useRef<any | null>(null);
-
+	const containerRef = useRef<HTMLDivElement | null>(null);
+	const canvasContainerRef = useRef<HTMLDivElement | null>(null);
 	// state
 	const scaleRef = useRef<number>(1);
 
@@ -156,11 +157,66 @@ const Game: React.FC<GameProps> = () => {
 		};
 	}, [game, animateGame]);
 
+	// useEffect(() => {
+	// 	const containerElement = containerRef.current;
+	// 	if (containerElement) {
+	// 		const observer = new ResizeObserver((entries) => {
+	// 			for (let entry of entries) {
+	// 				// Vérifiez d'abord si l'élément cible existe
+	// 				const target = entry.target as HTMLDivElement;
+	// 				if (target) {
+	// 					// mettre à jour la largeur en fonction de la hauteur pour maintenir le ratio d'aspect
+	// 					// target.style.width = `${
+	// 					// 	entry.contentRect.height * (14 / 10)
+	// 					// }px`;
+	// 					if (
+	// 						!canvasContainerRef?.current ||
+	// 						!canvasContainerRef.current.style
+	// 					)
+	// 						return;
+	// 					const canvasContainerStyle =
+	// 						canvasContainerRef.current.style;
+	// 					canvasContainerStyle.width = `${
+	// 						entry.contentRect.height * (14 / 10) - 50
+	// 					}px`;
+	// 					canvasContainerStyle.height = `${
+	// 						entry.contentRect.height * (10 / 14) - 50
+	// 					}px`;
+	// 				}
+	// 			}
+	// 		});
+
+	// 		observer.observe(containerElement);
+
+	// 		return () => observer.unobserve(containerElement);
+	// 	}
+	// }, []);
+
 	return (
-		<div className="flex w-full flex-col justify-center items-center  p-4 max-h-full">
+		<div
+			className="flex w-full flex-col justify-center items-center  p-4 max-h-full h-full border-2"
+			ref={containerRef}
+			onResize={() => {
+				console.log("resize");
+			}}
+		>
 			<div
+				ref={canvasContainerRef}
 				style={{
-					aspectRatio: "14/10",
+					width: containerRef.current?.clientHeight
+						? `${
+								containerRef.current.clientHeight * (14 / 10) -
+								50
+						  }px`
+						: "100%",
+					height: containerRef.current?.clientHeight
+						? `${
+								containerRef.current.clientHeight * (10 / 14) -
+								50
+						  }px`
+						: "100%",
+
+					// aspectRatio: "14/10",
 				}}
 				className="relative bg-tuna w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
 			>

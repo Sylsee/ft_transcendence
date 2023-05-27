@@ -48,23 +48,9 @@ const ScoreBoard: React.FC<ScoreBoardProps> = () => {
 	if (!lobby?.players || lobby.players.length < 2) return null;
 	return (
 		<div className="w-full h-full flex flex-col">
-			<div className="flex justify-center mb-6 ">
+			{/* <div className="flex justify-center mb-6 ">
 				<h1 className="text-4xl font-bold">ScoreBoard</h1>
-			</div>
-			<div className="relative bg-tuna rounded-md shadow-md my-2">
-				<div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gun-powder shadow-md px-2 rounded-xl text-athens-gray p-2 text-xl">
-					VS
-				</div>
-				<div className="flex p-4 pt-6">
-					<UserMatchBody
-						winner={lobby?.players[0]}
-						loser={lobby?.players[1]}
-						winnerPoints={player1Points}
-						loserPoints={player2Points}
-						gameResult={gameResult}
-					/>
-				</div>
-			</div>
+			</div> */}
 			<div className="flex justify-center flex-grow">
 				<div className="p-6 flex flex-col w-full lg:w-1/2 shadow-md rounded-xl bg-tuna">
 					<div className="text-center">
@@ -89,6 +75,20 @@ const ScoreBoard: React.FC<ScoreBoardProps> = () => {
 							</div>
 						</div>
 					)}{" "}
+				</div>
+			</div>
+			<div className="relative bg-tuna rounded-md shadow-md my-2 mt-8">
+				<div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gun-powder shadow-md px-2 rounded-xl text-athens-gray p-2 text-xl">
+					VS
+				</div>
+				<div className="flex p-4 pt-6">
+					<UserMatchBody
+						winner={lobby?.players[0]}
+						loser={lobby?.players[1]}
+						winnerPoints={player1Points}
+						loserPoints={player2Points}
+						gameResult={gameResult}
+					/>
 				</div>
 			</div>
 			<div className="w-full flex flex-col lg:flex-row">
