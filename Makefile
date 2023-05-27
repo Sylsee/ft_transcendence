@@ -1,6 +1,7 @@
 PROD_COMPOSE_FILE	=	docker-compose.prod.yml
 DEV_COMPOSE_FILE	=	docker-compose.dev.yml
-DOCKER		=	docker compose
+
+DOCKER		=	docker-compose
 OPTIONS		=	#-d
 
 _RESET		=	\e[0m

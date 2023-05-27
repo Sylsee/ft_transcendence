@@ -96,6 +96,8 @@ export class Lobby {
       );
     }
 
+    this.players.delete(client.id);
+
     client.leave(this.id);
     client.data.lobby = null;
   }

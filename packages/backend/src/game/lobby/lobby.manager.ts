@@ -120,9 +120,12 @@ export class LobbyManager {
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
-    } else if (lobby.instance.hasStarted === true) {
+    } else if (
+      lobby.instance.hasStarted === true &&
+      lobby.instance.hasFinished === false
+    ) {
       lobby.instance.triggerFinish();
-    } else {
+    } else if (lobby.instance.hasFinished === false) {
       lobby.instance.stop = true;
       lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
         winner: null,
@@ -151,9 +154,12 @@ export class LobbyManager {
 
     if (lobby.players.size === 0) {
       this.lobbies.delete(lobby.id);
-    } else if (lobby.instance.hasStarted === true) {
+    } else if (
+      lobby.instance.hasStarted === true &&
+      lobby.instance.hasFinished === false
+    ) {
       lobby.instance.triggerFinish();
-    } else {
+    } else if (lobby.instance.hasFinished === false) {
       lobby.instance.stop = true;
       lobby.dispatchToLobby(ServerGameEvents.GameFinish, {
         winner: null,
