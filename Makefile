@@ -1,4 +1,4 @@
-PROD_COMPOSE_FILE	=	docker-compose.prod.yml
+PROD_COMPOSE_FILE	=	docker-compose.yml
 DEV_COMPOSE_FILE	=	docker-compose.dev.yml
 
 DOCKER		=	docker compose

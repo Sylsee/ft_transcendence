@@ -13,8 +13,6 @@ services:
     build:
       context: packages/backend
     hostname: backend
-    volumes:
-      - ./packages/backend/:/home/node/app
     environment:
       NODE_ENV: production
       PORT: ${BACKEND_PORT}
@@ -29,7 +27,7 @@ services:
     command:
       - sh
       - -c
-      - npm ci && npm run build && npm run start:prod
+      - npm run build && npm run start:prod
     depends_on:
       - db
     ports:

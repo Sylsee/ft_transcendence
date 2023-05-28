@@ -181,12 +181,27 @@ export class Game {
       ? UserDto.transform(this.match.winner)
       : null;
 
+    let player1Score = this.scores[this.lobby.player1?.data.id];
+    let player2Score = this.scores[this.lobby.player2?.data.id];
+
+    if (player1Score === undefined) {
+      const scoreList = Object.entries(this.scores);
+      const player1Id = scoreList.find((score) => score[0] !== this.lobby.player2?.data.id)[0];
+
+      player1Score = this.scores[player1Id];
+    } else if (player2Score === undefined) {
+      const scoreList = Object.entries(this.scores);
+      const player2Id = scoreList.find((score) => score[0] !== this.lobby.player1?.data.id)[0];
+
+      player2Score = this.scores[player2Id];
+    }
+
     this.lobby.dispatchToLobby<ServerGameEvents.GameFinish>(
       ServerGameEvents.GameFinish,
       {
         winner: winner,
-        player1Score: this.scores[this.lobby.player1?.data.id],
-        player2Score: this.scores[this.lobby.player2?.data.id],
+        player1Score: player1Score,
+        player2Score: player2Score,
       },
     );
   }
@@ -612,11 +627,26 @@ export class Game {
   }
 
   private dispatchScore(): void {
+    let player1Score = this.scores[this.lobby.player1?.data.id];
+    let player2Score = this.scores[this.lobby.player2?.data.id];
+
+    if (player1Score === undefined) {
+      const scoreList = Object.entries(this.scores);
+      const player1Id = scoreList.find((score) => score[0] !== this.lobby.player2?.data.id)[0];
+
+      player1Score = this.scores[player1Id];
+    } else if (player2Score === undefined) {
+      const scoreList = Object.entries(this.scores);
+      const player2Id = scoreList.find((score) => score[0] !== this.lobby.player1?.data.id)[0];
+
+      player2Score = this.scores[player2Id];
+    }
+
     this.lobby.dispatchToLobby<ServerGameEvents.GameScore>(
       ServerGameEvents.GameScore,
       {
-        player1Score: this.scores[this.lobby.player1?.data.id],
-        player2Score: this.scores[this.lobby.player2?.data.id],
+        player1Score: player1Score,
+        player2Score: player2Score,
       },
     );
   }

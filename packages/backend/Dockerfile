@@ -4,8 +4,17 @@ FROM node:14-alpine
 # Create app directory
 WORKDIR /home/node/app
 
+# Install app dependencies
+COPY package*.json ./
+
 # Install NestJS CLI
 RUN npm i -g @nestjs/cli
+
+# Install your dependencies
+RUN npm ci
+
+# Bundle app source
+COPY . .
 
 # Create profile-pictures directory
 RUN mkdir -p /home/node/uploads/profile-pictures
