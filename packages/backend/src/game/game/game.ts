@@ -558,7 +558,10 @@ export class Game {
     this.ball.velocity.x = -this.ball.velocity.x;
     this.ball.velocity.y = normalizedIntersectionY * this.ballSpeedPerSecond;
 
-    this.ballSpeedPerSecond *= 1.05;
+    this.ballSpeedPerSecond = Math.min(
+      gameConfig.ballMaxSpeed,
+      this.ballSpeedPerSecond * 1.2,
+    );
   }
 
   private async handleScreenBoundsCollision(): Promise<void> {
@@ -683,3 +686,4 @@ export class Game {
     });
   }
 }
+

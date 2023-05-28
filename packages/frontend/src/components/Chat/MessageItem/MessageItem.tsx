@@ -1,5 +1,3 @@
-import { faMessage, faUser } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useCreateChannel } from "hooks/chat/useCreateChannel";
 import { useEffect, useState } from "react";
 import { usePopper } from "react-popper";
@@ -155,58 +153,36 @@ const MessageItem: React.FC<MessageItemProps> = ({
 					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
 					className="flex items-center justify-center bg-mako h-full rounded-xl"
 				>
-					{/* {showTooltip && (
-						<div
-							ref={setPopperElement}
-							style={styles.popper}
-							{...attributes.popper}
-							className="z-10 flex flex-col justify-center items-center space-y-2 bg-shark rounded-md shadow-md"
-						>
-							<div className="flex flex-col justify-center items-center space-y-2">
-								<button
-									onClick={() => handleClickProfile()}
-									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
-								>
-									Profile
-								</button>
-								<button
-									onClick={() => handleClickMessage()}
-									className="flex justify-center items-center w-full px-2 py-1 text-sm text-white rounded-md hover:bg-gray-700"
-								>
-									Message
-								</button>
-							</div>
-						</div>
-					)} */}
-
 					{showTooltip && (
 						<div
 							id="dropdown"
 							ref={setPopperElement}
 							style={styles.popper}
 							{...attributes.popper}
-							className="bg-shark p-2 rounded shadow borde"
+							className="bg-shark p-2 rounded shadow-md"
 						>
 							<div
 								ref={setArrowElement}
 								style={styles.arrow}
 								className={arrowStyle}
 							></div>
-							<button
-								onClick={handleClickProfile}
-								className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
-							>
-								<FontAwesomeIcon icon={faUser} />
-							</button>
-							{connected_user_id &&
-								connected_user_id !== message.sender.id && (
-									<button
-										onClick={handleClickMessage}
-										className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
-									>
-										<FontAwesomeIcon icon={faMessage} />
-									</button>
-								)}
+							<div className="flex flex-col">
+								<button
+									onClick={handleClickProfile}
+									className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
+								>
+									Profile
+								</button>
+								{connected_user_id &&
+									connected_user_id !== message.sender.id && (
+										<button
+											onClick={handleClickMessage}
+											className="text-sm p-1 text-blue-shark hover:text-gun-powder-600"
+										>
+											Message
+										</button>
+									)}
+							</div>
 						</div>
 					)}
 					<p className="text-[15px] text-athens-gray px-3 py-1.5">
@@ -216,32 +192,6 @@ const MessageItem: React.FC<MessageItemProps> = ({
 			</div>
 		</div>
 	);
-
-	// return (
-	// 	<div className="flex items-start space-x-4 p-2 break-words border-2 border-purple-600">
-	// 		<div className="w-[calc(100%-0.5rem)] border-2">
-	// 			<div className="text-gray-500">
-	// 				{/* User name */}
-	// 				<span
-	// 					ref={setReferenceElement}
-	// 					onClick={() => toggleTooltip()}
-	// 					style={{ color: "#c7b99b" }}
-	// 					className="font-semibold text-white cursor-pointer hover:underline"
-	// 				>
-	// 					{message.sender.name}
-	// 				</span>
-	// 				{/* User name interaction */}
-	// 				{/* TODO: refactor it with ul li and add text to the icon */}
-	// 				{/* Message time */}
-	// 				<span className="ml-2">
-	// 					{formatDate(message.timestamp)}
-	// 				</span>
-	// 			</div>
-	// 			{/* Message content */}
-	// 			<div className="text-gray-200">{message.content}</div>
-	// 		</div>
-	// 	</div>
-	// );
 };
 
 export { MessageItem };

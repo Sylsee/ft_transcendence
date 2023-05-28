@@ -7,8 +7,9 @@ export const gameConfig = {
   paddleSpeedPerSecond: 400, // The initial speed of the paddle
   ballRadius: 12.5,
   ballSpeedPerSecond: 300, // The initial speed of the ball
+  ballMaxSpeed: 1000, // The maximum speed of the ball
   timeStep: 1 / 60, // Fixed time step in seconds
-  maxScore: 5, // The score needed to win the game
+  maxScore: 10000, // The score needed to win the game
   pointCountDownDuration: 2, // seconds
   powerUpSpawnChance: 0.003, // The chance of a power up spawning every ticks
   powerUpRadius: 40,
@@ -20,3 +21,4 @@ export const gameConfig = {
   paddleMinHeight: 50,
   paddleMaxHeight: 300,
 };
+

@@ -48,9 +48,6 @@ const ScoreBoard: React.FC<ScoreBoardProps> = () => {
 	if (!lobby?.players || lobby.players.length < 2) return null;
 	return (
 		<div className="w-full h-full flex flex-col">
-			{/* <div className="flex justify-center mb-6 ">
-				<h1 className="text-4xl font-bold">ScoreBoard</h1>
-			</div> */}
 			<div className="flex justify-center flex-grow">
 				<div className="p-6 flex flex-col w-full lg:w-1/2 shadow-md rounded-xl bg-tuna">
 					<div className="text-center">
@@ -74,7 +71,7 @@ const ScoreBoard: React.FC<ScoreBoardProps> = () => {
 								</Link>
 							</div>
 						</div>
-					)}{" "}
+					)}
 				</div>
 			</div>
 			<div className="relative bg-tuna rounded-md shadow-md my-2 mt-8">

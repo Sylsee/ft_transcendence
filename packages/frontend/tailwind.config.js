@@ -9,9 +9,6 @@ module.exports = withMT({
 				"14/10": "14 / 10",
 			},
 			colors: {
-				// website background color
-				backgroundColor: "#15202B",
-				// hover and active color
 				astronaut: {
 					50: "#f4f7fb",
 					100: "#e8eef6",
@@ -55,6 +52,7 @@ module.exports = withMT({
 					950: "#4c0512",
 					DEFAULT: "#a3132d",
 				},
+
 				"river-bed": {
 					50: "#f4f6f7",
 					100: "#e3e7ea",
@@ -85,7 +83,6 @@ module.exports = withMT({
 					950: "#24242d",
 					DEFAULT: "#343541",
 				},
-
 				// light grey
 				mako: {
 					50: "#f4f5f7",
@@ -166,7 +163,7 @@ module.exports = withMT({
 	safelist: [
 		{
 			pattern:
-				/(bg|text|border)-(silver-tree|astronaut|mirage|tamarillo|river-red|tuna|mako|shark|light-shark|gun-powder|athens-gray|)/,
+				/(bg|text|border)-(silver-tree|astronaut|tamarillo|river-red|tuna|mako|shark|light-shark|gun-powder|athens-gray|)/,
 		},
 	],
 });

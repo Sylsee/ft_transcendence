@@ -21,15 +21,16 @@ const HeaderWrapper: React.FC = () => {
 	// redux
 	const dispatch = useDispatch();
 	const isAuth = useSelector((store: RootState) => store.AUTH.isAuth);
+	const showModal = useSelector((store: RootState) => store.CHAT.showModal);
+	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
 
+	// hooks
 	useEffect(() => {
 		dispatch(authenticate());
 		setLoading(false);
 	}, [location, dispatch]);
 
-	// Etat pour afficher le chat en mode modal
-	const showModal = useSelector((store: RootState) => store.CHAT.showModal);
-	const showChat = useSelector((store: RootState) => store.CHAT.showChat);
+	// handlers
 	const handleShowChatModal = (value: boolean) => {
 		dispatch(setShowChatModal(value));
 	};
@@ -44,7 +45,7 @@ const HeaderWrapper: React.FC = () => {
 				<Header />
 			</div>
 			<div className="flex justify-between  max-h-full overflow-auto h-full">
-				<div className="flex flex-grow overflow-auto mx-0 md:ml-10">
+				<div className="flex flex-grow overflow-auto">
 					{loading ? <Loader /> : <Outlet />}
 				</div>
 				{isAuth === AuthStatus.Authenticated && (

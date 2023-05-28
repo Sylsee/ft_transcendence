@@ -41,6 +41,13 @@ const Lobby: React.FC<LobbyProps> = () => {
 	}, []);
 	if (!gameSocket) return null;
 
+	if (LobbyStatus === LobbyState.Start) {
+		return (
+			<div className="h-full w-full p-8">
+				<Game />
+			</div>
+		);
+	}
 	return (
 		<div className="w-full text-white p-4 overflow-auto min-h-full ">
 			<div className="w-full min-h-full inline-flex flex-col justify-center items-center">
@@ -52,7 +59,6 @@ const Lobby: React.FC<LobbyProps> = () => {
 						<LobbySearchGame gameSocket={gameSocket} />
 					)}
 					{LobbyStatus === LobbyState.Found && <LobbyFound />}
-					{LobbyStatus === LobbyState.Start && <Game />}
 					{LobbyStatus === LobbyState.Finish && <ScoreBoard />}
 				</div>
 			</div>

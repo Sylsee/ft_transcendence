@@ -3,7 +3,7 @@ import useTouchControls from "hooks/game/useTouchControls";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { emitGameSocketEvent } from "sockets/socket";
-import { PowerUpBall, PowerUpType } from "types/game/game";
+import { PowerUpBall } from "types/game/game";
 import { RootState } from "types/global/global";
 interface GameProps {}
 
@@ -14,6 +14,7 @@ const Game: React.FC<GameProps> = () => {
 	const tempCanvasRef = useRef<any | null>(null);
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const canvasContainerRef = useRef<HTMLDivElement | null>(null);
+
 	// state
 	const scaleRef = useRef<number>(1);
 
@@ -116,17 +117,24 @@ const Game: React.FC<GameProps> = () => {
 		tempContext.fill();
 
 		game.PowerUpBalls.forEach((ball: PowerUpBall) => {
+			// tempContext.beginPath();
+			// // tempContext.fillStyle = "#fb7178";
+			// if (ball.type === PowerUpType.PaddleSizeUp)
+			// 	tempContext.fillStyle = "#3d8f74";
+			// else if (ball.type === PowerUpType.PaddleSizeDown)
+			// 	tempContext.fillStyle = "";
+			// else if (ball.type === PowerUpType.BallSizeUp)
+			// 	tempContext.fillStyle = "";
+			// else if (ball.type === PowerUpType.BallSizeDown)
+			// 	tempContext.fillStyle = "yellow";
+			// tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+			// tempContext.fill();
+			// dessinez un cercle
+			tempContext.filter = `blur(${ball.radius}px)`;
 			tempContext.beginPath();
-			tempContext.fillStyle = "red";
-			if (ball.type === PowerUpType.PaddleSizeUp)
-				tempContext.fillStyle = "green";
-			else if (ball.type === PowerUpType.PaddleSizeDown)
-				tempContext.fillStyle = "purple";
-			else if (ball.type === PowerUpType.BallSizeUp)
-				tempContext.fillStyle = "blue";
-			else if (ball.type === PowerUpType.BallSizeDown)
-				tempContext.fillStyle = "yellow";
-			tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+			tempContext.fillStyle = "yellow";
+			tempContext.arc(ball.x, ball.y, 0, 0, Math.PI * 2);
+			tempContext.closePath();
 			tempContext.fill();
 		});
 
@@ -157,71 +165,72 @@ const Game: React.FC<GameProps> = () => {
 		};
 	}, [game, animateGame]);
 
-	// useEffect(() => {
-	// 	const containerElement = containerRef.current;
-	// 	if (containerElement) {
-	// 		const observer = new ResizeObserver((entries) => {
-	// 			for (let entry of entries) {
-	// 				// Vérifiez d'abord si l'élément cible existe
-	// 				const target = entry.target as HTMLDivElement;
-	// 				if (target) {
-	// 					// mettre à jour la largeur en fonction de la hauteur pour maintenir le ratio d'aspect
-	// 					// target.style.width = `${
-	// 					// 	entry.contentRect.height * (14 / 10)
-	// 					// }px`;
-	// 					if (
-	// 						!canvasContainerRef?.current ||
-	// 						!canvasContainerRef.current.style
-	// 					)
-	// 						return;
-	// 					const canvasContainerStyle =
-	// 						canvasContainerRef.current.style;
-	// 					canvasContainerStyle.width = `${
-	// 						entry.contentRect.height * (14 / 10) - 50
-	// 					}px`;
-	// 					canvasContainerStyle.height = `${
-	// 						entry.contentRect.height * (10 / 14) - 50
-	// 					}px`;
-	// 				}
-	// 			}
-	// 		});
+	useEffect(() => {
+		const canvas = canvasContainerRef.current;
+		if (!canvas) return;
+		const aspectRatio = 14 / 10;
 
-	// 		observer.observe(containerElement);
+		const resizeCanvas = () => {
+			// Get the new window dimensions
+			const containerWidth = containerRef.current?.offsetWidth;
+			const containerHeight = containerRef.current?.offsetWidth;
 
-	// 		return () => observer.unobserve(containerElement);
-	// 	}
-	// }, []);
+			if (!containerWidth || !containerHeight) return;
+
+			// Canvas can take more space
+			if (
+				canvas.offsetWidth < containerWidth &&
+				canvas.offsetHeight < containerHeight
+			) {
+				if (containerWidth / containerHeight > aspectRatio) {
+					// Window larger than tall
+					canvas.style.height = `${containerHeight}px`;
+					canvas.style.width = `${containerHeight * aspectRatio}px`;
+				} else {
+					// Window taller than large
+					canvas.style.height = `${containerWidth / aspectRatio}px`;
+					canvas.style.width = `${containerWidth}px`;
+				}
+			}
+
+			// Canvas larger than window
+			if (canvas.offsetWidth > containerWidth) {
+				canvas.style.height = `${containerWidth / aspectRatio}px`;
+				canvas.style.width = `${containerWidth}px`;
+			}
+
+			// Window is wider than our ratio, keep the height and adjust the width
+			if (canvas.offsetWidth / canvas.offsetHeight !== aspectRatio) {
+				// Window too wide
+				canvas.style.width = `${canvas.offsetHeight * aspectRatio}px`;
+				canvas.style.height = `${canvas.offsetWidth / aspectRatio}px`;
+			}
+		};
+
+		// Call once to set initial size
+		resizeCanvas();
+
+		// Attach our resize event
+		window.addEventListener("resize", resizeCanvas);
+
+		// Clean up when component unmounts
+		return () => window.removeEventListener("resize", resizeCanvas);
+	}, []);
 
 	return (
 		<div
-			className="flex w-full flex-col justify-center items-center  p-4 max-h-full h-full border-2"
+			className="flex w-full flex-col justify-center items-center max-h-full h-full"
 			ref={containerRef}
-			onResize={() => {
-				console.log("resize");
-			}}
 		>
 			<div
 				ref={canvasContainerRef}
 				style={{
-					width: containerRef.current?.clientHeight
-						? `${
-								containerRef.current.clientHeight * (14 / 10) -
-								50
-						  }px`
-						: "100%",
-					height: containerRef.current?.clientHeight
-						? `${
-								containerRef.current.clientHeight * (10 / 14) -
-								50
-						  }px`
-						: "100%",
-
-					// aspectRatio: "14/10",
+					aspectRatio: "14/10",
 				}}
 				className="relative bg-tuna w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
 			>
 				{countDown > 0 && (
-					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl">
+					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl text-silver-tree">
 						{countDown}
 					</div>
 				)}
@@ -238,4 +247,3 @@ const Game: React.FC<GameProps> = () => {
 };
 
 export { Game };
-// NEW
