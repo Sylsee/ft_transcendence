@@ -128,7 +128,7 @@ export class Lobby {
         ServerChatEvent.UserStatus,
         {
           id: userWithFriends.id,
-          status: UserStatus.InGame,
+          status: UserStatus.Online,
         },
       );
     }
