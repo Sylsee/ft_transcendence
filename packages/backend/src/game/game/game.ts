@@ -554,13 +554,18 @@ export class Game {
     const paddleMiddle = paddle.y + paddle.height / 2;
     const normalizedIntersectionY =
       (this.ball.y - paddleMiddle) / (paddle.height / 2);
+    const bounceAngle = normalizedIntersectionY * gameConfig.maxBounceAngle;
 
-    this.ball.velocity.x = -this.ball.velocity.x;
-    this.ball.velocity.y = normalizedIntersectionY * this.ballSpeedPerSecond;
+    if (this.ball.velocity.x < 0) {
+      this.ball.velocity.x = Math.cos(bounceAngle) * this.ballSpeedPerSecond;
+    } else {
+      this.ball.velocity.x = -Math.cos(bounceAngle) * this.ballSpeedPerSecond;
+    }
+    this.ball.velocity.y = Math.sin(bounceAngle) * this.ballSpeedPerSecond;
 
     this.ballSpeedPerSecond = Math.min(
       gameConfig.ballMaxSpeed,
-      this.ballSpeedPerSecond * 1.2,
+      this.ballSpeedPerSecond + gameConfig.ballSpeedIncreasePerBounce,
     );
   }
 
@@ -686,4 +691,3 @@ export class Game {
     });
   }
 }
-
