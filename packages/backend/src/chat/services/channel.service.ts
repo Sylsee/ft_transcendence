@@ -90,7 +90,7 @@ export class ChannelService {
       }
       users.push(dmUser);
     }
-
+    
     const hashedPassword = createChannelDto.password
       ? await hashPassword(createChannelDto.password)
       : null;
@@ -165,14 +165,17 @@ export class ChannelService {
 
     // If not direct message and user is not in the channel
     if (
-      channel.type !== ChannelType.DIRECT_MESSAGE &&
-      !userIdInList(channel.users, userId)
+      channel.type !== ChannelType.DIRECT_MESSAGE
     ) {
       if (channel.owner && channel.owner.id !== userId) {
         throw new ForbiddenException('Not the owner of this channel');
       }
       if (!channel.owner && !userIdInList(channel.admins, userId)) {
         throw new ForbiddenException('Not an admin of this channel');
+      }
+    } else {
+      if (!userIdInList(channel.users, userId)) {
+        throw new ForbiddenException("Canno't delete this channel");
       }
     }
 

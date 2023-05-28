@@ -157,7 +157,7 @@ const CreateChannelForm: React.FC<CreateChannelFormProps> = ({
 				acceptValue={isUpdate ? "Update" : "Create"}
 				handleCancel={handleCloseModal}
 			>
-				{isUpdate && (
+				{isUpdate && channel.permissions.canDelete && (
 					<ModalButton
 						name="Delete"
 						buttonType={ModalButtonType.Critical}

@@ -5,7 +5,7 @@ import { Header } from "containers/Header/Header";
 import { ToastManager } from "containers/ToastManager/ToastManager";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { authenticate } from "store/auth-slice/auth-slice";
 import { setShowChat, setShowChatModal } from "store/chat-slice/chat-slice";
 import { AuthStatus } from "types/auth/auth";
@@ -38,6 +38,14 @@ const HeaderWrapper: React.FC = () => {
 	const handleShowChat = (value: boolean) => {
 		dispatch(setShowChat(value));
 	};
+
+	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (isAuth === AuthStatus.PartiallyAuthenticated)
+			navigate(`/auth/2fa`, { replace: true });
+	}, [isAuth, navigate]);
+
 
 	return (
 		<div className="h-full flex flex-col max-h-full bg-background-gradient">

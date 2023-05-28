@@ -10,7 +10,7 @@ import {
   IsString,
   IsUUID,
   Length,
-  ValidateIf,
+  ValidateIf
 } from 'class-validator';
 import * as sanitizeHtml from 'sanitize-html';
 
@@ -46,7 +46,7 @@ export class CreateChannelDto {
     description: 'The channel password',
     required: false,
   })
-  @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED && !o.password)
+  @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED)
   @IsNotEmpty()
   @Length(5, 40)
   @IsString()

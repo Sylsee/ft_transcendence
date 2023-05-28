@@ -44,7 +44,7 @@ export class UpdateChannelDto {
     description: 'The password of the channel',
     required: false,
   })
-  @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED && !o.password)
+  @ValidateIf((o) => o.type === ChannelType.PASSWORD_PROTECTED)
   @IsNotEmpty()
   @Length(5, 40)
   @IsString()
