@@ -1,4 +1,5 @@
 import { Dispatch } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { Socket } from "socket.io-client";
 import { getChatSocket, getGameSocket } from "sockets/socket";
 import {
@@ -12,17 +13,17 @@ import {
 	setPowerUp,
 } from "store/game-slice/game-slice";
 import {
+	GAME_RECEIVE_EVENT_BASE_URL,
 	GameConfig,
 	GameData,
 	GameReceiveEvent,
 	GameScore,
-	GAME_RECEIVE_EVENT_BASE_URL,
 	PowerUpBall,
 	PowerUpDespawn,
 	PowerUpStatus,
+	gameInfo
 } from "types/game/game";
-import { LobbyState, LOBBY_RECEIVE_EVENT_BASE_URL } from "types/game/lobby";
-
+import { LOBBY_RECEIVE_EVENT_BASE_URL, LobbyState } from "types/game/lobby";
 export const socketGameListeners = (dispatch: Dispatch) => {
 	const socket = getGameSocket();
 	if (!socket) return;
@@ -40,8 +41,8 @@ export const socketGameListeners = (dispatch: Dispatch) => {
 
 	socket.on(
 		`${GAME_RECEIVE_EVENT_BASE_URL}${GameReceiveEvent.Message}`,
-		(message: any) => {
-			console.log(GameReceiveEvent.Message, message);
+		(gameInfo: gameInfo) => {
+			toast.info(gameInfo.message);
 		}
 	);
 

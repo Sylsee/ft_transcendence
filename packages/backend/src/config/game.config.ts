@@ -10,7 +10,7 @@ export const gameConfig = {
   ballSpeedIncreasePerBounce: 50, // The speed increase of the ball after each bounce on a paddle
   ballMaxSpeed: 800, // The maximum speed of the ball
   timeStep: 1 / 60, // Fixed time step in seconds
-  maxScore: 10000, // The score needed to win the game
+  maxScore: 5, // The score needed to win the game
   pointCountDownDuration: 2, // seconds
   powerUpSpawnChance: 0.003, // The chance of a power up spawning every ticks
   powerUpRadius: 35,
