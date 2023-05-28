@@ -11,7 +11,7 @@ import { ProtectedRoute } from "containers/ProtectedRoute/ProtectedRoute";
 import { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { socketChatListeners } from "sockets/listeners/chatListeners";
 import { socketGameListeners } from "sockets/listeners/gameListeners";
 import { socketLobbyListeners } from "sockets/listeners/lobbyListeners";
@@ -78,17 +78,26 @@ const App: React.FC = () => {
 
 	useEffect(() => {
 		if (!chatSocket || !connectedUserId || !gameSocket) return;
+
+		const connectSockets = async () => {
+			try {
+				await connectChatSocket();
+				socketChatListeners(dispatch);
+				socketUserListeners(queryClient, connectedUserId);
+
+				await connectGameSocket();
+				socketLobbyListeners(dispatch);
+				socketGameListeners(dispatch);
+			} catch (error) {
+				toast.error("Error connecting to sockets");
+			}
+		};
+
 		if (isAuth !== AuthStatus.Authenticated) {
 			disconnectChatSocket();
 		}
 		if (isAuth === AuthStatus.Authenticated) {
-			connectChatSocket();
-			socketChatListeners(dispatch);
-			socketUserListeners(queryClient, connectedUserId);
-
-			connectGameSocket();
-			socketLobbyListeners(dispatch);
-			socketGameListeners(dispatch);
+			connectSockets();
 		}
 		return () => {
 			disconnectSockets();

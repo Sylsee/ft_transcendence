@@ -13,7 +13,7 @@ export const gameConfig = {
   maxScore: 10000, // The score needed to win the game
   pointCountDownDuration: 2, // seconds
   powerUpSpawnChance: 0.003, // The chance of a power up spawning every ticks
-  powerUpRadius: 40,
+  powerUpRadius: 35,
   powerUpDuration: 6, // seconds
   ballRadiusChangePerPowerUp: 5,
   ballMinRadius: 7.5,

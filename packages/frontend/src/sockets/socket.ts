@@ -20,9 +20,20 @@ export const initializeChatSocket = (): Socket => {
 };
 
 export const connectChatSocket = () => {
-	if (chatSocket && !chatSocket.connected) {
-		chatSocket.connect();
-	}
+	return new Promise<void>((resolve, reject) => {
+		if (chatSocket && !chatSocket.connected) {
+			chatSocket.connect();
+
+			chatSocket.on("connect", () => {
+				resolve();
+			});
+
+			chatSocket.on("connect_error", (error: any) => {
+				reject(error);
+			});
+		}
+		resolve();
+	});
 };
 
 export const disconnectChatSocket = () => {
@@ -53,9 +64,20 @@ export const initializeGameSocket = (): Socket => {
 };
 
 export const connectGameSocket = () => {
-	if (gameSocket && !gameSocket.connected) {
-		gameSocket.connect();
-	}
+	return new Promise<void>((resolve, reject) => {
+		if (gameSocket && !gameSocket.connected) {
+			gameSocket.connect();
+
+			gameSocket.on("connect", () => {
+				resolve();
+			});
+
+			gameSocket.on("connect_error", (error: any) => {
+				reject(error);
+			});
+		}
+		resolve();
+	});
 };
 
 export const disconnectGameSocket = () => {
@@ -77,7 +99,6 @@ export const emitLobbySocketEvent = (
 };
 
 export const emitGameSocketEvent = (event: string, payload: any): void => {
-	console.trace(event, payload);
 	const gameSocket = getGameSocket();
 	if (gameSocket && gameSocket.connected) {
 		gameSocket.emit(`${GAME_SEND_EVENT_BASE_URL}${event}`, payload);

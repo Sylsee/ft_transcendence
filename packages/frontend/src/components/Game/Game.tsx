@@ -3,11 +3,18 @@ import useTouchControls from "hooks/game/useTouchControls";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { emitGameSocketEvent } from "sockets/socket";
-import { PowerUpBall } from "types/game/game";
+import { PowerUpBall, PowerUpType } from "types/game/game";
 import { RootState } from "types/global/global";
 interface GameProps {}
 
 const Game: React.FC<GameProps> = () => {
+	// svg paths
+	const arrowDownSvg =
+		"M15 30C14.5027 30 14.0257 29.8244 13.6742 29.5118L0.549143 17.8452C-0.183045 17.1943 -0.183045 16.139 0.549143 15.4882C1.28133 14.8373 2.46858 14.8373 3.20077 15.4882L13.125 24.3097L13.125 1.66667C13.125 0.746167 13.9644 0 15 0C16.0355 0 16.875 0.746167 16.875 1.66667L16.875 24.3097L26.7992 15.4882C27.5314 14.8373 28.7186 14.8373 29.4508 15.4882C30.1831 16.139 30.1831 17.1943 29.4508 17.8452L16.3258 29.5118C15.9742 29.8244 15.4972 30 15 30Z";
+
+	const arrowUpSvg =
+		"M15 0C15.4973 0 15.9743 0.1756 16.3258 0.48815L29.4509 12.1548C30.183 12.8057 30.183 13.861 29.4509 14.5118C28.7187 15.1627 27.5314 15.1627 26.7992 14.5118L16.875 5.69035V28.3333C16.875 29.2538 16.0356 30 15 30C13.9645 30 13.125 29.2538 13.125 28.3333V5.69035L3.20084 14.5118C2.46859 15.1627 1.28141 15.1627 0.54917 14.5118C-0.183057 13.861 -0.183057 12.8057 0.54917 12.1548L13.6742 0.48815C14.0258 0.1756 14.5028 0 15 0Z";
+
 	// refs
 	const canvasRef = useRef<HTMLCanvasElement | null>(null);
 	const requestAnimationRef = useRef<number>(0);
@@ -116,26 +123,41 @@ const Game: React.FC<GameProps> = () => {
 		);
 		tempContext.fill();
 
+		// Create a new Path2D object from the SVG path string
+		const arrowDownPathObj = new Path2D(arrowDownSvg);
+		const arrowUpPathObj = new Path2D(arrowUpSvg);
+
 		game.PowerUpBalls.forEach((ball: PowerUpBall) => {
-			// tempContext.beginPath();
-			// // tempContext.fillStyle = "#fb7178";
-			// if (ball.type === PowerUpType.PaddleSizeUp)
-			// 	tempContext.fillStyle = "#3d8f74";
-			// else if (ball.type === PowerUpType.PaddleSizeDown)
-			// 	tempContext.fillStyle = "";
-			// else if (ball.type === PowerUpType.BallSizeUp)
-			// 	tempContext.fillStyle = "";
-			// else if (ball.type === PowerUpType.BallSizeDown)
-			// 	tempContext.fillStyle = "yellow";
-			// tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-			// tempContext.fill();
-			// dessinez un cercle
-			tempContext.filter = `blur(${ball.radius}px)`;
+			tempContext.filter = `blur(10px)`;
 			tempContext.beginPath();
-			tempContext.fillStyle = "yellow";
-			tempContext.arc(ball.x, ball.y, 0, 0, Math.PI * 2);
-			tempContext.closePath();
+			if (ball.type === PowerUpType.PaddleSizeUp)
+				tempContext.fillStyle = "#6FC82A";
+			else if (ball.type === PowerUpType.PaddleSizeDown)
+				tempContext.fillStyle = "#E03B31";
+			else if (ball.type === PowerUpType.BallSizeUp)
+				tempContext.fillStyle = "#24A8D1";
+			else if (ball.type === PowerUpType.BallSizeDown)
+				tempContext.fillStyle = "#E3BB2C";
+			tempContext.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
 			tempContext.fill();
+
+			tempContext.filter = `none`;
+			tempContext.fillStyle = "white";
+			tempContext.save();
+			tempContext.translate(ball.x, ball.y);
+			tempContext.translate(-15, -15); // Adjusted translation based on the SVG's original center
+			if (
+				ball.type === PowerUpType.PaddleSizeUp ||
+				ball.type === PowerUpType.BallSizeUp
+			) {
+				tempContext.fill(arrowUpPathObj);
+			} else if (
+				ball.type === PowerUpType.PaddleSizeDown ||
+				ball.type === PowerUpType.BallSizeDown
+			) {
+				tempContext.fill(arrowDownPathObj);
+			}
+			tempContext.restore();
 		});
 
 		context.clearRect(0, 0, canvas.width, canvas.height);
@@ -230,7 +252,7 @@ const Game: React.FC<GameProps> = () => {
 				className="relative bg-tuna w-full max-w-7xl rounded-lg shadow-lg overflow-auto"
 			>
 				{countDown > 0 && (
-					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl text-silver-tree">
+					<div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-9xl text-[#e49274] select-none">
 						{countDown}
 					</div>
 				)}
