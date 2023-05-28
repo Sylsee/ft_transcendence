@@ -65,7 +65,7 @@ services:
       context: ./packages/frontend
       dockerfile: Dockerfile.dev
     environment:
-      CHOKIDAR_USEPOLLING: true
+      CHOKIDAR_USEPOLLING: "true"
       WDS_SOCKET_PORT: ${FRONTEND_PORT}
       PORT: ${FRONTEND_PORT}
     volumes:

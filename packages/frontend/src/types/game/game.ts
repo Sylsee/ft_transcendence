@@ -130,3 +130,8 @@ export enum GameResult {
 	Lose,
 	Equal,
 }
+
+export interface gameInfo
+{
+	message: string;
+}
