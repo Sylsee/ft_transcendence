@@ -1,40 +1,64 @@
 # ft_transcendence
 
-## Docker
+## Description
 
-- https://montacerdk.medium.com/setup-dockerize-a-react-nest-monorepo-application-7a800060bd63
-- https://blog.logrocket.com/containerized-development-nestjs-docker/
-- https://www.tomray.dev/nestjs-docker-production
-- https://dev.to/erezhod/setting-up-a-nestjs-project-with-docker-for-back-end-development-30lg
-- https://thanhpolimi.com/docker-compose-for-nestjs-project-5ee7644e8aa2
-## Frontend
+Final project of the 42 cursus.
+
+Ft_transcendence is a website where you can play online pong and chat with other users.
+The site also lets you add users as friends, and activate double authentication.
+
+## Stack
+
+-   **Frontend**: React, Redux, tailwindcss, Typescript
+
+-   **Backend**: NestJS, Postgres
+
+-   **Environment**: Docker, Docker-compose
+
+![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Redux](https://img.shields.io/badge/redux-%2320232a.svg?style=for-the-badge&logo=redux&logoColor=%2361DAFB)
+![Tailwindcss](https://img.shields.io/badge/tailwindcss-%2320232a.svg?style=for-the-badge&logo=tailwindcss&logoColor=%2361DAFB)
+![Typescript](https://img.shields.io/badge/typescript-%2320232a.svg?style=for-the-badge&logo=typescript&logoColor=%2361DAFB)
+![NestJS](https://img.shields.io/badge/nestjs-%2320232a.svg?style=for-the-badge&logo=nestjs&logoColor=%2361DAFB)
+![Postgres](https://img.shields.io/badge/postgres-%2320232a.svg?style=for-the-badge&logo=postgres&logoColor=%2361DAFB)
+![Docker](https://img.shields.io/badge/docker-%2320232a.svg?style=for-the-badge&logo=docker&logoColor=%2361DAFB)
+![Docker-compose](https://img.shields.io/badge/docker--compose-%2320232a.svg?style=for-the-badge&logo=docker&logoColor=%2361DAFB)
+
+## Usage
+
+First, you need to install docker and docker-compose.
+
+You need to create a .env file at the root of the project and also in ./packages/backend. The .env file need to follow the .env.example file.
+
+Then, you can run the makefile according to your needs:
 
 ```
+make # or make prod, it's the same
+make dev # to start the server in dev mode
 
-  npm start
-    Starts the development server.
+make front # to start only the frontend container
+make back # to start only the backend and the db containers
 
-  npm run build
-    Bundles the app into static files for production.
+make clean # down the containers
+make fclean # down the containers and remove the volumes
 
-  npm test
-    Starts the test runner.
+make clean-dev # remove the node_modules folder locally
 
-  npm run eject
-    Removes this tool and copies build dependencies, configuration files
-    and scripts into the app directory. If you do this, you can’t go back!
+make clean-docker # remove all the docker images and containers
 
-We suggest that you begin by typing:
-
-  cd frontend
-  npm start
-
+make mclean # fclean + clean-dev + clean-docker
 ```
 
+## Authors
 
-## Backend
+-   Arnaud Guillard - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/arnaud35300)
+-   Sylvio Poliard - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/Sylsee)
+-   Riyaz Usmanov - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/riazus)
 
-We need nest-cli (https://github.com/nestjs/nest-cli):
-    -   `npm install -g @nestjs/cli`
+## Contributing
 
+If you see any error, or if you have any suggestion, please contact us or open an issue.
 
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)
