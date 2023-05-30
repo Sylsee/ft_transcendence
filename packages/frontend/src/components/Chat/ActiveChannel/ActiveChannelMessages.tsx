@@ -2,7 +2,7 @@ import { MessageItem } from "components/Chat/MessageItem/MessageItem";
 import { ServerMessageItem } from "components/Chat/ServerMessageItem/ServerMessageItem";
 import React from "react";
 import { useSelector } from "react-redux";
-import { Channel, MessageType } from "types/chat/chat";
+import { Channel, ChatMessage, MessageType } from "types/chat/chat";
 import { RootState } from "types/global/global";
 
 interface ActiveChannelMessagesProps {
@@ -20,6 +20,10 @@ const ActiveChannelMessages: React.FC<ActiveChannelMessagesProps> = ({
 
 	if (!connectedUserId) return null;
 
+	function isSameOwner(msg: ChatMessage, currentId: string): boolean {
+		return msg.type === MessageType.Normal && msg.sender.id === currentId;
+	}
+
 	return (
 		<div className="flex flex-col h-full overflow-y-auto my-3">
 			{activeChannel != null ? (
@@ -32,6 +36,13 @@ const ActiveChannelMessages: React.FC<ActiveChannelMessagesProps> = ({
 									message={message}
 									isConnectedUser={
 										message.sender.id === connectedUserId
+									}
+									isSameSenderAsPrevious={
+										index > 0 &&
+										isSameOwner(
+											activeChannel.messages[index - 1],
+											message.sender.id
+										)
 									}
 								/>
 							);

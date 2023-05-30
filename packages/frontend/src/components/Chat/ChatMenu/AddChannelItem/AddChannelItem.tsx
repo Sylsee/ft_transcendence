@@ -22,7 +22,7 @@ const AddChannelItem: React.FC<AddChannelItemProps> = () => {
 		<div className="flex justify-center items-center">
 			<button
 				onClick={handleCreateChannel}
-				className="w-full bg-shark hover:bg-gun-powder text-white rounded-b-3xl py-2 px-4"
+				className="w-full hover:bg-gun-powder bg-light-shark text-white rounded-b-3xl py-2 px-4"
 			>
 				<FontAwesomeIcon
 					fixedWidth

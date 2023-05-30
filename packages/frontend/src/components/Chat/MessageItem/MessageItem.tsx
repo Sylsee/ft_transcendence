@@ -15,11 +15,13 @@ import { RootState } from "types/global/global";
 interface MessageItemProps {
 	message: Message;
 	isConnectedUser: boolean;
+	isSameSenderAsPrevious: boolean;
 }
 
 const MessageItem: React.FC<MessageItemProps> = ({
 	message,
 	isConnectedUser,
+	isSameSenderAsPrevious,
 }) => {
 	// states
 	const [referenceElement, setReferenceElement] =
@@ -128,30 +130,54 @@ const MessageItem: React.FC<MessageItemProps> = ({
 	};
 
 	return (
-		<div className="flex justify-start items-end py-2">
+		<div
+			className={`flex justify-start items-end pb-1 ${
+				!isSameSenderAsPrevious && "pt-2"
+			} ${isConnectedUser && "flex-row-reverse"}`}
+		>
 			{/* User profile picture */}
-			<img
-				src={`${message.sender.profilePictureUrl}`}
-				onClick={() => toggleTooltip()}
-				referrerPolicy="no-referrer"
-				alt="Avatar"
-				className="object-cover rounded-full w-10 h-10 mb-1 cursor-pointer hover:opacity-80"
-			/>
+
+			<div className="w-12">
+				{!isSameSenderAsPrevious && (
+					<img
+						src={message.sender.profilePictureUrl}
+						referrerPolicy="no-referrer"
+						alt="Avatar"
+						className="object-cover rounded-full w-10 h-10 mb-1"
+					/>
+				)}
+			</div>
 
 			{/* Message */}
-			<div className="flex flex-col items-start ml-2 max-w-[calc(100%-6rem)]">
+			<div
+				className={`flex flex-col ${
+					isConnectedUser ? "items-end mr-2" : "items-start ml-2"
+				} max-w-[calc(100%-120px)]`}
+			>
 				{/* User name */}
-				<span
-					ref={setReferenceElement}
-					onClick={() => toggleTooltip()}
-					className="text-xs font-semibold text-white cursor-pointer hover:underline pl-3 pb-1"
-				>
-					{message.sender.name}
-				</span>
+				{!isSameSenderAsPrevious && (
+					<div
+						className={`${
+							isConnectedUser
+								? "text-right pr-3"
+								: "text-left pl-3"
+						} w-full`}
+					>
+						<span
+							ref={setReferenceElement}
+							onClick={() => toggleTooltip()}
+							className="text-xs font-semibold text-white cursor-pointer hover:underline  pb-1 text-center"
+						>
+							{message.sender.name}
+						</span>
+					</div>
+				)}
 				{/* Message content */}
 				<div
 					style={{ wordWrap: "break-word", wordBreak: "break-word" }}
-					className="flex items-center justify-center bg-mako h-full rounded-xl"
+					className={`flex items-center justify-center  h-full rounded-xl ${
+						isConnectedUser ? "bg-silver-tree-700" : "bg-mako"
+					}`}
 				>
 					{showTooltip && (
 						<div
