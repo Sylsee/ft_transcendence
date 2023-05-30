@@ -28,7 +28,7 @@ The site also lets you add users as friends, and enable/disable 2fa.
 
 First, you need to install docker and docker-compose.
 
-You need to create a .env file at the root of the project and also in ./packages/backend. The .env file need to follow the .env.example file.
+You need to create a .env file at the root of the project and also in ./packages/backend. The .env files must follow the format of .env.example files.
 
 Then, you can run the makefile according to your needs:
 
