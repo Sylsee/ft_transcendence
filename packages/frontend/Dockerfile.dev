@@ -1,9 +1,19 @@
-FROM node:14-slim
+# Étape de build
+FROM node:alpine AS build
 
 WORKDIR /usr/src/app
 
+COPY package*.json ./
+
+RUN npm ci && npm cache clean --force
+
 COPY . .
 
-RUN npm ci
+# Étape de runtime
+FROM node:alpine
+
+WORKDIR /usr/src/app
+
+COPY --from=build /usr/src/app .
 
 CMD [ "npm", "run", "start" ]

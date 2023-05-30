@@ -6,79 +6,79 @@
 version: "3.9"
 
 services:
-  # ------------------------------------------------------------
-  # Node - Backend
-  # ------------------------------------------------------------
-  backend:
-    build:
-      context: packages/backend
-    hostname: backend
-    environment:
-      NODE_ENV: development
-      PORT: ${BACKEND_PORT}
-      DB_PORT: ${POSTGRES_PORT}
-      FRONTEND_PORT: ${FRONTEND_PORT}
-      APP_DOMAIN: ${APP_DOMAIN}
-      APP_NAME: ${APP_NAME}
-      DB_HOST: ${POSTGRES_HOST}
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASS: ${POSTGRES_PASSWORD}
-    command:
-      - sh
-      - -c
-      - npm run start:dev
-    depends_on:
-      - db
-    ports:
-      - ${BACKEND_PORT}:${BACKEND_PORT}
-    networks:
-      - transcendence-network
-    restart: unless-stopped
+    # ------------------------------------------------------------
+    # Node - Backend
+    # ------------------------------------------------------------
+    backend:
+        build:
+            context: packages/backend
+        hostname: backend
+        environment:
+            NODE_ENV: development
+            PORT: ${BACKEND_PORT}
+            DB_PORT: ${POSTGRES_PORT}
+            FRONTEND_PORT: ${FRONTEND_PORT}
+            APP_DOMAIN: ${APP_DOMAIN}
+            APP_NAME: ${APP_NAME}
+            DB_HOST: ${POSTGRES_HOST}
+            DB_NAME: ${POSTGRES_DB}
+            DB_USER: ${POSTGRES_USER}
+            DB_PASS: ${POSTGRES_PASSWORD}
+        command:
+            - sh
+            - -c
+            - npm ci && npm run start:dev
+        depends_on:
+            - db
+        ports:
+            - ${BACKEND_PORT}:${BACKEND_PORT}
+        networks:
+            - transcendence-network
+        restart: unless-stopped
 
-  # ------------------------------------------------------------
-  # PostreSQL - Database
-  # ------------------------------------------------------------
-  db:
-    image: postgres:12-alpine
-    hostname: ${POSTGRES_HOST}
-    environment:
-      PGDATA: /var/lib/postgresql/data
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
-    networks:
-      - transcendence-network
-    restart: unless-stopped
+    # ------------------------------------------------------------
+    # PostreSQL - Database
+    # ------------------------------------------------------------
+    db:
+        image: postgres:12-alpine
+        hostname: ${POSTGRES_HOST}
+        environment:
+            PGDATA: /var/lib/postgresql/data
+            POSTGRES_DB: ${POSTGRES_DB}
+            POSTGRES_USER: ${POSTGRES_USER}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        ports:
+            - ${POSTGRES_PORT}:${POSTGRES_PORT}
+        networks:
+            - transcendence-network
+        restart: unless-stopped
 
-  # ------------------------------------------------------------
-  # Node - Frontend
-  # ------------------------------------------------------------
-  frontend:
-    container_name: frontend
-    env_file: .env
-    build:
-      context: ./packages/frontend
-      dockerfile: Dockerfile.dev
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
-      WDS_SOCKET_PORT: ${FRONTEND_PORT}
-      PORT: ${FRONTEND_PORT}
-    volumes:
-      - ./packages/frontend/src:/usr/src/app/src
-    ports:
-      - ${FRONTEND_PORT}:${FRONTEND_PORT}
-    networks:
-      - transcendence-network
-    restart: unless-stopped
+    # ------------------------------------------------------------
+    # Node - Frontend
+    # ------------------------------------------------------------
+    frontend:
+        container_name: frontend
+        env_file: .env
+        build:
+            context: ./packages/frontend
+            dockerfile: Dockerfile.dev
+        environment:
+            CHOKIDAR_USEPOLLING: "true"
+            WDS_SOCKET_PORT: ${FRONTEND_PORT}
+            PORT: ${FRONTEND_PORT}
+        volumes:
+            - ./packages/frontend/src:/usr/src/app/src
+        ports:
+            - ${FRONTEND_PORT}:${FRONTEND_PORT}
+        networks:
+            - transcendence-network
+        restart: unless-stopped
 
 volumes:
-  pgdata:
+    pgdata:
 
 networks:
-  transcendence-network:
-    driver: bridge
+    transcendence-network:
+        driver: bridge

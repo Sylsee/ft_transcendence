@@ -1,26 +1,30 @@
 # Build the app for production
-FROM node:14-alpine
+FROM node:alpine AS build
 
 # Create app directory
-WORKDIR /home/node/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./
 
-# Install NestJS CLI
-RUN npm i -g @nestjs/cli
-
 # Install your dependencies
-RUN npm ci
+RUN npm ci --only=production
 
 # Bundle app source
 COPY . .
 
-# Create profile-pictures directory
-RUN mkdir -p /home/node/uploads/profile-pictures
+# Runtime image
+FROM node:alpine
 
-# Create a non-root user
-RUN chown -R node:node /home/node/app && \
+WORKDIR /home/node/app
+
+# Copy from build image
+COPY --from=build /app .
+
+RUN npm i -g @nestjs/cli
+
+# Create profile-pictures directory
+RUN mkdir -p /home/node/uploads/profile-pictures && chown -R node:node /home/node/app && \
     chown -R node:node /home/node/uploads/profile-pictures
 
 # Don't use root user
