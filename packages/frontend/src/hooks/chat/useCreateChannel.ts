@@ -19,10 +19,13 @@ const useCreateChannel = (): UseMutationResult<
 		ApiErrorResponse,
 		CreateChannelRequest
 	>((newChannel: CreateChannelRequest) => createChannel(newChannel), {
-		onSuccess: (channel) => {
+		onSuccess: (channel: ChannelPayload) => {
 			dispatch(addChannel(channel));
 			dispatch(setActiveChannel(channel.id));
 			toast.success(`Channel ${channel.name} created!`);
+		},
+		onError: (error: ApiErrorResponse) => {
+			toast.error(error.message);
 		},
 	});
 	return mutation;

@@ -7,8 +7,18 @@ import { useFetchFriendStatus } from "hooks/userRelations/useFetchFriendStatus";
 import { useRejectFriendRequest } from "hooks/userRelations/useRejectFriendRequest";
 import { useSendFriendRequest } from "hooks/userRelations/useSendFriendRequest";
 import { useUnblockUser } from "hooks/userRelations/useUnblockUser";
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 
+import { useCreateChannel } from "hooks/chat/useCreateChannel";
+import { useDispatch, useSelector } from "react-redux";
+import {
+	selectDirectMessageChannel,
+	setActiveChannel,
+	setShowChat,
+	setShowChatModal,
+} from "store/chat-slice/chat-slice";
+import { ChannelType } from "types/chat/chat";
+import { RootState } from "types/global/global";
 import { FriendStatusType } from "../../../../types/userRelations/userRelations";
 
 interface FriendStatusProps {
@@ -16,6 +26,12 @@ interface FriendStatusProps {
 }
 
 const FriendStatus: React.FC<FriendStatusProps> = ({ id }) => {
+	// redux
+	const dispatch = useDispatch();
+	const directMessageChannel = useSelector((state: RootState) =>
+		selectDirectMessageChannel(state, id)
+	);
+
 	// queries
 	const { data } = useFetchFriendStatus(id);
 
@@ -27,6 +43,23 @@ const FriendStatus: React.FC<FriendStatusProps> = ({ id }) => {
 	const { mutate: cancelFriendRequestMutate } = useDeleteFriendRequest();
 	const { mutate: unBlockUserMutate } = useUnblockUser();
 	const { mutate: blockUserMutate } = useBlockUser();
+	const { mutate: createChannelMutate, status: createChannelStatus } =
+		useCreateChannel();
+
+	const openChat = useCallback(() => {
+		if (window.innerWidth > 1280) {
+			dispatch(setShowChat(true));
+		} else {
+			dispatch(setShowChatModal(true));
+		}
+	}, [dispatch]);
+
+	// hooks
+	useEffect(() => {
+		if (createChannelStatus === "success") {
+			openChat();
+		}
+	}, [createChannelStatus, openChat]);
 
 	const getButtonsProps = () => {
 		if (!data || data.status === undefined) return {};
@@ -107,11 +140,29 @@ const FriendStatus: React.FC<FriendStatusProps> = ({ id }) => {
 
 	const buttonPropsList = getButtonsProps();
 
+	// handlers
+	const handleClickMessage = () => {
+		if (directMessageChannel) {
+			dispatch(setActiveChannel(directMessageChannel.id));
+			openChat();
+		} else {
+			createChannelMutate({
+				type: ChannelType.Direct_message,
+				otherUserId: id,
+			});
+		}
+	};
+
 	return (
 		<div
-			className="flex items-center h-52 justify-center flex-wrap overflow-auto"
+			className="flex items-center justify-center flex-wrap overflow-auto"
 			style={{ minHeight: "5rem" }}
 		>
+			<UserRowButton
+				name="Message"
+				color="astronaut"
+				handleClick={handleClickMessage}
+			/>
 			{buttonPropsList.buttons?.map((button, index) => (
 				<UserRowButton
 					key={index}

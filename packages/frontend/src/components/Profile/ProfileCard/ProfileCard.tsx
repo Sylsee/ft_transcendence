@@ -17,13 +17,13 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ user, isConnectedUser }) => {
 	);
 
 	return (
-		<div className="p-6 h-96 flex flex-col lg:w-1/2 shadow-md rounded-xl bg-tuna">
+		<div className="p-6 min-h-[384px] flex flex-col lg:w-1/2 shadow-md rounded-xl bg-tuna">
 			<ProfileAvatar
 				isConnectedUser={isConnectedUser}
 				profilePictureUrl={user.profilePictureUrl}
 				status={user.status}
 			/>
-			<div className="h-1/2 flex flex-col items-center text-xl">
+			<div className="grow flex flex-col items-center text-xl">
 				<ProfileName
 					isConnectedUser={isConnectedUser}
 					id={user.id}
