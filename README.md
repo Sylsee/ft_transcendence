@@ -5,7 +5,7 @@
 Final project of the 42 cursus.
 
 Ft_transcendence is a website where you can play online pong and chat with other users.
-The site also lets you add users as friends, and activate double authentication.
+The site also lets you add users as friends, and enable/disable 2fa.
 
 ## Stack
 
