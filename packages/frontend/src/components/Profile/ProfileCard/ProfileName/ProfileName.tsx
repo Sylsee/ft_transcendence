@@ -110,17 +110,23 @@ const ProfileName: React.FC<ProfileNameProps> = ({
 					) : null}
 				</div>
 			) : (
-				<div className="flex items-center h-[40px] flex-wrap">
-					<div className="font-bold">
+				<div className="flex items-center min-h-[40px] flex-wrap">
+					<div className="font-bold mr-4">
 						<p>name:</p>
 					</div>
-					<div className="ml-4 text-2xl grow">
-						<div className="w-f">
+					<div className="text-2xl grow mr-4">
+						<div
+							className="text-left"
+							style={{
+								wordWrap: "break-word",
+								wordBreak: "break-word",
+							}}
+						>
 							<p>{name}</p>
 						</div>
 					</div>
 					{isConnectedUser && (
-						<button className="ml-4" onClick={handleEdit}>
+						<button className="" onClick={handleEdit}>
 							<FontAwesomeIcon fixedWidth icon={faPenToSquare} />
 						</button>
 					)}
