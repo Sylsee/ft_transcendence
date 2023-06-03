@@ -52,7 +52,7 @@ make mclean # fclean + clean-dev + clean-docker
 ## Authors
 
 -   Arnaud Guillard - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/arnaud35300)
--   Sylvio Poliard - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/Sylsee)
+-   Sylvio Poliart - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/Sylsee)
 -   Riyaz Usmanov - [![GitHub](https://i.stack.imgur.com/tskMh.png) GitHub](https://github.com/riazus)
 
 ## Contributing
