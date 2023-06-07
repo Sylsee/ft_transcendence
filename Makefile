@@ -34,15 +34,10 @@ fclean: clean
 	$(DOCKER) -f $(DEV_COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 	$(DOCKER) -f $(PROD_COMPOSE_FILE) down --rmi all --volumes --remove-orphans
 
-clean-dev:
-	rm -rf ./packages/backend/node_modules ./packages/backend/dist ./packages/backend/coverage
-	rm -rf ./packages/frontend/node_modules ./packages/frontend/dist ./packages/frontend/coverage
-	rm -rf ./node_modules
-
 clean-docker:
 	docker system prune
 	docker volume prune
 
-mclean: fclean clean-dev clean-docker
+mclean: fclean clean-docker
 
-.PHONY: dev prod front back clean fclean clean-dev clean-docker mclean
+.PHONY: dev prod front back clean fclean clean-docker mclean
